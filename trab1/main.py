@@ -1,20 +1,26 @@
 ##################### Python Library Imports
 
-# UI Lib
+# UI
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QApplication,
     QWidget,
     QLineEdit,
+    QTextEdit,
     QPushButton,
     QVBoxLayout,
+    QHBoxLayout,
     QLabel,
+    QStyle,
 )
-
 from PyQt5.QtGui import QPixmap
+import pyqtgraph    # For Data Visualization.
 
+# Communications
 import os           # For USB access.
 import serial       # For USB communication.
-import pyqtgraph    # For Data Visualization.
+
+# Numerical
 import numpy        # For Numerical Calculations.
 
 ##################### User defined functions (imports)
@@ -34,49 +40,74 @@ class mainWindow(QWidget):
         self.setWindowTitle('IAD - Project I (Group I)')
 
         # Set Size
-        self.setGeometry(100, 100, 320, 210)
+        self.setGeometry(500, 500, 420, 220)
 
         # UI Elements - Buttons
-        startButton = QPushButton('Start Acquisition')
-        startButton.clicked.connect(self.startCommand)
-        stopButton = QPushButton('End Acquisition')
-        stopButton.clicked.connect(self.stopCommand)
+        self.startButton = QPushButton('Run')
+        self.startButton.clicked.connect(self.startCommand)
+        self.stopButton = QPushButton('Interrupt')
+        self.stopButton.clicked.connect(self.stopCommand)
+        self.commandInfoButton = QPushButton('')
+        self.commandInfoButton.clicked.connect(self.infoCommand)
+        self.commandInfoButton.setIcon(self.style().standardIcon(QStyle.SP_MessageBoxInformation))
 
         # UI Elements - Pixmaps
-        groupLogoPixmap = QPixmap('assets/logo.png')
+        self.groupLogoPixmap = QPixmap('assets/logo.png')
+        self.groupLogoPixmap = self.groupLogoPixmap.scaled(250, 250, Qt.KeepAspectRatio)
 
         # UI Elements - Labels
-        self.statusLabel = QLabel('STATUS: [Not Running]')
-        commandInputLabel = QLabel('Insert Command Here:')
-        groupLogoLabel = QLabel()
-        groupLogoLabel.setPixmap(groupLogoPixmap)
+        self.commandInputLabel = QLabel('Command:')
+        self.groupLogoLabel = QLabel()
+        self.groupLogoLabel.setPixmap(self.groupLogoPixmap)
 
-        # UI Elements - Line Edits
-        commandInputLine = QLineEdit()
+        # UI Elements - Line/Text Edits
+        self.commandInputLine = QLineEdit()
+        self.commandOutputLine = QTextEdit()
+        self.commandOutputLine.setReadOnly(True)
+        self.commandOutputLine.setMinimumSize(400,250)
+        self.logText("*****************************")
+        self.logText("RPi - Arduino Interface (Log)")
+        self.logText("*****************************")
+        self.logText("")
+
+
         
-        # Create a layout
-        layout = QVBoxLayout()
-        self.setLayout(layout)
+        # Create a layouts
+        self.mainLayout = QVBoxLayout()
+        self.setLayout(self.mainLayout)
+        self.topLayout = QHBoxLayout()
+        self.bottomLayout = QHBoxLayout()
+        self.mainLayout.addLayout(self.topLayout)
+        self.mainLayout.addLayout(self.bottomLayout)
 
-        # UI Element Orders in layout
-        layout.addWidget(groupLogoLabel)
-        layout.addWidget(self.statusLabel)
-        layout.addWidget(startButton)
-        layout.addWidget(stopButton)
-        layout.addWidget(commandInputLabel)
-        layout.addWidget(commandInputLine)
+        # UI Elements - Top Layout 
+        self.topLayout.addWidget(self.groupLogoLabel)
+        self.topLayout.addWidget(self.commandOutputLine)
+        
+        # UI Elements - Main Layout
+        self.mainLayout.addWidget(self.startButton)
+        self.mainLayout.addWidget(self.stopButton)
+        
+        # UI Elements - Bottom Layout
+        self.bottomLayout.addWidget(self.commandInputLabel)
+        self.bottomLayout.addWidget(self.commandInputLine)
+        self.bottomLayout.addWidget(self.commandInfoButton)
         
         # Show window
         self.show()
     
     # UI functions
+    def logText(self,msg): 
+        self.commandOutputLine.setPlainText(self.commandOutputLine.toPlainText() + msg + "\n")
+
     def startCommand(self):
-        self.statusLabel.setText('STATUS: [Running]')
-        print('*** Starting Acquisition...')
+        self.logText("*** Starting Acquisition.")
 
     def stopCommand(self):
-        self.statusLabel.setText('STATUS: [Not Running]')
-        print('*** Stopping Acquisition...')
+        self.logText("*** Ending Acquisition.")
+
+    def infoCommand(self):
+        self.logText("* Opening Info Window.")
 
 ##################### Main Programme Function
 
