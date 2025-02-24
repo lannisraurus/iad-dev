@@ -7,7 +7,7 @@ class serialComms:
     # Constructor
     def __init__(self):
         self.serialObject = serial.Serial()
-        self.systemPorts = serial.tools.list_ports.comports()
+        self.systemPorts = list(serial.tools.list_ports.comports())
         print(self.systemPorts)
         self.usbPorts = [port for port in self.systemPorts if 'USB' in port.description]
         print(len(self.systemPorts))
