@@ -17,7 +17,7 @@ from PyQt5.QtGui import QPixmap
 import pyqtgraph    # For Data Visualization.
 
 ##################### User defined functions (imports)
-from serialComms import serialComms
+from arduinoComms import arduinoComms
 
 ##################### Main Programme Class
 
@@ -59,9 +59,9 @@ class mainWindow(QWidget):
         self.commandOutputLine = QTextEdit()
         self.commandOutputLine.setReadOnly(True)
         self.commandOutputLine.setMinimumSize(400,250)
-        self.logText("*****************************")
-        self.logText("RPi - Arduino Interface (Log)")
-        self.logText("*****************************")
+        self.logText("*****************************\n")
+        self.logText("RPi - Arduino Interface (Log)\n")
+        self.logText("*****************************\n\n")
 
         # Create a layouts
         self.mainLayout = QVBoxLayout()
@@ -88,20 +88,21 @@ class mainWindow(QWidget):
         self.show()
 
         # Create Serial Communications
-        self.serialCommsObject = serialComms()
-        #self.logText(self.serialCommsObject.throwExceptions())
+        self.arduinoCommsObject = arduinoComms()
+        self.logText(self.arduinoCommsObject.initialize())
 
     
     # UI functions
     def logText(self,msg): 
-        self.commandOutputLine.setPlainText(self.commandOutputLine.toPlainText() + msg + "\n")
+        self.commandOutputLine.setPlainText(self.commandOutputLine.toPlainText() + msg)
+        self.commandOutputLine.moveCursor(self.commandOutputLine.textCursor().End)
 
     def startCommand(self):
-        self.logText("*** Starting Acquisition.")
+        self.logText("* Running...\n")
 
     def stopCommand(self):
-        self.logText("*** Ending Acquisition.")
+        self.logText("* Interrupting...\n")
 
     def infoCommand(self):
-        self.logText("* Opening Info Window.")
+        self.logText("* Opening Info Window.\n")
 
