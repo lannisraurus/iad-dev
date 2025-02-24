@@ -2,7 +2,6 @@
 from PyQt5.QtWidgets import QApplication # Qt App
 
 import os           # For USB access.
-import serial       # For USB communication.
 
 # Numerical
 import numpy        # For Numerical Calculations.

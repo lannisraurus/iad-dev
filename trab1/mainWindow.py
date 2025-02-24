@@ -16,6 +16,8 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QPixmap
 import pyqtgraph    # For Data Visualization.
 
+##################### User defined functions (imports)
+from serialComms import serialComms
 
 ##################### Main Programme Class
 
@@ -60,10 +62,7 @@ class mainWindow(QWidget):
         self.logText("*****************************")
         self.logText("RPi - Arduino Interface (Log)")
         self.logText("*****************************")
-        self.logText("")
 
-
-        
         # Create a layouts
         self.mainLayout = QVBoxLayout()
         self.setLayout(self.mainLayout)
@@ -87,6 +86,11 @@ class mainWindow(QWidget):
         
         # Show window
         self.show()
+
+        # Create Serial Communications
+        self.serialCommsObject = serialComms()
+        #self.logText(self.serialCommsObject.throwExceptions())
+
     
     # UI functions
     def logText(self,msg): 
