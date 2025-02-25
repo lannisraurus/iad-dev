@@ -25,9 +25,12 @@ from arduinoComms import arduinoComms
 
 class mainWindow(QWidget):
 
-    # Constructor
+
+
+    ##### Constructor
     def __init__(self, *args, **kwargs):
 
+        ##### UI
         super().__init__(*args, **kwargs)
 
         # Set title
@@ -59,9 +62,10 @@ class mainWindow(QWidget):
         self.commandOutputLine = QTextEdit()
         self.commandOutputLine.setReadOnly(True)
         self.commandOutputLine.setMinimumSize(400,250)
-        self.logText("*****************************\n")
-        self.logText("RPi - Arduino Interface (Log)\n")
-        self.logText("*****************************\n\n")
+
+        self.logTextSplashScreen = "*****************************\nRPi - Arduino Interface (Log)\n*****************************\n\n"
+
+        self.logText(self.logTextSplashScreen)
 
         # Create a layouts
         self.mainLayout = QVBoxLayout()
@@ -87,22 +91,96 @@ class mainWindow(QWidget):
         # Show window
         self.show()
 
+        ##### COMMS
         # Create Serial Communications
         self.arduinoCommsObject = arduinoComms()
         self.logText(self.arduinoCommsObject.initialize())
 
-    
-    # UI functions
+        ##### INTERNAL COMMANDS
+        self.intCommands = {
+            "test_port": self.testPort,
+            "change_port": self.changePort,
+            "clear": self.logClear
+        }
+
+
+
+
+    ##### Button Functions
+
+    def startCommand(self):
+        cmd = self.commandInputLine.text()
+        cmdPartitions = cmd.split()
+        print(cmdPartitions)
+        cmdTag = cmdPartitions[0]
+        cmdArgs = []
+        cmdKwargs = {}
+        keyKwarg = ""
+        if len(cmdPartitions) > 0:
+            for string in cmdPartitions[1:]:
+                if string[0] == "-":
+                    if keyKwarg:
+                        cmdKwargs[keyKwarg] = True
+                        keyKwarg = ""
+                    keyKwarg = string[1:]
+                else:
+                    if keyKwarg:
+                        cmdKwargs[keyKwarg] = string
+                        keyKwarg = ""
+                    else:
+                        cmdArgs.append(string)
+            if keyKwarg:
+                cmdKwargs[keyKwarg] = True
+
+        if cmdTag in self.intCommands.keys():
+            # Run internal commands
+            self.logText("* Running internal command \'"+cmd+"\'\n")
+            self.intCommands[cmdTag](*cmdArgs,**cmdKwargs)
+        else:
+            # Run external commands
+            self.logText("* Running external command \'"+cmd+"\'\n")
+            self.arduinoCommsObject.writeString(cmd)
+
+    def stopCommand(self):
+        self.logText("* Interrupting...\n")
+        self.arduinoCommsObject.writeString("stop")
+
+    def infoCommand(self):
+        self.logText("* Opening Info Window.\n")
+
+
+
+
+    ##### Utility
+
     def logText(self,msg): 
         self.commandOutputLine.setPlainText(self.commandOutputLine.toPlainText() + msg)
         self.commandOutputLine.moveCursor(self.commandOutputLine.textCursor().End)
 
-    def startCommand(self):
-        self.logText("* Running...\n")
 
-    def stopCommand(self):
-        self.logText("* Interrupting...\n")
 
-    def infoCommand(self):
-        self.logText("* Opening Info Window.\n")
+
+    ##### Internal Commands
+
+    def logClear(self,*args,**kwargs):
+        if args:
+            self.logText("* ERROR: Unknown args in the clear function.\n")
+        if kwargs:
+            self.logText("* ERROR: Unknown kwargs in the clear function.\n")
+        if (not args) and (not kwargs):
+            self.commandOutputLine.setPlainText(self.logTextSplashScreen)
+            self.commandOutputLine.moveCursor(self.commandOutputLine.textCursor().End)
+        
+    def testPort(self,*args,**kwargs):
+        if args:
+            self.logText("* ERROR: Unknown args in the test_port function.\n")
+        if kwargs:
+            self.logText("* ERROR: Unknown kwargs in the test_port function.\n")
+        if not args and not kwargs:
+            self.logText(self.arduinoCommsObject.tryOpening())
+
+    def changePort(self,*args,**kwargs):
+        self.arduinoCommsObject.changePort("TEST")
+
+
 
