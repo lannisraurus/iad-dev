@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QApplication,
     QWidget,
+    QMainWindow,
     QLineEdit,
     QTextEdit,
     QPushButton,
@@ -23,9 +24,50 @@ from arduinoComms import arduinoComms
 
 # Class which inherits from QWidget class. Contains UI functionalities.
 
+class CommandWindow(QWidget):
+    def __init__(self, int_commands, ext_commands):
+        super().__init__()
+        self.setWindowTitle("List of Commands")
+        self.intCommands = int_commands
+        self.extCommands = ext_commands
+
+        self.commandOutputLine = QTextEdit()
+        self.commandOutputLine.setReadOnly(True)
+
+        self.logTextSplashScreen = "*****************************\nRPi - Arduino Interface (Log)\n*****************************\n\n"
+
+        self.commandText()
+
+        self.mainLayout = QVBoxLayout()
+        self.setLayout(self.mainLayout)
+        self.mainLayout.addWidget(self.commandOutputLine)
+
+    def commandText(self):
+        self.commandOutputLine.setPlainText(self.logTextSplashScreen + "External Commands:\n" + self.intCommands + "Internal Commands:\n" + self.extCommands + "\n")
+
+
+class GraphWindow(QMainWindow):
+    def __init__(self):
+        super().__init__() 
+         # Set title
+        self.setWindowTitle('Voltage vs Time')
+
+        # Set Size
+        self.setGeometry(500, 500, 420, 220)
+
+        self.voltage_graph = pyqtgraph.PlotWidget()
+        self.setCentralWidget(self.voltage_graph)
+        time = [1, 2, 3]
+        voltage = [10, 20, 30]
+        self.voltage_graph.setTitle("Voltage vs Time")
+        self.voltage_graph.setLabel("left", "Voltage ()")
+        self.voltage_graph.setLabel("bottom", "Time ()")
+        self.voltage_graph.plot(time, voltage)
+
+        #p
+
+
 class mainWindow(QWidget):
-
-
 
     ##### Constructor
     def __init__(self, *args, **kwargs):
@@ -87,7 +129,7 @@ class mainWindow(QWidget):
         self.bottomLayout.addWidget(self.commandInputLabel)
         self.bottomLayout.addWidget(self.commandInputLine)
         self.bottomLayout.addWidget(self.commandInfoButton)
-        
+
         # Show window
         self.show()
 
@@ -103,13 +145,13 @@ class mainWindow(QWidget):
             "clear": self.logClear
         }
 
-
-
-
     ##### Button Functions
 
     def startCommand(self):
         cmd = self.commandInputLine.text()
+        if cmd == "":
+            self.graphWindow = GraphWindow()
+            self.graphWindow.show()
         cmdPartitions = cmd.split()
         print(cmdPartitions)
         cmdTag = cmdPartitions[0]
@@ -147,18 +189,15 @@ class mainWindow(QWidget):
 
     def infoCommand(self):
         self.logText("* Opening Info Window.\n")
-
-
-
+        #self.arduinoCommsObject.writeString("request_commands")
+        self.infoWindow = CommandWindow("internos\n", "externos\n") #self.infoWindow = CommandWindow(self.intCommands.keys, self.arduinoCommsObject.readMessage())
+        self.infoWindow.show()
 
     ##### Utility
 
     def logText(self,msg): 
         self.commandOutputLine.setPlainText(self.commandOutputLine.toPlainText() + msg)
         self.commandOutputLine.moveCursor(self.commandOutputLine.textCursor().End)
-
-
-
 
     ##### Internal Commands
 
@@ -181,6 +220,3 @@ class mainWindow(QWidget):
 
     def changePort(self,*args,**kwargs):
         self.arduinoCommsObject.changePort("TEST")
-
-
-

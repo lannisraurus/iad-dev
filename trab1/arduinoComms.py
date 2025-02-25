@@ -59,4 +59,16 @@ class arduinoComms:
             return "* Changed port to \'"+self.selectedPortStr()+"\'\n"
         else:
             return "* ERROR: Port is not in the list of permitted ports! Permitted ports are: "+self.systemPortsStr()+".\n"
+
+    def readMessage(self):
+        message = ""
+        while self.serialObject.in_waiting < 0:
+            message += self.serialObject.readline().decode('utf-8').rstrip()
+        return message     
+    
+    #def readData(self):
+    #    data = ""
+    #    while self.serialObject.in_waiting < 0:
+    #        data += self.serialObject.readline().decode('utf-8').rstrip()
+    #    return data
             
