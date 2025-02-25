@@ -16,7 +16,7 @@ class arduinoComms:
             self.serialObject.port = self.validPorts[0]
         except:
             msg += "* WARNING: No valid ports found!\n"
-        if len(self.validPorts) != 1:
+        if len(self.validPorts) > 1:
             msg += "* WARNING: Multiple valid ports found! Defaulted to first port.\n"
         msg += "* Available Devices: "+self.systemPortsStr()+'.\n'
         msg += "* Selected Device: "+self.selectedPortStr()+'.\n'       
@@ -43,12 +43,14 @@ class arduinoComms:
                 self.serialObject.open()
         except:
             return "* ERROR: Could not open serial port! Port may be busy/invalid!\n"
+        self.serialObject.close()
         return "* Successfully opened port \'"+self.selectedPortStr()+".\'\n"
 
     def writeString(self,msg):
         tryOpenMsg = self.tryOpening()
-        if type(tryOpenMsg) == str:
+        if type(tryOpenMsg) == str: # FIX THIS!!!! Maybe make a number to error msg converter??
             return tryOpenMsg
+        self.serialObject.open()
         self.serialObject.write(msg)
         self.serialObject.close()
         return "* Sent the message: \'"+msg+"\' to the Arduino Port.\n"
