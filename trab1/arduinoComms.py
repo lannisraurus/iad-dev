@@ -13,21 +13,23 @@ class arduinoComms:
         try:
             self.serialObject.port = self.validPorts[0]
         except:
-            msg += "* ERROR: No valid ports found!\n"
+            msg += "* WARNING: No valid ports found!\n"
         if len(self.validPorts) != 1:
             msg += "* WARNING: Multiple valid ports found! Defaulted to first port.\n"
-        msg += "* Available Devices: "+self.systemPortsStr()+'\n'
-        msg += "* Selected Device: "+self.selectedPortStr()+'\n'       
+        msg += "* Available Devices: "+self.systemPortsStr()+'.\n'
+        msg += "* Selected Device: "+self.selectedPortStr()+'.\n'       
         return msg+"* Finished arduino communication setup.\n"
 
 
     def selectedPortStr(self):
-        return self.serialObject.portstr
+        return str(self.serialObject.port)
 
     def systemPortsStr(self):
         msg = ""
         for port in self.systemDevices:
             msg += "["+str(port)+'] '
+        if msg == "":
+            return "None"
         return msg
 
     def isOpen(self):
