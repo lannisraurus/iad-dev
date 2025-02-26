@@ -70,13 +70,12 @@ class graphWindow(QMainWindow):
         self.graph.setTitle("Title")
         self.graph.setLabel("left", "Y")
         self.graph.setLabel("bottom", "X")
-        self.graph.plot(self.xs, self.ys)
+        self.line = self.graph.plot(self.xs, self.ys)
 
     def addDataPoint(self,x,y):
         self.xs.append(x)
         self.ys.append(y)
-        self.graph.plot(self.xs, self.ys)
-
+        self.line.setData(self.xs, self.ys)
 
 class mainWindow(QWidget):
 
