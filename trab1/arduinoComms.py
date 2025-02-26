@@ -73,7 +73,7 @@ class arduinoComms:
             return self.tryOpeningIntToStr(tryOpen)
         message = ""
         count = 0
-        while self.serialObject.in_waiting < 1 and count < 200000:
+        while self.serialObject.in_waiting < 1 and count < 20000000:
             count += 1
         print(count)
         message += self.serialObject.readline().decode('utf-8')
