@@ -75,7 +75,7 @@ class graphWindow(QMainWindow):
     def addDataPoint(self,x,y):
         self.xs.append(x)
         self.ys.append(y)
-        self.graph.setData(self.xs, self.ys)
+        self.graph.plot(self.xs, self.ys)
 
 
 class mainWindow(QWidget):
