@@ -317,6 +317,8 @@ class mainWindow(QWidget):
             self.arduinoCommsObject.writeMessage("acquire")
             point = self.arduinoCommsObject.readMessage()
             list_point = point.split()
+            print(list_point[0])
+            print(list_point[1])
             self.graphWindow.addDataPoint(list_point[0], list_point[1])
             time.sleep(interval*1e-3)
             counter += 1
