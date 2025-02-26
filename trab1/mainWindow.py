@@ -322,7 +322,7 @@ class mainWindow(QWidget):
             print(list_point[0])
             print(list_point[1])
             self.graphWindow.addDataPoint(float(list_point[0]), float(list_point[1]))
-            time.sleep(interval*1e-3)
+            time.sleep(float(interval)*float(1e-3))
             counter += 1
             
 
