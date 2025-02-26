@@ -74,6 +74,7 @@ class arduinoComms:
         while self.serialObject.in_waiting > 0:
             self.serialObject.readline()
         self.serialObject.write(msg.encode('utf-8'))
+        sleep(1)
         return "* Sent the message: \'"+msg+"\' to the Arduino Port.\n"
 
     def readMessage(self):
