@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QPixmap
 import pyqtgraph    # For Data Visualization.
+import time
 
 ##################### User defined functions (imports)
 from arduinoComms import arduinoComms
@@ -238,6 +239,7 @@ class mainWindow(QWidget):
     def infoCommand(self):
         self.arduinoCommsObject.writeMessage("request_commands")
         self.extCommandsDescription = self.arduinoCommsObject.readMessage()
+        time.sleep(0.001)
         self.infoWindow.updateExternalCommands(self.extCommandsDescription)
         self.infoWindow.show()
         self.infoWindow.activateWindow()
