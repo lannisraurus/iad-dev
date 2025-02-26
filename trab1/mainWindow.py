@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QPixmap
 import pyqtgraph    # For Data Visualization.
+import time
 
 ##################### User defined functions (imports)
 from arduinoComms import arduinoComms
