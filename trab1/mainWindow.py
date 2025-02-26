@@ -226,7 +226,7 @@ class mainWindow(QWidget):
         elif len(cmd) > 0:
             # Run external commands - processed by arduino
             self.logText("* Running external command \'"+cmd+"\'\n")
-            self.logText(self.arduinoCommsObject.writeMessage(cmd))
+            self.logText(self.arduinoCommsObject.writeMessage(cmd+'\n'))
             self.logText(">>> "+self.arduinoCommsObject.readMessage()+"\n")
     
     # 'Interrupt' Button; used to interrupt on-going processes in the RPi/Arduino
@@ -236,7 +236,7 @@ class mainWindow(QWidget):
     
     # Info icon button. Displays information on implemented commands.
     def infoCommand(self):
-        self.arduinoCommsObject.writeMessage("request_commands")
+        self.arduinoCommsObject.writeMessage("request_commands\n")
         self.extCommandsDescription = self.arduinoCommsObject.readMessage()
         self.infoWindow.updateExternalCommands(self.extCommandsDescription)
         self.infoWindow.show()
