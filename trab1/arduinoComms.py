@@ -63,6 +63,9 @@ class arduinoComms:
         else:
             return "* ERROR: Port is not in the list of permitted ports! Permitted ports are: "+self.systemPortsStr()+".\n"
 
+    def closePort(self):
+        self.serialObject.close()
+
     def writeMessage(self,msg):
         tryOpen = self.tryOpening()
         if tryOpen != 0:
