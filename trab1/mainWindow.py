@@ -162,8 +162,7 @@ class mainWindow(QWidget):
             "list_ports: Re-checks available ports and prints them on screen.\n"
         
         ##### External Commands
-        self.arduinoCommsObject.writeMessage("request_commands")
-        self.extCommandsDescription = self.arduinoCommsObject.readMessage()
+        self.extCommandsDescription = ""
 
         ##### Additional Windows
         self.infoWindow = commandWindow(self.intCommandsDescription, self.extCommandsDescription)
@@ -233,6 +232,8 @@ class mainWindow(QWidget):
     
     # Info icon button. Displays information on implemented commands.
     def infoCommand(self):
+        self.arduinoCommsObject.writeMessage("request_commands")
+        self.extCommandsDescription = self.arduinoCommsObject.readMessage()
         self.infoWindow.show()
         self.infoWindow.activateWindow()
 

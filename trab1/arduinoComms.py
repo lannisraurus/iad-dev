@@ -76,7 +76,7 @@ class arduinoComms:
         while self.serialObject.in_waiting < 1 and count < 200000:
             count += 1
         print(count)
-        message += self.serialObject.readline().decode('utf-8').rstrip()
+        message += self.serialObject.readline().decode('utf-8')
         print("while...\n")
         print(message+" a\n")
         return message 
