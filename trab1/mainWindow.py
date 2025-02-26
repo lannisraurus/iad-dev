@@ -72,7 +72,7 @@ class graphWindow(QMainWindow):
         self.graph.setLabel("bottom", "X")
         self.graph.plot(self.xs, self.ys)
 
-    def addDataPoint(x,y):
+    def addDataPoint(self,x,y):
         self.xs.append(x)
         self.ys.append(y)
         self.graph.setData(self.xs, self.ys)
