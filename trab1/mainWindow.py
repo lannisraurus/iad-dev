@@ -51,7 +51,7 @@ class commandWindow(QWidget):
 
     def updateExternalCommands(self,desc):
         self.extCommands = desc
-        setCommandText()
+        self.setCommandText()
 
 
 class graphWindow(QMainWindow):
