@@ -10,7 +10,7 @@ class arduinoComms:
         self.serialObject = serial.Serial()
         self.serialObject.baudrate = 9600
         self.serialObject.timeout = 1
-        self.systemDevices = [port.device for port in serial.tools.list_ports.comports()]
+        msg += self.listPorts()
         self.validPorts = [port for port in self.systemDevices if port in ['/dev/ttyACM0','/dev/ttyUSB0']]
         try:
             self.serialObject.port = self.validPorts[0]
@@ -18,10 +18,12 @@ class arduinoComms:
             msg += "* WARNING: No valid ports found!\n"
         if len(self.validPorts) > 1:
             msg += "* WARNING: Multiple valid ports found! Defaulted to first port.\n"
-        msg += "* Available Devices: "+self.systemPortsStr()+'.\n'
         msg += "* Selected Device: "+self.selectedPortStr()+'.\n'       
         return msg+"* Finished arduino communication setup.\n"
 
+    def listPorts(self):
+       self.systemDevices = [port.device for port in serial.tools.list_ports.comports()]
+       return "* Available Devices: "+self.systemPortsStr()+'.\n'
 
     def selectedPortStr(self):
         return str(self.serialObject.port)
@@ -42,35 +44,40 @@ class arduinoComms:
             if not self.isOpen():
                 self.serialObject.open()
         except:
+            return 1
+        self.serialObject.close()
+        return 0
+    
+    def tryOpeningIntToStr(self,error):
+        if error == 0:
+            return "* Successfully opened port \'"+self.selectedPortStr()+".\'\n"
+        elif error == 1:
             return "* ERROR: Could not open serial port! Port may be busy/invalid!\n"
-        self.serialObject.close()
-        return "* Successfully opened port \'"+self.selectedPortStr()+".\'\n"
-
-    def writeString(self,msg):
-        tryOpenMsg = self.tryOpening()
-        if type(tryOpenMsg) == str: # FIX THIS!!!! Maybe make a number to error msg converter??
-            return tryOpenMsg
-        self.serialObject.open()
-        self.serialObject.write(msg)
-        self.serialObject.close()
-        return "* Sent the message: \'"+msg+"\' to the Arduino Port.\n"
 
     def changePort(self, port):
-        if port in self.validPorts:
+        if port in self.systemDevices:
             self.serialObject.port = port
             return "* Changed port to \'"+self.selectedPortStr()+"\'\n"
         else:
             return "* ERROR: Port is not in the list of permitted ports! Permitted ports are: "+self.systemPortsStr()+".\n"
 
+    def writeMessage(self,msg):
+        tryOpen = self.tryOpening()
+        if tryOpen != 0:
+            return self.tryOpeningIntToStr(tryOpen)
+        self.serialObject.open()
+        self.serialObject.write(msg)
+        self.serialObject.close()
+        return "* Sent the message: \'"+msg+"\' to the Arduino Port.\n"
+
     def readMessage(self):
+        tryOpen = self.tryOpening()
+        if tryOpen != 0:
+            return self.tryOpeningIntToStr(tryOpen)
         message = ""
+        self.serialObject.open()
         while self.serialObject.in_waiting < 0:
             message += self.serialObject.readline().decode('utf-8').rstrip()
-        return message     
-    
-    #def readData(self):
-    #    data = ""
-    #    while self.serialObject.in_waiting < 0:
-    #        data += self.serialObject.readline().decode('utf-8').rstrip()
-    #    return data
-            
+        self.serialObject.close()
+        return message    
+
