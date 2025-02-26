@@ -72,7 +72,7 @@ class arduinoComms:
         if tryOpen != 0:
             return self.tryOpeningIntToStr(tryOpen)
         self.serialObject.write(msg.encode('utf-8'))
-        time.sleep(0.9)
+        time.sleep(1)
         return "* Sent the message: \'"+msg+"\' to the Arduino Port.\n"
 
     def readMessage(self):
