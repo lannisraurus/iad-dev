@@ -158,7 +158,7 @@ class mainWindow(QWidget):
             "change_port": self.changePort,
             "clear": self.logClear,
             "list_ports": self.listPorts,
-            "acquire_plot": self.acquirePlots
+            "acquire_plot": self.acquirePlot
         }
         self.intCommandsDescription = "test_port: Tests communications through the selected port.\n" + \
             "change_port PORT_NAME: Changes the port to whatever the user provides.\n" + \
