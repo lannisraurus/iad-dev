@@ -239,7 +239,7 @@ class mainWindow(QWidget):
     def infoCommand(self):
         self.arduinoCommsObject.writeMessage("request_commands")
         self.extCommandsDescription = self.arduinoCommsObject.readMessage()
-        time.sleep(0.01)
+        time.sleep(0.1)
         self.infoWindow.updateExternalCommands(self.extCommandsDescription)
         self.infoWindow.show()
         self.infoWindow.activateWindow()
