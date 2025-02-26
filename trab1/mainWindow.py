@@ -49,6 +49,9 @@ class commandWindow(QWidget):
                 "* Internal Commands - Processed by RaspberryPi:\n" + self.intCommands + "\n" + \
                 "* External Commands - Processed by Arduino:\n" + self.extCommands)
 
+    def updateExternalCommands(self,desc):
+        self.extCommands = desc
+        setCommandText()
 
 
 class graphWindow(QMainWindow):
@@ -234,6 +237,7 @@ class mainWindow(QWidget):
     def infoCommand(self):
         self.arduinoCommsObject.writeMessage("request_commands")
         self.extCommandsDescription = self.arduinoCommsObject.readMessage()
+        self.commandWindow.updateExternalCommands(self.extCommandsDescription)
         self.infoWindow.show()
         self.infoWindow.activateWindow()
 
