@@ -1,6 +1,7 @@
 # For USB communication.
 import serial
 import serial.tools.list_ports
+import time
 
 class arduinoComms:
 
@@ -10,6 +11,7 @@ class arduinoComms:
         self.serialObject = serial.Serial()
         self.serialObject.baudrate = 9600
         self.serialObject.timeout = 1
+        self.timeoutSeconds = 5
         msg += self.listPorts()
         self.validPorts = [port for port in self.systemDevices if port in ['/dev/ttyACM0','/dev/ttyUSB0']]
         try:
@@ -73,12 +75,11 @@ class arduinoComms:
         if tryOpen != 0:
             return self.tryOpeningIntToStr(tryOpen)
         message = ""
-        count = 0
-        while self.serialObject.in_waiting < 1 and count < 20000000:
-            count += 1
-        print(count)
+        start_time = time.time()
+        while self.serialObject.in_waiting < 1 and time.time()-start_time > self.timeoutSeconds:
+            pass
+        if time.time()-start_time >= self.timeoutSeconds:
+            return "TIMEOUT ("+str(time.time()-start_time)+" seconds).\n"
         message += self.serialObject.readline().decode('utf-8')
-        print("while...\n")
-        print(message+" a\n")
         return message 
 
