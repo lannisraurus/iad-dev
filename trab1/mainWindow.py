@@ -79,7 +79,7 @@ class graphWindow(QMainWindow):
         self.ys.append(y)
         self.line.setData(self.xs, self.ys)
 
-class mainWindow(QMainWindow):
+class mainWindow(QWidget):
 
     ############ Constructor
     def __init__(self, *args, **kwargs):
