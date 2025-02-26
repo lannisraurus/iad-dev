@@ -10,30 +10,42 @@
   https://www.arduino.cc/en/Tutorial/BuiltInExamples/AnalogReadSerial
 */
 
+
+int pivot = 0;
+int selectedPin = A0;
+String currCmd = "";
+
 // the setup routine runs once when you press reset:
 void setup() {
 	// initialize serial communication at 9600 bits per second:
 	Serial.begin(9600);
 }
 
+void setPivot(){
+  pivot = millis();
+}
+
 // the loop routine runs over and over again forever:
 void loop() {
-	String currCmd = "";
 	if(!Serial.available()) {
+    // Read serial
+    currCmd = Serial.readString();
 		//run curr cmd
 		if(currCmd == "") {}
-		else if (currCmd == "capacitor_discharge_curve") {
-			// read the input on analog pin 0:
-			int sensorValue = analogRead(A0);
-			// print out the value you read:
-			Serial.println(sensorValue);
-			delay(1);  // delay in between reads for stability
+		else if (currCmd == "acquire") {
+			// read the input on selected analog pin:
+			int sensorValue = analogRead(selectedPin);
+			// print out the value you read and corresponding time relative to pivot:
+			Serial.print(millis()-pivot);
+			Serial.println(" " + sensorValue);
+		}else if(currCmd == "request_commands") {
+      Serial.println("acquire: Acquire analog data from selected pin.\nchange_pin [pin]: Change selected pin.\n");
+		}else if(currCmd.indexOf("change_pin") == 0){
+      selectedPin = currCmd.substring(11).toInt();
 		} else {
-			Serial.println("Error unkown code");
+			Serial.println("* ARDUINO ERROR: unkown code");
 			currCmd = "";
 		}
-	} else {
-		currCmd = Serial.readString();
+   currCmd = "";
 	}
-	
 }
