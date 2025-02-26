@@ -294,14 +294,14 @@ class mainWindow(QWidget):
         n_points = -1
         interval = 0
         if len(args)==2 and len(kwargs)==0:
-            n_points = args[0]
-            interval = args[1]
+            n_points = int(args[0])
+            interval = int(args[1])
         elif len(args)==1 and len(kwargs)==1:
             if "n" in kwargs.keys():
                 n_points = kwargs["n"]
-                interval = args[0]
+                interval = int(args[0])
             elif "t" in kwargs.keys():
-                n_points = args[0]
+                n_points = int(args[0])
                 interval = kwargs["t"]
             else:
                 return "* ERROR: Parameters missing in acquire_plot function"
