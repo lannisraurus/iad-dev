@@ -12,6 +12,7 @@ class arduinoComms:
         self.serialObject.baudrate = 115200
         self.serialObject.timeout = None
         self.timeoutSeconds = 5
+        self.writeDelay = 0.01
         msg += self.listPorts()
         self.validPorts = [port for port in self.systemDevices if port in ['/dev/ttyACM0','/dev/ttyUSB0']]
         try:
@@ -72,6 +73,7 @@ class arduinoComms:
         if tryOpen != 0:
             return self.tryOpeningIntToStr(tryOpen)
         self.serialObject.write((msg+'\n').encode('utf-8'))
+        time.sleep(self.writeDelay)
         return "* Sent the message: \'"+msg+"\' to the Arduino Port.\n"
 
     def readMessage(self):
