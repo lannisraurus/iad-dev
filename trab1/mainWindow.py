@@ -226,7 +226,7 @@ class mainWindow(QWidget):
             # Run external commands - processed by arduino
             self.logText("* Running external command \'"+cmd+"\'\n")
             self.logText(self.arduinoCommsObject.writeMessage(cmd))
-            self.logText(self.arduinoCommsObject.readMessage())
+            self.logText(">>> "+self.arduinoCommsObject.readMessage())
     
     # 'Interrupt' Button; used to interrupt on-going processes in the RPi/Arduino
     def stopCommand(self):
