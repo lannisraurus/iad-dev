@@ -81,7 +81,7 @@ class arduinoComms:
         message = ""
         start_time = time.time()
         while self.serialObject.inWaiting() > 0 and time.time()-start_time <= self.timeoutSeconds:
-            message += self.serialObject.readline().decode('utf-8')
+            message += self.serialObject.read(1).decode('utf-8')
         if time.time()-start_time >= self.timeoutSeconds:
             return "TIMEOUT! ("+str(time.time()-start_time)+" seconds).\n" 
         return message 
