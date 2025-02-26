@@ -23,7 +23,6 @@ class arduinoComms:
             msg += "* WARNING: Multiple valid ports found! Defaulted to first port.\n"
         msg += "* Selected Device: "+self.selectedPortStr()+'.\n'
         msg += self.tryOpeningIntToStr(self.tryOpening())
-        self.serialObject.reset_input_buffer()
         return msg+"* Finished arduino communication setup.\n"
 
     def listPorts(self):

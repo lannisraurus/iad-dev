@@ -118,7 +118,7 @@ class mainWindow(QWidget):
         self.commandInputLine.returnPressed.connect(self.startCommand)
         self.commandOutputLine = QTextEdit()
         self.commandOutputLine.setReadOnly(True)
-        self.commandOutputLine.setMinimumSize(400,250)
+        self.commandOutputLine.setMinimumSize(500,250)
         self.logTextSplashScreen = "******************************\n* RPi - Arduino Interface (Log) *\n******************************\n\n"
         self.logText(self.logTextSplashScreen)
 
@@ -157,7 +157,8 @@ class mainWindow(QWidget):
             "test_port": self.testPort,
             "change_port": self.changePort,
             "clear": self.logClear,
-            "list_ports": self.listPorts
+            "list_ports": self.listPorts,
+            "acquire_plot": acquirePlots
         }
         self.intCommandsDescription = "test_port: Tests communications through the selected port.\n" + \
             "change_port PORT_NAME: Changes the port to whatever the user provides.\n" + \
@@ -286,3 +287,38 @@ class mainWindow(QWidget):
             self.logText("* ERROR: change_port functions expects 1 argument!\n")
         else:
             self.logText(self.arduinoCommsObject.changePort(args[0]))
+
+    def acquirePlot(self,*args,**kwargs):
+        n_points = -1
+        interval = 0
+        if len(args)==2 and len(kwargs)==0:
+            n_points = args[0]
+            interval = args[1]
+        elif len(args)==1 and len(kwargs)==1:
+            if "n" in kwargs.keys():
+                n_points = kwargs["n"]
+                interval = args[0]
+            elif "t" in kwargs.keys():
+                n_points = args[0]
+                interval = kwargs["t"]
+            else:
+                return "* ERROR: Parameters missing in acquire_plot function"
+        elif len(kwargs)==2 and "n" in kwargs.keys() and "t" in kwargs.keys():
+            n_points = kwargs["n"]
+            interval = kwargs["t"]
+
+        elif len(kwargs)== 0 and len(args)==0:
+            n_points=-1
+            interval=0
+        else:
+            return "* ERROR: Parameters missing in acquire_plot function"
+        counter = 0
+        while counter != n_points:
+            self.arduinoCommsObject.writeMessage("acquire")
+            point = self.arduinoCommsObject.readMessage()
+            list_point = point.split()
+            self.graphWindow.addDataPoint(list_point[0], list_point[1])
+            time.sleep(interval*1e-3)
+            counter += 1
+            
+
