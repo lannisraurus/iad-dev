@@ -55,7 +55,7 @@ class commandWindow(QWidget):
         self.setCommandText()
 
 
-class graphWindow(QWidget):
+class graphWindow(QMainWindow):
     def __init__(self):
         super().__init__() 
          # Set title
