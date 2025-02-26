@@ -71,6 +71,8 @@ class arduinoComms:
         tryOpen = self.tryOpening()
         if tryOpen != 0:
             return self.tryOpeningIntToStr(tryOpen)
+        while self.serialObject.in_waiting > 0:
+            self.serialObject.readline()
         self.serialObject.write(msg.encode('utf-8'))
         return "* Sent the message: \'"+msg+"\' to the Arduino Port.\n"
 
