@@ -72,9 +72,11 @@ class arduinoComms:
         if tryOpen != 0:
             return self.tryOpeningIntToStr(tryOpen)
         message = ""
-        while self.serialObject.in_waiting > 0:
-            message += self.serialObject.readline().decode('utf-8').rstrip()
-            print("while...\n")
+        while True:
+            if self.serialObject.in_waiting > 0:
+                message += self.serialObject.readline().decode('utf-8').rstrip()
+                print("while...\n")
+                break
         print(message+" a\n")
         return message 
 
