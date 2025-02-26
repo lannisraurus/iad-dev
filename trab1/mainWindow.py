@@ -46,7 +46,7 @@ class commandWindow(QWidget):
 
     def setCommandText(self):
         self.commandOutputLine.setPlainText(self.logTextSplashScreen + \
-                "* Internal Commands - Processed by RaspberryPi:\n" + self.intCommands + "\n\n" + \
+                "* Internal Commands - Processed by RaspberryPi:\n" + self.intCommands + "\n" + \
                 "* External Commands - Processed by Arduino:\n" + self.extCommands)
 
 
@@ -153,15 +153,20 @@ class mainWindow(QWidget):
         self.intCommands = {
             "test_port": self.testPort,
             "change_port": self.changePort,
-            "clear": self.logClear
+            "clear": self.logClear,
+            "list_ports": self.listPorts
         }
         self.intCommandsDescription = "test_port: Tests communications through the selected port.\n" + \
-            "change_port [PORT_NAME]: Changes the port to whatever the user provides.\n" + \
-            "clear: Clears the console log."
-            
+            "change_port PORT_NAME: Changes the port to whatever the user provides.\n" + \
+            "clear: Clears the console log.\n" + \
+            "list_ports: Re-checks available ports and prints them on screen.\n"
+        
+        ##### External Commands
+        self.arduinoCommsObject.writeMessage("request_commands")
+        self.extCommandsDescription = self.arduinoCommsObject.readMessage()
 
         ##### Additional Windows
-        self.infoWindow = commandWindow(self.intCommandsDescription, "")
+        self.infoWindow = commandWindow(self.intCommandsDescription, self.extCommandsDescription)
         self.graphWindow = graphWindow()
 
 
@@ -218,7 +223,8 @@ class mainWindow(QWidget):
         elif len(cmd) > 0:
             # Run external commands - processed by arduino
             self.logText("* Running external command \'"+cmd+"\'\n")
-            self.logText(self.arduinoCommsObject.writeString(cmd))
+            self.logText(self.arduinoCommsObject.writeMessage(cmd))
+            self.logText(self.arduinoCommsObject.readMessage())
     
     # 'Interrupt' Button; used to interrupt on-going processes in the RPi/Arduino
     def stopCommand(self):
@@ -257,7 +263,20 @@ class mainWindow(QWidget):
         if kwargs:
             self.logText("* ERROR: Unknown kwargs in the test_port function.\n")
         if not args and not kwargs:
-            self.logText(self.arduinoCommsObject.tryOpening())
+            self.logText(self.arduinoCommsObject.tryOpeningIntToStr(self.arduinoCommsObject.tryOpening()))
+
+    def listPorts(self,*args,**kwargs):
+        if args:
+            self.logText("* ERROR: Unknown args in the list_ports function.\n")
+        if kwargs:
+            self.logText("* ERROR: Unknown kwargs in the list_ports function.\n")
+        if not args and not kwargs:
+            self.logText(self.arduinoCommsObject.listPorts())
 
     def changePort(self,*args,**kwargs):
-        self.arduinoCommsObject.changePort("TEST") # NEED IMPLEMENT!!!
+        if kwargs:
+            self.logText("* ERROR: Unknown kwargs in the change_port function.\n")
+        elif len(args) != 1:
+            self.logText("* ERROR: change_port functions expects 1 argument!\n")
+        else:
+            self.logText(self.arduinoCommsObject.changePort(args[0]))
