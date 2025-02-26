@@ -9,7 +9,7 @@ class arduinoComms:
     def initialize(self):
         msg = "* Setting up arduino communication...\n"
         self.serialObject = serial.Serial()
-        self.serialObject.baudrate = 9600
+        self.serialObject.baudrate = 115200
         self.serialObject.timeout = 1
         self.timeoutSeconds = 5
         msg += self.listPorts()
@@ -72,7 +72,7 @@ class arduinoComms:
         if tryOpen != 0:
             return self.tryOpeningIntToStr(tryOpen)
         self.serialObject.write(msg.encode('utf-8'))
-        time.sleep(0.1)
+        time.sleep(0.2)
         return "* Sent the message: \'"+msg+"\' to the Arduino Port.\n"
 
     def readMessage(self):
