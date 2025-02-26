@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QLabel,
-    QStyle,
+    QStyle
 )
 from PyQt5.QtGui import QPixmap
 import pyqtgraph    # For Data Visualization.
@@ -55,7 +55,7 @@ class commandWindow(QWidget):
         self.setCommandText()
 
 
-class graphWindow(QMainWindow):
+class graphWindow(QWidget):
     def __init__(self):
         super().__init__() 
          # Set title
@@ -79,7 +79,7 @@ class graphWindow(QMainWindow):
         self.ys.append(y)
         self.line.setData(self.xs, self.ys)
 
-class mainWindow(QWidget):
+class mainWindow(QMainWindow):
 
     ############ Constructor
     def __init__(self, *args, **kwargs):
