@@ -74,5 +74,6 @@ class arduinoComms:
         message = ""
         while self.serialObject.in_waiting < 0:
             message += self.serialObject.readline().decode('utf-8').rstrip()
-        return message    
+        print(message)
+        return message 
 
