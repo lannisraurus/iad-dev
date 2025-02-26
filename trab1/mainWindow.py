@@ -63,14 +63,15 @@ class graphWindow(QMainWindow):
         # Set Size
         self.setGeometry(500, 500, 720, 420)
 
-        self.graph = pyqtgraph.PlotWidget()
-        self.setCentralWidget(self.graph)
+        self.graphPlot = pyqtgraph.PlotWidget()
+        self.setCentralWidget(self.graphPlot)
+        self.graphPlot.setBackground("w")
         self.xs = []
         self.ys = []
-        self.graph.setTitle("Title")
-        self.graph.setLabel("left", "Y")
-        self.graph.setLabel("bottom", "X")
-        self.line = self.graph.plot(self.xs, self.ys)
+        self.graphPlot.setTitle("Title")
+        self.graphPlot.setLabel("left", "Y")
+        self.graphPlot.setLabel("bottom", "X")
+        self.line = self.graphPlot.plot(self.xs, self.ys)
 
     def addDataPoint(self,x,y):
         self.xs.append(x)
