@@ -25,7 +25,7 @@ void setup() {
   pinMode(4, OUTPUT);
   pinMode(5, OUTPUT);
   pinMode(6, OUTPUT);
-  pinMode(7, OUTPUT);
+  pinMode(7, OUTPUT); 
 }
 
 
@@ -43,7 +43,7 @@ void loop() {
 			int sensorValue = analogRead(readPin);
 			// print out the value you read and corresponding time relative to pivot:
 		  Serial.print(millis()-pivot);
-      Serial.print(" ");
+      Serial.print(" ");                                                                                                (" ");
 			Serial.println(sensorValue);
       
 		}else if(currCmd == "request_commands") {
@@ -52,7 +52,8 @@ void loop() {
 		}else if(currCmd.indexOf("change_read_pin") == 0) {
       if(readPin >= A0 && readPin <= A5) {
         readPin = currCmd.substring(16).toInt();
-        Serial.println("changed read pin successfully");
+        Serial.print("changed read pin to ");
+        Serial.println(readPin);
       }
       else {
         Serial.println("unrecognised read pin");
@@ -69,6 +70,8 @@ void loop() {
       digitalWrite(outputPin, !digitalRead(outputPin));
     }else if(currCmd == "set_pivot"){
       pivot = millis();
+      Serial.print("current pivot is ");
+      Serial.println(pivot);
 		} else {
 			Serial.println("ARDUINO ERROR: Unknown Instruction!");
 			currCmd = "";
