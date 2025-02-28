@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
     QLabel,
     QStyle
 )
-from PyQt5.QtCore import QThread, pyqtSignal, QEvent
+from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QPixmap
 import pyqtgraph    # For Data Visualization.
 import time
@@ -23,8 +23,6 @@ import time
 from arduinoComms import arduinoComms
 
 ##################### Commands Window
-
-# Class which inherits from QWidget class. Contains UI functionalities.
 
 class commandWindow(QWidget):
     def __init__(self, int_commands, ext_commands):
@@ -104,6 +102,20 @@ class internalCommandThread(QThread):
         getattr(self.obj, self.func)(self.params,self.send_data)
         self.finished.emit()
 
+##################### Internal Command Thread
+
+class inputConsole(QLineEdit):
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+    
+    def keyPressEvent(self,event):
+        key = event.key()
+        if key == Qt.Key_Up:
+            print("UP")
+        elif key == Qt.Key_Down:
+            print("DOWN")
+
 ##################### Main Programme Class
 
 class mainWindow(QWidget):
@@ -142,7 +154,7 @@ class mainWindow(QWidget):
         self.groupLogoLabel.setPixmap(self.groupLogoPixmap)
 
         # UI Elements - Line/Text Edits
-        self.commandInputLine = QLineEdit()
+        self.commandInputLine = inputConsole()
         self.commandInputLine.returnPressed.connect(self.startCommand)
         self.commandOutputLine = QTextEdit()
         self.commandOutputLine.setReadOnly(True)
@@ -219,7 +231,8 @@ class mainWindow(QWidget):
         self.infoWindow.close()
         event.accept()
 
-    def eventFilter(self,source, event):
+    """
+      def eventFilter(self,source, event):
         print(event.type())
         print(QEvent.KeyPress)
         print("AAAAAAA")
@@ -231,7 +244,9 @@ class mainWindow(QWidget):
             self.commandInputLine.setText("2")
             self.commandInputLine.insert("2")
             print("detected press")
-        return super(mainWindow, self).eventFilter(source,event)
+        return super(mainWindow, self).eventFilter(source,event)  
+    """
+
 
     ############ Button Functions
     
