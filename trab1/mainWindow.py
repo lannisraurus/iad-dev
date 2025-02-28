@@ -398,6 +398,6 @@ class mainWindow(QWidget):
             point = self.arduinoCommsObject.readMessage()
             list_point = point.split()
             # self.graphWindow.addDataPoint(float(list_point[0])*1e-3, float(list_point[1]))
-            signal.emit( (float(list_point[0])*1e-3, float(list_point[1])) )
+            signal.emit( *(float(list_point[0])*1e-3, float(list_point[1])) )
             time.sleep(float(params[1])*float(1e-3))
             counter += 1
