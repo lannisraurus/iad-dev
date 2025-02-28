@@ -160,7 +160,8 @@ class mainWindow(QWidget):
             "change_port": self.changePort,
             "clear": self.logClear,
             "list_ports": self.listPorts,
-            "acquire_plot": self.acquirePlot
+            "acquire_plot": self.acquirePlot,
+            "set_titles": self.graphTitles
         }
         self.intCommandsDescription = "test_port: Tests communications through the selected port.\n" + \
             "change_port PORT_NAME: Changes the port to whatever the user provides.\n" + \
@@ -325,4 +326,9 @@ class mainWindow(QWidget):
             time.sleep(float(interval)*float(1e-3))
             counter += 1
             
-
+    def setTitles(self, *args, **kwargs):
+        if kwargs[]
+        if len(args) != 2:
+            return "* ERROR: Parameters missing in"+titlePlace+ "function. \n"
+        elif:
+            args[2] = 
