@@ -218,6 +218,8 @@ class mainWindow(QWidget):
 
     def eventFilter(self,source, event):
         print(event.type())
+        print(QEvent.KeyPress)
+        print()
         if(event.type() == QEvent.KeyPress and source is self.commandInputLine):
             self.commandInputLine.setText("2")
         return super(mainWindow, self).eventFilter(source,event)
