@@ -12,10 +12,9 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QLabel,
-    QStyle,
-    QEvent
+    QStyle
 )
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal, QEvent
 from PyQt5.QtGui import QPixmap
 import pyqtgraph    # For Data Visualization.
 import time
