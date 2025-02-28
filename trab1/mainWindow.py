@@ -106,15 +106,44 @@ class internalCommandThread(QThread):
 
 class inputConsole(QLineEdit):
 
-    def __init__(self,*args,**kwargs):
+    def __init__(self,logPath,*args,**kwargs):
         super().__init__(*args,**kwargs)
+        self.index = 0
+        self.lines = []
+        with open(logPath, 'r') as file:
+            for line in file:
+                self.lines.append(line.strip())
     
+    def resetIndex(self):
+        self.index = 0
+
+    def addLine(self, cmd):
+        self.lines.insert(0,cmd)
+
+    def clearLines(self):
+        self.lines = []
+
     def keyPressEvent(self,event):
         key = event.key()
         if key == Qt.Key_Up:
-            print("UP")
+            if self.index < len(self.lines)-1:
+                self.index += 1
+                self.setText(self.lines[self.index])
         elif key == Qt.Key_Down:
-            print("DOWN")
+            if self.index > 0:
+                self.index -= 1
+                self.setText(self.lines[self.index])
+
+
+        super().keyPressEvent(event)
+    
+    def saveLog(self):
+        with open(self.logPath,'w') as file:
+            for elem in self.lines:
+                file.write(elem+'\n')
+
+    def loadLog(self):
+        print("1")
 
 ##################### Main Programme Class
 
@@ -154,7 +183,7 @@ class mainWindow(QWidget):
         self.groupLogoLabel.setPixmap(self.groupLogoPixmap)
 
         # UI Elements - Line/Text Edits
-        self.commandInputLine = inputConsole()
+        self.commandInputLine = inputConsole('assets/input_log')
         self.commandInputLine.returnPressed.connect(self.startCommand)
         self.commandOutputLine = QTextEdit()
         self.commandOutputLine.setReadOnly(True)
@@ -229,6 +258,7 @@ class mainWindow(QWidget):
         self.arduinoCommsObject.closePort()
         self.graphWindow.close()
         self.infoWindow.close()
+        self.commandInputLine.saveLog()
         event.accept()
 
     """
@@ -253,11 +283,17 @@ class mainWindow(QWidget):
     # 'Run' Button; used to parse and send commands
     def startCommand(self):
 
+        # Reset console index
+        self.commandInputLine.resetIndex()
+
         # Uninterrupt for potential new thread routines.
         self.interrupt = False
 
         # Extract the command from the input line
         cmd = self.commandInputLine.text()
+
+        # Add line to log
+        self.commandInputLine.addLine(cmd)
 
         # Clear command line input
         self.commandInputLine.clear()
