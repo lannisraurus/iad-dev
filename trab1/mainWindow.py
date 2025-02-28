@@ -12,7 +12,8 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QLabel,
-    QStyle
+    QStyle,
+    QEvent
 )
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QPixmap
@@ -92,7 +93,7 @@ class internalCommandThread(QThread):
     
     finished = pyqtSignal()
 
-
+    send_point = pyqtSignal(object)
     
     def __init__(self,obj,func,params):
         super().__init__()
@@ -101,7 +102,7 @@ class internalCommandThread(QThread):
         self.params = params
 
     def run(self):
-        getattr(self.obj, self.func)(self.params)
+        getattr(self.obj, self.func)(self.params,self.send_point)
         self.finished.emit()
 
 ##################### Main Programme Class
@@ -207,7 +208,7 @@ class mainWindow(QWidget):
         self.interrupt = False
 
 
-    ############ Close Window Event
+    ############ Events
     def closeEvent(self,event):
         self.interrupt = True
         time.sleep(0.1)
@@ -215,6 +216,11 @@ class mainWindow(QWidget):
         self.graphWindow.close()
         self.infoWindow.close()
         event.accept()
+
+    def eventFilter(self,source, event):
+        if(event.type() == QEvent.KeyPress and source is self.commandInputLine):
+            self.commandInputLine.setText("2")
+        return super(mainWindow, self).eventFilter(source,event)
 
     ############ Button Functions
     
@@ -381,12 +387,13 @@ class mainWindow(QWidget):
 
 ############ Internal Command Threading
 
-    def acquirePlotThread(self,params):
+    def acquirePlotThread(self,params,signal):
         counter = 0
         while counter != params[0] and self.interrupt == False:
             self.arduinoCommsObject.writeMessage("acquire")
             point = self.arduinoCommsObject.readMessage()
             list_point = point.split()
-            self.graphWindow.addDataPoint(float(list_point[0])*1e-3, float(list_point[1]))
+            # self.graphWindow.addDataPoint(float(list_point[0])*1e-3, float(list_point[1]))
+            signal.emit(float(list_point[0])*1e-3, float(list_point[1]))
             time.sleep(float(params[1])*float(1e-3))
             counter += 1
