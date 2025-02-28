@@ -70,7 +70,7 @@ void loop() {
       digitalWrite(outputPin, !digitalRead(outputPin));
     }else if(currCmd == "set_pivot"){
       pivot = millis();
-      Serial.print("current pivot is ");
+      Serial.print("Reset Arduino pivot timer to ");
       Serial.println(pivot);
 		} else {
 			Serial.println("ARDUINO ERROR: Unknown Instruction!");
