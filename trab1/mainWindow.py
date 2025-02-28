@@ -209,7 +209,8 @@ class mainWindow(QWidget):
         self.interrupt = False
 
 
-    ############ Events
+    ############# Events
+    
     def closeEvent(self,event):
         self.interrupt = True
         time.sleep(0.1)
@@ -219,6 +220,10 @@ class mainWindow(QWidget):
         event.accept()
 
     def eventFilter(self,source, event):
+        if(event.type() == QEvent.KeyPress):
+            print(source)
+            print(self.commandInputLine)
+            print()
         if(event.type() == QEvent.KeyPress and source is self.commandInputLine):
             self.commandInputLine.setText("2")
             self.commandInputLine.insert("2")
