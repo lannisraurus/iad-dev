@@ -191,6 +191,9 @@ class mainWindow(QWidget):
         self.infoWindow = commandWindow(self.intCommandsDescription, self.extCommandsDescription)
         self.graphWindow = graphWindow()
 
+        ##### INTERRUPTING
+        self.interrupt = False
+
 
     ############ Close Window Event
     def closeEvent(self,event):
@@ -203,6 +206,7 @@ class mainWindow(QWidget):
     
     # 'Run' Button; used to parse and send commands
     def startCommand(self):
+        self.interrupt = False
 
         # Extract the command from the input line
         cmd = self.commandInputLine.text()
@@ -252,7 +256,7 @@ class mainWindow(QWidget):
     # 'Interrupt' Button; used to interrupt on-going processes in the RPi/Arduino
     def stopCommand(self):
         self.logText("* Interrupting...\n")
-        self.arduinoCommsObject.writeString("stop") # CHANGE
+        self.interrupt = True
     
     # Info icon button. Displays information on implemented commands.
     def infoCommand(self):
@@ -334,19 +338,7 @@ class mainWindow(QWidget):
         # RUN ACQUIRE PLOT THREAD HERE
         self.thread = internalCommandThread(self,'acquirePlotThread',[n_points,interval])
         self.thread.start()
-        
-    def acquirePlotThread(self,params):
-        counter = 0
-        while counter != params[0]:
-            self.arduinoCommsObject.writeMessage("acquire")
-            point = self.arduinoCommsObject.readMessage()
-            list_point = point.split()
-            print(list_point[0])
-            print(list_point[1])
-            self.graphWindow.addDataPoint(float(list_point[0]), float(list_point[1]))
-            time.sleep(float(params[1])*float(1e-3))
-            counter += 1
-            
+                   
     def setTitles(self, *args, **kwargs):
         if len(args) >0:
             return "* ERROR: set_titles does not take regular arguments, only kwargs.\n"
@@ -360,4 +352,18 @@ class mainWindow(QWidget):
             if tag == "y":
                 self.graphWindow.graphPlot.setLabel("left", kwargs["y"])
             if tag == "g":
-                self.graphWindow.graphPlot.setTitle("left", kwargs["t"])
+                self.graphWindow.graphPlot.setTitle(kwargs["g"])
+
+############ Internal Command Threads
+
+    def acquirePlotThread(self,params):
+        counter = 0
+        while counter != params[0] and self.interrupt == False:
+            self.arduinoCommsObject.writeMessage("acquire")
+            point = self.arduinoCommsObject.readMessage()
+            list_point = point.split()
+            print(list_point[0])
+            print(list_point[1])
+            self.graphWindow.addDataPoint(float(list_point[0]), float(list_point[1]))
+            time.sleep(float(params[1])*float(1e-3))
+            counter += 1
