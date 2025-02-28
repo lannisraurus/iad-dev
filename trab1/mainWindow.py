@@ -92,7 +92,7 @@ class internalCommandThread(QThread):
     
     finished = pyqtSignal()
 
-    send_point = pyqtSignal(object)
+    send_data = pyqtSignal(object)
     
     def __init__(self,obj,func,params):
         super().__init__()
@@ -101,7 +101,7 @@ class internalCommandThread(QThread):
         self.params = params
 
     def run(self):
-        getattr(self.obj, self.func)(self.params,self.send_point)
+        getattr(self.obj, self.func)(self.params,self.send_data)
         self.finished.emit()
 
 ##################### Main Programme Class
@@ -217,6 +217,7 @@ class mainWindow(QWidget):
         event.accept()
 
     def eventFilter(self,source, event):
+        print("here")
         if(event.type() == QEvent.KeyPress and source is self.commandInputLine):
             self.commandInputLine.setText("2")
         return super(mainWindow, self).eventFilter(source,event)
@@ -367,6 +368,7 @@ class mainWindow(QWidget):
         self.logText(">>> "+self.arduinoCommsObject.readMessage())
         self.logText("* Starting Acquisition Thread.\n")
         self.thread = internalCommandThread(self,'acquirePlotThread',[n_points,interval])
+        self.thread.send_po
         self.thread.start()
                    
     def setTitles(self, *args, **kwargs):
