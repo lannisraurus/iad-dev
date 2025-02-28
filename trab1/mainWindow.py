@@ -108,7 +108,7 @@ class inputConsole(QLineEdit):
 
     def __init__(self,logPath,*args,**kwargs):
         super().__init__(*args,**kwargs)
-        self.index = 0
+        self.index = -1
         self.lines = []
         self.logPath = logPath
         with open(logPath, 'r') as file:
@@ -116,7 +116,7 @@ class inputConsole(QLineEdit):
                 self.lines.append(line.strip())
     
     def resetIndex(self):
-        self.index = 0
+        self.index = -1
 
     def addLine(self, cmd):
         self.lines.insert(0,cmd)
