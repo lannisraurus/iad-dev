@@ -220,6 +220,9 @@ class mainWindow(QWidget):
         event.accept()
 
     def eventFilter(self,source, event):
+        print(event.type())
+        print(QEvent.KeyPress)
+        print("AAAAAAA")
         if(event.type() == QEvent.KeyPress):
             print(source)
             print(self.commandInputLine)
