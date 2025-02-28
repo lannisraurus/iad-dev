@@ -332,8 +332,8 @@ class mainWindow(QWidget):
         else:
             return "* ERROR: Parameters missing in acquire_plot function"
         # RUN ACQUIRE PLOT THREAD HERE
-        thread = internalCommandThread(self,'acquirePlotThread',[n_points,interval])
-        thread.start()
+        self.thread = internalCommandThread(self,'acquirePlotThread',[n_points,interval])
+        self.thread.start()
         
     def acquirePlotThread(self,params):
         counter = 0
