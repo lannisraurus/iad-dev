@@ -22,7 +22,7 @@ import time
 ##################### User defined functions (imports)
 from arduinoComms import arduinoComms
 
-##################### Main Programme Class
+##################### Commands Window
 
 # Class which inherits from QWidget class. Contains UI functionalities.
 
@@ -55,6 +55,7 @@ class commandWindow(QWidget):
         self.extCommands = desc
         self.setCommandText()
 
+##################### Graph Window
 
 class graphWindow(QMainWindow):
     def __init__(self):
@@ -85,9 +86,13 @@ class graphWindow(QMainWindow):
         self.ys = []
         self.line.setData(self.xs, self.ys)
 
+##################### Internal Command Thread
 
 class internalCommandThread(QThread):
+    
     finished = pyqtSignal()
+
+
     
     def __init__(self,obj,func,params):
         super().__init__()
@@ -99,6 +104,7 @@ class internalCommandThread(QThread):
         getattr(self.obj, self.func)(self.params)
         self.finished.emit()
 
+##################### Main Programme Class
 
 class mainWindow(QWidget):
 
@@ -214,10 +220,15 @@ class mainWindow(QWidget):
     
     # 'Run' Button; used to parse and send commands
     def startCommand(self):
+
+        # Uninterrupt for potential new thread routines.
         self.interrupt = False
 
         # Extract the command from the input line
         cmd = self.commandInputLine.text()
+
+        # Clear command line input
+        self.commandInputLine.clear()
         
         # Split the command into substrings
         cmdPartitions = cmd.split()
@@ -368,7 +379,7 @@ class mainWindow(QWidget):
             if tag == "g":
                 self.graphWindow.graphPlot.setTitle(kwargs["g"])
 
-############ Internal Command Threads
+############ Internal Command Threading
 
     def acquirePlotThread(self,params):
         counter = 0
