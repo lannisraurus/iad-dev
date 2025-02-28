@@ -72,7 +72,7 @@ class arduinoComms:
         if tryOpen != 0:
             return self.tryOpeningIntToStr(tryOpen)
         self.serialObject.write((msg+'\n').encode('utf-8'))
-        time.sleep(self.writeDelay)
+        # time.sleep(self.writeDelay)
         return "* Sent the message: \'"+msg+"\' to the Arduino Port.\n"
 
     def readMessage(self):
@@ -81,8 +81,11 @@ class arduinoComms:
             return self.tryOpeningIntToStr(tryOpen)
         message = ""
         start_time = time.time()
-        while self.serialObject.inWaiting() > 0 and time.time()-start_time <= self.timeoutSeconds:
-            message += self.serialObject.read(1).decode('utf-8')
+
+        while len(message) == 0 and time.time()-start_time <= self.timeoutSeconds:
+            while self.serialObject.inWaiting() > 0 :
+                message += self.serialObject.read(1).decode('utf-8')
+        
         if time.time()-start_time >= self.timeoutSeconds:
             return "TIMEOUT! ("+str(time.time()-start_time)+" seconds).\n" 
         return message 

@@ -333,7 +333,7 @@ class mainWindow(QWidget):
                 n_points = int(args[0])
                 interval = int(kwargs["t"])
             else:
-                return "* ERROR: Parameters missing in acquire_plot function"
+                self.logText("* ERROR: Parameters missing in acquire_plot function")
         elif len(kwargs)==2 and "n" in kwargs.keys() and "t" in kwargs.keys():
             n_points = int(kwargs["n"])
             interval = int(kwargs["t"])
@@ -342,7 +342,7 @@ class mainWindow(QWidget):
             n_points=-1
             interval=0
         else:
-            return "* ERROR: Parameters missing in acquire_plot function"
+            self.logText("* ERROR: Parameters missing in acquire_plot function")
         # RUN ACQUIRE PLOT THREAD HERE
         self.graphWindow.clearGraph()
         self.arduinoCommsObject.writeMessage("set_pivot")
@@ -351,12 +351,12 @@ class mainWindow(QWidget):
                    
     def setTitles(self, *args, **kwargs):
         if len(args) >0:
-            return "* ERROR: set_titles does not take regular arguments, only kwargs.\n"
+            self.logText("* ERROR: set_titles does not take regular arguments, only kwargs.\n")
         if len(kwargs) == 0:
-            return "* ERROR: Parameters missing in set_titles function\n"
+            return self.logText("* ERROR: Parameters missing in set_titles function\n")
         for tag in kwargs.keys():
             if tag not in ["x", "y", "g"]:
-                return "* ERROR: Parameters missing in set_titles function\n"
+                self.logText("* ERROR: Parameters missing in set_titles function\n")
             if tag == "x":
                 self.graphWindow.graphPlot.setLabel("bottom", kwargs["x"])
             if tag == "y":
