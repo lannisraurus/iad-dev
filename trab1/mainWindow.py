@@ -187,14 +187,16 @@ class mainWindow(QWidget):
             "clear": self.logClear,
             "list_ports": self.listPorts,
             "acquire_plot": self.acquirePlot,
-            "set_titles": self.setTitles
+            "set_titles": self.setTitles,
+            "clear_graph": self.clearGraph
         }
         self.intCommandsDescription = "test_port: Tests communications through the selected port.\n" + \
             "change_port PORT_NAME: Changes the port to whatever the user provides.\n" + \
             "clear: Clears the console log.\n" + \
             "list_ports: Re-checks available ports and prints them on screen.\n" + \
             "acquire_plot: Acquire the number of points specified (after -n) with the time interval between each aquisition specified (after -t) and draw a graph.\n" + \
-            "set_titles: Set the X axis title (specified after -x), Y axis title (specified after -y) and/or graph title (specified after -g).\n"
+            "set_titles: Set the X axis title (specified after -x), Y axis title (specified after -y) and/or graph title (specified after -g).\n" + \
+            "clear_graph: Clears all data in the graph.\n"
         
         ##### External Commands
         self.extCommandsDescription = ""
@@ -379,16 +381,24 @@ class mainWindow(QWidget):
         if len(args) >0:
             self.logText("* ERROR: set_titles does not take regular arguments, only kwargs.\n")
         if len(kwargs) == 0:
-            return self.logText("* ERROR: Parameters missing in set_titles function\n")
+            self.logText("* ERROR: Parameters missing in set_titles function\n")
         for tag in kwargs.keys():
             if tag not in ["x", "y", "g"]:
-                self.logText("* ERROR: Parameters missing in set_titles function\n")
+                return self.logText("* ERROR: Parameters missing in set_titles function\n")
             if tag == "x":
                 self.graphWindow.graphPlot.setLabel("bottom", kwargs["x"])
             if tag == "y":
                 self.graphWindow.graphPlot.setLabel("left", kwargs["y"])
             if tag == "g":
                 self.graphWindow.graphPlot.setTitle(kwargs["g"])
+
+    def clearGraph(self, *args, **kwargs):
+        if args:
+            self.logText("* ERROR: Unknown args in the clear_graph function.\n")
+        if kwargs:
+            self.logText("* ERROR: Unknown kwargs in the clear_graph function.\n")
+        if not args and not kwargs:
+            self.graphWindow.clearGraph()
 
 ############ Internal Command Threading
 
