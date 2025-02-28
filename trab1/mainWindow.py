@@ -342,10 +342,13 @@ class mainWindow(QWidget):
             n_points=-1
             interval=0
         else:
-            self.logText("* ERROR: Parameters missing in acquire_plot function")
+            self.logText("* ERROR: Parameters missing in acquire_plot function\n")
         # RUN ACQUIRE PLOT THREAD HERE
+        self.logText("* Clearing Graph...\n")
         self.graphWindow.clearGraph()
+        self.logText("* Resetting Arduino Timer (set_pivot external command)...\n")
         self.arduinoCommsObject.writeMessage("set_pivot")
+        self.logText("* Starting Acquisition Thread.\n")
         self.thread = internalCommandThread(self,'acquirePlotThread',[n_points,interval])
         self.thread.start()
                    
