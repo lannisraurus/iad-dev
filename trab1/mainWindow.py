@@ -333,7 +333,7 @@ class mainWindow(QWidget):
                 n_points = int(args[0])
                 interval = int(kwargs["t"])
             else:
-                self.logText("* ERROR: Parameters missing in acquire_plot function")
+                self.logText("* ERROR: Parameters missing in acquire_plot function\n")
         elif len(kwargs)==2 and "n" in kwargs.keys() and "t" in kwargs.keys():
             n_points = int(kwargs["n"])
             interval = int(kwargs["t"])
