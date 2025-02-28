@@ -18,6 +18,6 @@ if __name__ == '__main__':
     
     # Create main window
     mainWin = mainWindow()
-    
+    mainWin.installEventFilter(mainWin)
     # Start event loop
     mainApp.exec()

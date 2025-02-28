@@ -301,6 +301,9 @@ class mainWindow(QWidget):
         self.commandOutputLine.setPlainText(self.commandOutputLine.toPlainText() + msg)
         self.commandOutputLine.moveCursor(self.commandOutputLine.textCursor().End)
 
+    def addDataPoint(self,*args):
+        self.graphWindow.addDataPoint(args[0],args[1])
+
     ############ Internal Commands
 
     def logClear(self,*args,**kwargs):
@@ -368,7 +371,7 @@ class mainWindow(QWidget):
         self.logText(">>> "+self.arduinoCommsObject.readMessage())
         self.logText("* Starting Acquisition Thread.\n")
         self.thread = internalCommandThread(self,'acquirePlotThread',[n_points,interval])
-        self.thread.send_po
+        self.thread.send_data.connect(self.addDataPoint)
         self.thread.start()
                    
     def setTitles(self, *args, **kwargs):
