@@ -108,7 +108,8 @@ class inputConsole(QLineEdit):
 
     def __init__(self,logPath,*args,**kwargs):
         super().__init__(*args,**kwargs)
-        self.index = -1
+        self.currentText = ""
+        self.index = 0
         self.lines = []
         self.logPath = logPath
         with open(logPath, 'r') as file:
@@ -116,16 +117,17 @@ class inputConsole(QLineEdit):
                 self.lines.append(line.strip())
     
     def resetIndex(self):
-        self.index = -1
+        self.index = 0
 
-    def addLine(self, cmd):
-        self.lines.insert(0,cmd)
+    def addLine(self):
+        self.lines.insert(0,"")
 
     def clearLines(self):
         self.lines = []
 
     def keyPressEvent(self,event):
         key = event.key()
+        self.lines[self.index] = self.text()
         if key == Qt.Key_Up:
             if self.index < len(self.lines)-1:
                 self.index += 1
@@ -262,22 +264,6 @@ class mainWindow(QWidget):
         self.commandInputLine.saveLog()
         event.accept()
 
-    """
-      def eventFilter(self,source, event):
-        print(event.type())
-        print(QEvent.KeyPress)
-        print("AAAAAAA")
-        if(event.type() == QEvent.KeyPress):
-            print(source)
-            print(self.commandInputLine)
-            print()
-        if(event.type() == QEvent.KeyPress and source is self.commandInputLine):
-            self.commandInputLine.setText("2")
-            self.commandInputLine.insert("2")
-            print("detected press")
-        return super(mainWindow, self).eventFilter(source,event)  
-    """
-
 
     ############ Button Functions
     
@@ -294,7 +280,7 @@ class mainWindow(QWidget):
         cmd = self.commandInputLine.text()
 
         # Add line to log
-        self.commandInputLine.addLine(cmd)
+        self.commandInputLine.addLine()
 
         # Clear command line input
         self.commandInputLine.clear()
