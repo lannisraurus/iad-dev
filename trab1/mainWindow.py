@@ -110,6 +110,7 @@ class inputConsole(QLineEdit):
         super().__init__(*args,**kwargs)
         self.index = 0
         self.lines = []
+        self.logPath = logPath
         with open(logPath, 'r') as file:
             for line in file:
                 self.lines.append(line.strip())
