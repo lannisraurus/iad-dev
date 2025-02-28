@@ -203,6 +203,8 @@ class mainWindow(QWidget):
 
     ############ Close Window Event
     def closeEvent(self,event):
+        self.interrupt = True
+        time.sleep(0.1)
         self.arduinoCommsObject.closePort()
         self.graphWindow.close()
         self.infoWindow.close()
