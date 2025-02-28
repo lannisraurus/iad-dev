@@ -92,7 +92,7 @@ class internalCommandThread(QThread):
     
     finished = pyqtSignal()
 
-    send_data = pyqtSignal(object)
+    send_data = pyqtSignal(list)
     
     def __init__(self,obj,func,params):
         super().__init__()
@@ -217,11 +217,10 @@ class mainWindow(QWidget):
         event.accept()
 
     def eventFilter(self,source, event):
-        print(event.type())
-        print(QEvent.KeyPress)
-        print()
         if(event.type() == QEvent.KeyPress and source is self.commandInputLine):
             self.commandInputLine.setText("2")
+            self.commandInputLine.insert("2")
+            print("detected press")
         return super(mainWindow, self).eventFilter(source,event)
 
     ############ Button Functions
@@ -303,8 +302,8 @@ class mainWindow(QWidget):
         self.commandOutputLine.setPlainText(self.commandOutputLine.toPlainText() + msg)
         self.commandOutputLine.moveCursor(self.commandOutputLine.textCursor().End)
 
-    def addDataPoint(self,*args):
-        self.graphWindow.addDataPoint(args[0],args[1])
+    def addDataPoint(self,point):
+        self.graphWindow.addDataPoint(point[0],point[1])
 
     ############ Internal Commands
 
@@ -400,6 +399,6 @@ class mainWindow(QWidget):
             point = self.arduinoCommsObject.readMessage()
             list_point = point.split()
             # self.graphWindow.addDataPoint(float(list_point[0])*1e-3, float(list_point[1]))
-            signal.emit( *(float(list_point[0])*1e-3, float(list_point[1])) )
+            signal.emit( [float(list_point[0])*1e-3, float(list_point[1])] )
             time.sleep(float(params[1])*float(1e-3))
             counter += 1
