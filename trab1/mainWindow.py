@@ -36,7 +36,7 @@ class commandWindow(QWidget):
         self.commandOutputLine = QTextEdit()
         self.commandOutputLine.setReadOnly(True)
         
-        self.setFixedSize(600,300)
+        self.setFixedSize(600,500)
 
         self.logTextSplashScreen = ""
 
