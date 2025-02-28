@@ -79,6 +79,12 @@ class graphWindow(QMainWindow):
         self.xs.append(x)
         self.ys.append(y)
         self.line.setData(self.xs, self.ys)
+    
+    def clearGraph(self):
+        self.xs = []
+        self.ys = []
+        self.line.setData(self.xs, self.ys)
+
 
 class internalCommandThread(QThread):
     finished = pyqtSignal()
@@ -336,6 +342,8 @@ class mainWindow(QWidget):
         else:
             return "* ERROR: Parameters missing in acquire_plot function"
         # RUN ACQUIRE PLOT THREAD HERE
+        self.graphWindow.clearGraph()
+        self.arduinoCommsObject.writeMessage("set_pivot")
         self.thread = internalCommandThread(self,'acquirePlotThread',[n_points,interval])
         self.thread.start()
                    
@@ -362,8 +370,6 @@ class mainWindow(QWidget):
             self.arduinoCommsObject.writeMessage("acquire")
             point = self.arduinoCommsObject.readMessage()
             list_point = point.split()
-            print(list_point[0])
-            print(list_point[1])
             self.graphWindow.addDataPoint(float(list_point[0]), float(list_point[1]))
             time.sleep(float(params[1])*float(1e-3))
             counter += 1
