@@ -82,7 +82,7 @@ class arduinoComms:
         message = ""
         start_time = time.time()
 
-        while len(message) == 0 and time.time()-start_time <= self.timeoutSeconds:
+        while message[-1] != '\n' and time.time()-start_time <= self.timeoutSeconds:
             while self.serialObject.inWaiting() > 0 :
                 message += self.serialObject.read(1).decode('utf-8')
         
