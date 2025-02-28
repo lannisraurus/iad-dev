@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
     QLabel,
     QStyle
 )
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QPixmap
 import pyqtgraph    # For Data Visualization.
 import time
@@ -79,6 +79,20 @@ class graphWindow(QMainWindow):
         self.xs.append(x)
         self.ys.append(y)
         self.line.setData(self.xs, self.ys)
+
+class internalCommandThread(QThread):
+    finished = pyqtSignal()
+    
+    def __init__(self,obj,func,params):
+        super().__init__()
+        self.obj = obj
+        self.func = func
+        self.params = params
+
+    def run(self):
+        getattr(self.obj, self.func)(self.params)
+        self.finished.emit()
+
 
 class mainWindow(QWidget):
 
@@ -166,7 +180,9 @@ class mainWindow(QWidget):
         self.intCommandsDescription = "test_port: Tests communications through the selected port.\n" + \
             "change_port PORT_NAME: Changes the port to whatever the user provides.\n" + \
             "clear: Clears the console log.\n" + \
-            "list_ports: Re-checks available ports and prints them on screen.\n"
+            "list_ports: Re-checks available ports and prints them on screen.\n" + \
+            "acquire_plot: Acquire the number of points specified (after -n) with the time interval between each aquisition specified (after -t) and draw a graph.\n" + \
+            "set_titles: Set the X axis title (specified after -x), Y axis title (specified after -y) and/or graph title (specified after -g).\n"
         
         ##### External Commands
         self.extCommandsDescription = ""
@@ -315,20 +331,33 @@ class mainWindow(QWidget):
             interval=0
         else:
             return "* ERROR: Parameters missing in acquire_plot function"
+        # RUN ACQUIRE PLOT THREAD HERE
+        thread = internalCommandThread(self,'acquirePlotThread',[n_points,interval])
+        thread.start()
+        
+    def acquirePlotThread(self,params):
         counter = 0
-        while counter != n_points:
+        while counter != params[0]:
             self.arduinoCommsObject.writeMessage("acquire")
             point = self.arduinoCommsObject.readMessage()
             list_point = point.split()
             print(list_point[0])
             print(list_point[1])
             self.graphWindow.addDataPoint(float(list_point[0]), float(list_point[1]))
-            time.sleep(float(interval)*float(1e-3))
+            time.sleep(float(params[1])*float(1e-3))
             counter += 1
             
     def setTitles(self, *args, **kwargs):
-        if kwargs[]
-        if len(args) != 2:
-            return "* ERROR: Parameters missing in"+titlePlace+ "function. \n"
-        elif:
-            args[2] = 
+        if len(args) >0:
+            return "* ERROR: set_titles does not take regular arguments, only kwargs.\n"
+        if len(kwargs) == 0:
+            return "* ERROR: Parameters missing in set_titles function\n"
+        for tag in kwargs.keys():
+            if tag not in ["x", "y", "g"]:
+                return "* ERROR: Parameters missing in set_titles function\n"
+            if tag == "x":
+                self.graphWindow.graphPlot.setLabel("bottom", kwargs["x"])
+            if tag == "y":
+                self.graphWindow.graphPlot.setLabel("left", kwargs["y"])
+            if tag == "g":
+                self.graphWindow.graphPlot.setTitle("left", kwargs["t"])
