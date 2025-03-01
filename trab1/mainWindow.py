@@ -13,10 +13,12 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QStyle
+
 )
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal,QEvent
 from PyQt5.QtGui import QPixmap
 import pyqtgraph    # For Data Visualization.
+import re
 import time
 
 ##################### User defined functions (imports)
@@ -102,19 +104,20 @@ class internalCommandThread(QThread):
         getattr(self.obj, self.func)(self.params,self.send_data)
         self.finished.emit()
 
-##################### Internal Command Thread
+##################### Input console
 
 class inputConsole(QLineEdit):
-
-    def __init__(self,logPath,*args,**kwargs):
+    def __init__(self,logPath,mainWin,*args,**kwargs):
         super().__init__(*args,**kwargs)
         self.currentText = ""
         self.index = 0
-        self.lines = []
+        self.lines = [""]
         self.logPath = logPath
-        with open(logPath, 'r') as file:
-            for line in file:
-                self.lines.append(line.strip())
+        # load log from previous sessions
+        self.loadLog()
+        self.mainWin = mainWin
+
+        
     
     def resetIndex(self):
         self.index = 0
@@ -123,7 +126,7 @@ class inputConsole(QLineEdit):
         self.lines.insert(0,"")
 
     def clearLines(self):
-        self.lines = []
+        self.lines = [""]
 
     def keyPressEvent(self,event):
         key = event.key()
@@ -136,17 +139,29 @@ class inputConsole(QLineEdit):
             if self.index > 0:
                 self.index -= 1
                 self.setText(self.lines[self.index])
-
-
         super().keyPressEvent(event)
     
+    # needed to detect tab click
+    def event(self, event):
+        if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Tab:
+            #autocomplete, currently only for intcmds
+            autocomplete = [cmd for cmd in self.mainWin.intCommands.keys() if cmd.startswith(self.text())]
+            if len(autocomplete) == 1:
+                self.setText(autocomplete[0])
+            return True
+        return QWidget.event(self, event)
+
     def saveLog(self):
         with open(self.logPath,'w') as file:
             for elem in self.lines:
-                file.write(elem+'\n')
+                if elem != "" and not elem.isspace():
+                    file.write(elem+'\n')
 
     def loadLog(self):
-        print("1")
+        with open(self.logPath, 'r') as file:
+            for line in file:
+                self.lines.append(line.strip())
+
 
 ##################### Main Programme Class
 
@@ -166,6 +181,7 @@ class mainWindow(QWidget):
 
         # UI Elements - Buttons
         self.startButton = QPushButton('Run')
+        
         self.startButton.clicked.connect(self.startCommand)
         self.stopButton = QPushButton('Interrupt')
         self.stopButton.clicked.connect(self.stopCommand)
@@ -186,7 +202,7 @@ class mainWindow(QWidget):
         self.groupLogoLabel.setPixmap(self.groupLogoPixmap)
 
         # UI Elements - Line/Text Edits
-        self.commandInputLine = inputConsole('assets/input_log')
+        self.commandInputLine = inputConsole('assets/input_log', self)
         self.commandInputLine.returnPressed.connect(self.startCommand)
         self.commandOutputLine = QTextEdit()
         self.commandOutputLine.setReadOnly(True)
@@ -269,43 +285,40 @@ class mainWindow(QWidget):
     
     # 'Run' Button; used to parse and send commands
     def startCommand(self):
-
-        # Reset console index
-        self.commandInputLine.resetIndex()
-
         # Uninterrupt for potential new thread routines.
         self.interrupt = False
 
         # Extract the command from the input line
         cmd = self.commandInputLine.text()
 
-        # Add line to log
-        self.commandInputLine.addLine()
-
         # Clear command line input
         self.commandInputLine.clear()
-        
+        # Reset previous command log index
+        self.commandInputLine.resetIndex()
+        # Add new empty line to previous command log
+        if cmd != "" and not cmd.isspace():
+            self.commandInputLine.addLine()
+
         # Split the command into substrings
-        cmdPartitions = cmd.split()
-        
+        expression = r'(?:[^\s"]|"(?:\\.|[^"\\])*")+'  # Match non-space characters or quoted parts
+        cmdPartitions = re.findall(expression, cmd.strip())
+        # Remove quotes from the quoted strings
+        cmdPartitions = [part.strip('"') if part.startswith('"') and part.endswith('"') else part for part in cmdPartitions]
+
         # Extract Command Tag (first word)
-        if len(cmd) > 0:
+        cmdTag = ""
+        if cmdPartitions:
             cmdTag = cmdPartitions[0]
-        else:
-            cmdTag = ""
-        
         # Command Extraction Variables
         cmdArgs = []
         cmdKwargs = {}
         keyKwarg = ""
-        
         # Extract arguments from the command - place in cmgArgs and cmdKwargs
-        if len(cmdPartitions) > 0:
+        if cmdPartitions:
             for string in cmdPartitions[1:]:
-                if string[0] == "-":
+                if string.startswith('-'):
                     if keyKwarg:
                         cmdKwargs[keyKwarg] = True
-                        keyKwarg = ""
                     keyKwarg = string[1:]
                 else:
                     if keyKwarg:
@@ -321,7 +334,7 @@ class mainWindow(QWidget):
             # Run internal commands - processed by RPi
             self.logText("* Running internal command \'"+cmd+"\'\n")
             self.intCommands[cmdTag](*cmdArgs,**cmdKwargs)
-        elif len(cmd) > 0:
+        elif cmd:
             # Run external commands - processed by arduino
             self.logText("* Running external command \'"+cmd+"\'\n")
             self.logText(self.arduinoCommsObject.writeMessage(cmd))
