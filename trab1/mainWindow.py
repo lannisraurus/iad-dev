@@ -404,33 +404,28 @@ class mainWindow(QWidget):
     def acquirePlot(self,*args,**kwargs):
         n_points = -1
         interval = 0
-        if len(args)==2 and len(kwargs)==0:
-            n_points = int(args[0])
-            interval = int(args[1])
-        elif len(args)==1 and len(kwargs)==1:
-            if "n" in kwargs.keys():
-                n_points = int(kwargs["n"])
-                interval = int(args[0])
-            elif "t" in kwargs.keys():
-                n_points = int(args[0])
-                interval = int(kwargs["t"])
-            else:
-                self.logText("* ERROR: Parameters missing in acquire_plot function\n")
-        elif len(kwargs)==2 and "n" in kwargs.keys() and "t" in kwargs.keys():
-            n_points = int(kwargs["n"])
-            interval = int(kwargs["t"])
+        clear = True
+        if len(args) >0:
+            self.logText("* ERROR: acquire_plot does not take regular arguments, only kwargs.\n")
+        for tag in kwargs.keys():
+            if tag not in ["t", "n", "c"]:
+                return self.logText("* ERROR: unrecognised parameter in acquire_plot function\n")
+            if tag == "t":
+                interval = kwargs[tag]
+            if tag == "n":
+                n_points = kwargs[tag]
+            if tag == "c":
+                clear = False
 
-        elif len(kwargs)== 0 and len(args)==0:
-            n_points=-1
-            interval=0
-        else:
-            self.logText("* ERROR: Parameters missing in acquire_plot function\n")
-        # RUN ACQUIRE PLOT THREAD HERE
-        self.logText("* Clearing Graph...\n")
-        self.graphWindow.clearGraph()
+        # clear previous graph
+        if clear:
+            self.logText("* Clearing Graph...\n")
+            self.graphWindow.clearGraph()
+        # set start time to 0
         self.logText("* Resetting Arduino Timer (set_pivot external command)...\n")
         self.arduinoCommsObject.writeMessage("set_pivot")
         self.logText(">>> "+self.arduinoCommsObject.readMessage())
+        # start thread for aquisition
         self.logText("* Starting Acquisition Thread.\n")
         self.thread = internalCommandThread(self,'acquirePlotThread',[n_points,interval])
         self.thread.send_data.connect(self.addDataPoint)
@@ -443,7 +438,7 @@ class mainWindow(QWidget):
             self.logText("* ERROR: Parameters missing in set_titles function\n")
         for tag in kwargs.keys():
             if tag not in ["x", "y", "g"]:
-                return self.logText("* ERROR: Parameters missing in set_titles function\n")
+                return self.logText("* ERROR: Unrecognised parameter in set_titles function\n")
             if tag == "x":
                 self.graphWindow.graphPlot.setLabel("bottom", kwargs["x"])
             if tag == "y":
