@@ -75,7 +75,7 @@ class mainWindow(QWidget):
         self.setLayout(self.mainLayout)
         
         self.topLayout = QHBoxLayout()
-        self.midLayoyt = QHBoxLayout()
+        self.midLayout = QHBoxLayout()
         self.bottomLayout = QHBoxLayout()
         
         self.mainLayout.addLayout(self.topLayout)
