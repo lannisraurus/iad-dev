@@ -209,6 +209,8 @@ class mainWindow(QWidget):
             if keyKwarg:
                 cmdKwargs[keyKwarg] = True
         
+        print("HELP")
+
         # Parsing complete; Send command to its' rightful place.
         if cmdTag in self.intCommands.keys():
             # Run internal commands - processed by RPi
@@ -226,10 +228,12 @@ class mainWindow(QWidget):
             while(self.occupied):
                 time.sleep(0.001)
             self.occupied = True 
+            print(self.occupied)
             self.logText(self.arduinoCommsObject.writeMessage(cmd))
             self.logText(">>> "+self.arduinoCommsObject.readMessage()+"\n")
             self.occupied = False 
-    
+            print(self.occupied)
+
     # 'Interrupt' Button; used to interrupt on-going processes in the RPi/Arduino
     def stopCommand(self):
         self.logText("* Interrupting...\n")
