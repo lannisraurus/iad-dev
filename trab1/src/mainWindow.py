@@ -232,8 +232,7 @@ class mainWindow(QWidget):
     # Info icon button. Displays information on implemented commands in separate window.
     def infoCommand(self):
         # Retrieve descriptions from Arduino
-        result = self.arduinoCommsObject.sendExternalCommand("request_commands")
-        self.logText(">>> "+result[1]+"\n")
+        self.extCommandsDescription = self.arduinoCommsObject.sendExternalCommand("request_commands")[1]
         # Open info window with the descriptions
         self.infoWindow.updateExternalCommands(self.extCommandsDescription)
         self.infoWindow.show()
