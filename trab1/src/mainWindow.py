@@ -341,7 +341,7 @@ class mainWindow(QWidget):
         # set start time to 0
         self.logText("* Resetting Arduino Timer (set_pivot external command)...\n")
         result = self.arduinoCommsObject.sendExternalCommand("set_pivot")
-        self.logText(">>> "+result)
+        self.logText(">>> "+result[1])
         # start thread for aquisition
         self.logText("* Starting Acquisition Thread.\n")
         self.thread = internalCommandThread(self,'acquirePlotThread',[n_points,interval])
