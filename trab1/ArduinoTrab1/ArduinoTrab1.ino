@@ -11,7 +11,7 @@
 */
 
 
-int pivot = 0;
+unsigned long pivot = 0;
 int readPin = A0;
 int outputPin = 2;
 String currCmd = "";
@@ -43,11 +43,11 @@ void loop() {
 			int sensorValue = analogRead(readPin);
 			// print out the value you read and corresponding time relative to pivot:
 		  Serial.print(millis()-pivot);
-      Serial.print(" ");                                                                                                (" ");
+      Serial.print(" ");
 			Serial.println(sensorValue);
       
 		}else if(currCmd == "request_commands") {
-      Serial.println("acquire: Acquire analog data from selected pin.| change_read_pin [pin]: Change selected analog read pin.| change_output_pin [pin]: Change selected digital output pin.| switch_output_pin: inverts selected digital pin output" );
+      Serial.println("acquire: Acquire analog data from selected pin.|change_read_pin [pin]: Change selected analog read pin.|change_output_pin [pin]: Change selected digital output pin.|switch_output_pin: inverts selected digital pin output" );
       
 		}else if(currCmd.indexOf("change_read_pin") == 0) {
       if(readPin >= A0 && readPin <= A5) {
@@ -56,18 +56,21 @@ void loop() {
         Serial.println(readPin);
       }
       else {
-        Serial.println("unrecognised read pin");
+        Serial.println("Unrecognised read pin");
       }
 		}else if(currCmd.indexOf("change_output_pin") == 0) {
       if(outputPin >= 2 && outputPin <= 7) {
         outputPin = currCmd.substring(18).toInt();
-        Serial.println("changed output pin successfully");
+        Serial.println("Changed output pin successfully");
       }
       else {
-        Serial.println("unrecognised output pin");
+        Serial.println("Unrecognised output pin");
       }
     }else if(currCmd == "switch_output_pin"){
-      digitalWrite(outputPin, !digitalRead(outputPin));
+      bool oldState = digitalRead(outputPin);
+      digitalWrite(outputPin, !oldState);
+      Serial.print("Switched output pin to ");
+      Serial.println(!oldState);
     }else if(currCmd == "set_pivot"){
       pivot = millis();
       Serial.print("Reset Arduino pivot timer to ");
