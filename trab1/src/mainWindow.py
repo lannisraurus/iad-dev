@@ -165,6 +165,7 @@ class mainWindow(QWidget):
 
         # Clear command line input
         self.commandInputLine.clear()
+        self.commandInputLine.setFinal(cmd)
 
         # Reset previous command log index
         self.commandInputLine.resetIndex()

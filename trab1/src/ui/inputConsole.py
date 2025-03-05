@@ -32,6 +32,9 @@ class inputConsole(QLineEdit):
     def clearLines(self):
         self.lines = [""]
 
+    def setFinal(self, cmd):
+        self.lines[-1] = cmd
+
     def keyPressEvent(self,event):
         key = event.key()
         self.lines[self.index] = self.text()
