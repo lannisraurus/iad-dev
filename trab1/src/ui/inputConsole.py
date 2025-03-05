@@ -50,6 +50,7 @@ class inputConsole(QLineEdit):
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Tab:
             #autocomplete, currently only for intcmds
             autocomplete = [cmd for cmd in self.mainWin.intCommands.keys() if cmd.startswith(self.text())]
+            autocomplete += [cmd for cmd in self.mainWin.mixCommands.keys() if cmd.startswith(self.text())]
             if len(autocomplete) == 1:
                 self.setText(autocomplete[0])
             return True
