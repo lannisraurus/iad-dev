@@ -209,8 +209,6 @@ class mainWindow(QWidget):
             if keyKwarg:
                 cmdKwargs[keyKwarg] = True
         
-        print("HELP")
-
         # Parsing complete; Send command to its' rightful place.
         if cmdTag in self.intCommands.keys():
             # Run internal commands - processed by RPi
@@ -223,16 +221,8 @@ class mainWindow(QWidget):
         elif cmd:
             # Run external commands - processed by arduino (NON EMPTY ONLY)
             self.logText("* Running external command \'"+cmd+"\'\n")
-            if self.occupied:
-                print("Occupied")
-            while(self.occupied):
-                time.sleep(0.001)
-            self.occupied = True 
-            print(self.occupied)
-            self.logText(self.arduinoCommsObject.writeMessage(cmd))
-            self.logText(">>> "+self.arduinoCommsObject.readMessage()+"\n")
-            self.occupied = False 
-            print(self.occupied)
+            self.sendExternalCommand(cmd)
+
 
     # 'Interrupt' Button; used to interrupt on-going processes in the RPi/Arduino
     def stopCommand(self):
@@ -242,8 +232,8 @@ class mainWindow(QWidget):
     # Info icon button. Displays information on implemented commands in separate window.
     def infoCommand(self):
         # Retrieve descriptions from Arduino
-        self.arduinoCommsObject.writeMessage("request_commands")
-        self.extCommandsDescription = self.arduinoCommsObject.readMessage()
+        result = self.sendExternalCommand("request_commands")
+        self.logText(">>> "+result+"\n")
         # Open info window with the descriptions
         self.infoWindow.updateExternalCommands(self.extCommandsDescription)
         self.infoWindow.show()
@@ -266,6 +256,15 @@ class mainWindow(QWidget):
     def addDataPoint(self,point):
         self.graphWindow.addDataPoint(point[0],point[1])
 
+    def sendExternalCommand(self, cmd):
+            while(self.occupied):
+                pass
+            self.occupied = True 
+            self.logText(self.arduinoCommsObject.writeMessage(cmd))
+            result = self.arduinoCommsObject.readMessage()
+            self.occupied = False 
+            return result
+    
 
 
 
@@ -374,8 +373,7 @@ class mainWindow(QWidget):
     def acquirePlotThread(self,params,signalPoint):
         counter = 0
         while counter != params[0] and self.interrupt == False:
-            self.arduinoCommsObject.writeMessage("acquire")
-            point = self.arduinoCommsObject.readMessage()
+            point = self.sendExternalCommand("acquire")
 
             list_point = point.split()
             # self.graphWindow.addDataPoint(float(list_point[0])*1e-3, float(list_point[1]))
