@@ -1,3 +1,10 @@
+"""
+Duarte Tavares, João Camacho, Jorge Costa, Margarida Saraiva
+IST, 2025 - IAD
+
+This file contains the inputConsole
+
+"""
 ##################### Imports
 from PyQt5.QtCore import *      # Basic Qt functionalities.
 from PyQt5.QtWidgets import *   # GUI windows

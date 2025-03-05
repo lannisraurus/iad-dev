@@ -210,8 +210,12 @@ class mainWindow(QWidget):
         elif cmd:
             # Run external commands - processed by arduino (NON EMPTY ONLY)
             self.logText("* Running external command \'"+cmd+"\'\n")
+            while(self.occupied):
+                pass
+            self.occupied = True 
             self.logText(self.arduinoCommsObject.writeMessage(cmd))
             self.logText(">>> "+self.arduinoCommsObject.readMessage()+"\n")
+            self.occupied = False 
     
     # 'Interrupt' Button; used to interrupt on-going processes in the RPi/Arduino
     def stopCommand(self):
@@ -245,9 +249,6 @@ class mainWindow(QWidget):
     def addDataPoint(self,point):
         self.graphWindow.addDataPoint(point[0],point[1])
 
-    # Signals that the communication channel is occupied by a running thread
-    def setOccupied(self,state):
-        self.occupied = state
 
 
 
@@ -259,34 +260,45 @@ class mainWindow(QWidget):
             self.logText("* ERROR: Unknown args in the clear function.\n")
         if kwargs:
             self.logText("* ERROR: Unknown kwargs in the clear function.\n")
+        # Clear all text and move cursor to beginning
         if (not args) and (not kwargs):
             self.commandOutputLine.setPlainText(self.logTextSplashScreen)
             self.commandOutputLine.moveCursor(self.commandOutputLine.textCursor().End)
-        
+    
+    # Tests the communication with a port
     def testPort(self,*args,**kwargs):
+        # Command takes no arguments; error checking if there are arguments
         if args:
             self.logText("* ERROR: Unknown args in the test_port function.\n")
         if kwargs:
             self.logText("* ERROR: Unknown kwargs in the test_port function.\n")
+        # Try opening with arduinoCommsObject, convert status int into string using object.
         if not args and not kwargs:
             self.logText(self.arduinoCommsObject.tryOpeningIntToStr(self.arduinoCommsObject.tryOpening()))
 
+    # List all the available devices in the computer
     def listPorts(self,*args,**kwargs):
+        # Command takes no arguments; error checking if there are arguments
         if args:
             self.logText("* ERROR: Unknown args in the list_ports function.\n")
         if kwargs:
             self.logText("* ERROR: Unknown kwargs in the list_ports function.\n")
+        # Use arduinoCommsObject to list all the ports in the computer.
         if not args and not kwargs:
             self.logText(self.arduinoCommsObject.listPorts())
 
+    # Change selected device for communication
     def changePort(self,*args,**kwargs):
+        # Command takes no kwargs, only one arg; error checking.
         if kwargs:
             self.logText("* ERROR: Unknown kwargs in the change_port function.\n")
         elif len(args) != 1:
             self.logText("* ERROR: change_port functions expects 1 argument!\n")
+        # Change the port with arduinoCommsObject
         else:
             self.logText(self.arduinoCommsObject.changePort(args[0]))
 
+    # Acquisition Routine; invokes threading
     def acquirePlot(self,*args,**kwargs):
         n_points = -1
         interval = 0
@@ -315,7 +327,6 @@ class mainWindow(QWidget):
         self.logText("* Starting Acquisition Thread.\n")
         self.thread = internalCommandThread(self,'acquirePlotThread',[n_points,interval])
         self.thread.send_data.connect(self.addDataPoint)
-        self.thread.send_occupied.connect(self.setOccupied)
         self.thread.start()
                    
     def setTitles(self, *args, **kwargs):
@@ -346,12 +357,8 @@ class mainWindow(QWidget):
     def acquirePlotThread(self,params,signalPoint, signalOccupied):
         counter = 0
         while counter != params[0] and self.interrupt == False:
-            while(self.occupied):
-                pass
-            signalOccupied.emit(True)
             self.arduinoCommsObject.writeMessage("acquire")
             point = self.arduinoCommsObject.readMessage()
-            signalOccupied.emit(False)
 
             list_point = point.split()
             # self.graphWindow.addDataPoint(float(list_point[0])*1e-3, float(list_point[1]))

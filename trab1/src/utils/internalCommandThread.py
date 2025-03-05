@@ -7,7 +7,6 @@ class internalCommandThread(QThread):
     finished = pyqtSignal()
 
     send_data = pyqtSignal(list)
-    send_occupied = pyqtSignal(bool)
     
     def __init__(self,obj,func,params):
         super().__init__()
@@ -16,5 +15,5 @@ class internalCommandThread(QThread):
         self.params = params
 
     def run(self):
-        getattr(self.obj, self.func)(self.params,self.send_data,self.send_occupied)
+        getattr(self.obj, self.func)(self.params,self.send_data)
         self.finished.emit()
