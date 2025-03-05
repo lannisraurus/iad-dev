@@ -15,11 +15,11 @@ import re
 import time                     # For routines
 
 ##################### User defined functions (imports)
-from comms.arduinoComms import arduinoComms
-from ui.commandWindow import commandWindow
-from ui.graphWindow import graphWindow
-from ui.inputConsole import inputConsole
-from utils.internalCommandThread import internalCommandThread
+from src.comms.arduinoComms import arduinoComms
+from src.ui.commandWindow import commandWindow
+from src.ui.graphWindow import graphWindow
+from src.ui.inputConsole import inputConsole
+from src.utils.internalCommandThread import internalCommandThread
 
 ##################### Main Programme Class
 class mainWindow(QWidget):
@@ -252,7 +252,9 @@ class mainWindow(QWidget):
 
 
     ############ Internal Commands - Routines processed by this programme.
+    # Clears programme log
     def logClear(self,*args,**kwargs):
+        # Command takes no arguments; error checking if there are arguments
         if args:
             self.logText("* ERROR: Unknown args in the clear function.\n")
         if kwargs:
