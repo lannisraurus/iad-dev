@@ -110,7 +110,6 @@ class mainWindow(QWidget):
             "change_port": self.changePort,
             "clear": self.logClear,
             "list_ports": self.listPorts,
-            "acquire_plot": self.acquirePlot,
             "set_titles": self.setTitles,
             "clear_graph": self.clearGraph
         }
@@ -138,7 +137,6 @@ class mainWindow(QWidget):
 
         ##### Threaded processes booleans
         self.interrupt = False  # Interrupt a thread
-        self.occupied = False   # Signal that communications are occupied with a thread
 
 
 
@@ -221,7 +219,7 @@ class mainWindow(QWidget):
         elif cmd:
             # Run external commands - processed by arduino (NON EMPTY ONLY)
             self.logText("* Running external command \'"+cmd+"\'\n")
-            self.sendExternalCommand(cmd)
+            self.arduinoCommsObject.sendExternalCommand(cmd)
 
 
     # 'Interrupt' Button; used to interrupt on-going processes in the RPi/Arduino
@@ -232,7 +230,7 @@ class mainWindow(QWidget):
     # Info icon button. Displays information on implemented commands in separate window.
     def infoCommand(self):
         # Retrieve descriptions from Arduino
-        result = self.sendExternalCommand("request_commands")
+        result = self.arduinoCommsObject.sendExternalCommand("request_commands")
         self.logText(">>> "+result+"\n")
         # Open info window with the descriptions
         self.infoWindow.updateExternalCommands(self.extCommandsDescription)
@@ -256,14 +254,7 @@ class mainWindow(QWidget):
     def addDataPoint(self,point):
         self.graphWindow.addDataPoint(point[0],point[1])
 
-    def sendExternalCommand(self, cmd):
-            while(self.occupied):
-                pass
-            self.occupied = True 
-            self.logText(self.arduinoCommsObject.writeMessage(cmd))
-            result = self.arduinoCommsObject.readMessage()
-            self.occupied = False 
-            return result
+
     
 
 
@@ -373,7 +364,7 @@ class mainWindow(QWidget):
     def acquirePlotThread(self,params,signalPoint):
         counter = 0
         while counter != params[0] and self.interrupt == False:
-            point = self.sendExternalCommand("acquire")
+            point = self.arduinoCommsObject.sendExternalCommand("acquire")
 
             list_point = point.split()
             # self.graphWindow.addDataPoint(float(list_point[0])*1e-3, float(list_point[1]))

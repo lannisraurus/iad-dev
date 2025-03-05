@@ -8,6 +8,8 @@ class arduinoComms:
     # Init
     def initialize(self):
         msg = "* Setting up arduino communication...\n"
+        self.occupied = False   # Signal that communications are occupied with a thread
+
         self.serialObject = serial.Serial()
         self.serialObject.baudrate = 115200
         self.serialObject.timeout = None
@@ -88,3 +90,11 @@ class arduinoComms:
             return "TIMEOUT! ("+str(time.time()-start_time)+" seconds).\n" 
         return message 
 
+    def sendExternalCommand(self, cmd):
+            while(self.occupied):
+                pass
+            self.occupied = True 
+            self.logText(self.writeMessage(cmd))
+            result = self.readMessage()
+            self.occupied = False 
+            return result
