@@ -86,15 +86,15 @@ class mainWindow(QWidget):
         self.topLayout.addWidget(self.groupLogoLabel)
         self.topLayout.addWidget(self.commandOutputLine)
         
-        # UI Elements - Middle Layout
-        self.midLayout.addWidget(self.startButton)
-        self.midLayout.addWidget(self.stopButton)
-        
+        # UI Elements - Mid Layout
+        self.midLayout.addWidget(self.commandInputLabel)
+        self.midLayout.addWidget(self.commandInputLine)
+        self.midLayout.addWidget(self.commandInfoButton)
+        self.midLayout.addWidget(self.graphButton)
+
         # UI Elements - Bottom Layout
-        self.bottomLayout.addWidget(self.commandInputLabel)
-        self.bottomLayout.addWidget(self.commandInputLine)
-        self.bottomLayout.addWidget(self.commandInfoButton)
-        self.bottomLayout.addWidget(self.graphButton)
+        self.bottomLayout.addWidget(self.startButton)
+        self.bottomLayout.addWidget(self.stopButton)
 
         # Show window
         self.show()
