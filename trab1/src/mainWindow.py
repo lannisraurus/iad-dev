@@ -220,8 +220,8 @@ class mainWindow(QWidget):
             # Run external commands - processed by arduino (NON EMPTY ONLY)
             self.logText("* Running external command \'"+cmd+"\'\n")
             result = self.arduinoCommsObject.sendExternalCommand(cmd)
-            self.logText(result[0])
-            self.logText(result[1])
+            self.logText(">>> "+result[0])
+            self.logText(">>> "+result[1])
 
 
     # 'Interrupt' Button; used to interrupt on-going processes in the RPi/Arduino
@@ -253,7 +253,16 @@ class mainWindow(QWidget):
 
     # Adds a point to the pyqtgraph implemented in graphWindow.
     def addDataPoint(self,point):
-        self.graphWindow.addDataPoint(point[0],point[1])
+        if len(point) == 2:
+            self.graphWindow.addDataPoint(point[0],point[1])
+        else:
+            self.logText("* ERROR: data point is not a data pair...\n")
+            errMsg = ""
+            for p in point:
+                if type(p) == str:
+                    errMsg += p+' '
+            if len(errMsg) > 0:
+                self.logText("* ...the data received was: "+errMsg+'\n')
 
 
     
@@ -308,6 +317,7 @@ class mainWindow(QWidget):
 
     # Acquisition Routine; invokes threading
     def acquirePlot(self,*args,**kwargs):
+        # Working parameters
         n_points = -1
         interval = 0
         clear = True
@@ -367,6 +377,9 @@ class mainWindow(QWidget):
         while counter != params[0] and self.interrupt == False:
             point = self.arduinoCommsObject.sendExternalCommand("acquire")[1]
             list_point = point.split()
-            signalPoint.emit( [float(list_point[0])*1e-3, float(list_point[1])] )
+            try:
+                signalPoint.emit( [float(list_point[0])*1e-3, float(list_point[1])] )
+            except:
+                signalPoint.emit( [point] )
             time.sleep(float(params[1])*float(1e-3))
             counter += 1
