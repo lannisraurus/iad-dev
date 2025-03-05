@@ -94,7 +94,7 @@ class arduinoComms:
             while(self.occupied):
                 pass
             self.occupied = True 
-            self.logText(self.writeMessage(cmd))
-            result = self.readMessage()
+            writeMsg = self.writeMessage(cmd)
+            readMsg = self.readMessage()
             self.occupied = False 
-            return result
+            return (writeMsg,readMsg)

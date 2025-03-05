@@ -219,7 +219,9 @@ class mainWindow(QWidget):
         elif cmd:
             # Run external commands - processed by arduino (NON EMPTY ONLY)
             self.logText("* Running external command \'"+cmd+"\'\n")
-            self.arduinoCommsObject.sendExternalCommand(cmd)
+            result = self.arduinoCommsObject.sendExternalCommand(cmd)
+            self.logText(result[0])
+            self.logText(result[1])
 
 
     # 'Interrupt' Button; used to interrupt on-going processes in the RPi/Arduino
@@ -231,7 +233,7 @@ class mainWindow(QWidget):
     def infoCommand(self):
         # Retrieve descriptions from Arduino
         result = self.arduinoCommsObject.sendExternalCommand("request_commands")
-        self.logText(">>> "+result+"\n")
+        self.logText(">>> "+result[1]+"\n")
         # Open info window with the descriptions
         self.infoWindow.updateExternalCommands(self.extCommandsDescription)
         self.infoWindow.show()
@@ -364,10 +366,8 @@ class mainWindow(QWidget):
     def acquirePlotThread(self,params,signalPoint):
         counter = 0
         while counter != params[0] and self.interrupt == False:
-            point = self.arduinoCommsObject.sendExternalCommand("acquire")
-
+            point = self.arduinoCommsObject.sendExternalCommand("acquire")[1]
             list_point = point.split()
-            # self.graphWindow.addDataPoint(float(list_point[0])*1e-3, float(list_point[1]))
             signalPoint.emit( [float(list_point[0])*1e-3, float(list_point[1])] )
             time.sleep(float(params[1])*float(1e-3))
             counter += 1
