@@ -76,7 +76,7 @@ class mainWindow(QWidget):
         
         self.topLayout = QHBoxLayout()
         self.midLayout = QHBoxLayout()
-        self.bottomLayout = QHBoxLayout()
+        self.bottomLayout = QVBoxLayout()
         
         self.mainLayout.addLayout(self.topLayout)
         self.mainLayout.addLayout(self.midLayout)
@@ -104,7 +104,7 @@ class mainWindow(QWidget):
         self.arduinoCommsObject = arduinoComms()
         self.logText(self.arduinoCommsObject.initialize())
 
-        ##### INTERNAL COMMANDS - function dictionary and descriptions
+        ##### INTERNAL COMMANDS AND MIXED COMMANDS - function dictionary and descriptions
         self.intCommands = {
             "test_port": self.testPort,
             "change_port": self.changePort,
@@ -118,15 +118,22 @@ class mainWindow(QWidget):
             "change_port PORT_NAME: Changes the port to whatever the user provides.\n" + \
             "clear: Clears the console log.\n" + \
             "list_ports: Re-checks available ports and prints them on screen.\n" + \
-            "acquire_plot: Acquire the number of points specified (after -n) with the time interval between each aquisition specified (after -t) and draw a graph.\n" + \
             "set_titles: Set the X axis title (specified after -x), Y axis title (specified after -y) and/or graph title (specified after -g).\n" + \
             "clear_graph: Clears all data in the graph.\n"
         
+        self.mixCommands = {
+            "acquire_plot": self.acquirePlot,
+        }
+
+        self.mixCommandsDescription = "acquire_plot: Acquire the number of points specified (after -n) " + \
+            "with the time interval between each aquisition specified (after -t) and draw a graph.\n"
+            
+
         ##### External Commands - descriptions (to be acquired from arduino)
         self.extCommandsDescription = ""
 
         ##### Additional Windows
-        self.infoWindow = commandWindow(self.intCommandsDescription, self.extCommandsDescription)
+        self.infoWindow = commandWindow(self.intCommandsDescription, self.extCommandsDescription, self.mixCommandsDescription)
         self.graphWindow = graphWindow()
 
         ##### Threaded processes booleans
@@ -207,6 +214,10 @@ class mainWindow(QWidget):
             # Run internal commands - processed by RPi
             self.logText("* Running internal command \'"+cmd+"\'\n")
             self.intCommands[cmdTag](*cmdArgs,**cmdKwargs)
+        elif cmdTag in self.mixCommands.keys():
+            # Run mixed commands - processed by RPi, but sends external commands
+            self.logText("* Running mixed command \'"+cmd+"\'\n")
+            self.mixCommands[cmdTag](*cmdArgs,**cmdKwargs)
         elif cmd:
             # Run external commands - processed by arduino (NON EMPTY ONLY)
             self.logText("* Running external command \'"+cmd+"\'\n")
@@ -354,7 +365,7 @@ class mainWindow(QWidget):
 
 ############ Internal Command Threading
 
-    def acquirePlotThread(self,params,signalPoint, signalOccupied):
+    def acquirePlotThread(self,params,signalPoint):
         counter = 0
         while counter != params[0] and self.interrupt == False:
             self.arduinoCommsObject.writeMessage("acquire")

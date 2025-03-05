@@ -6,11 +6,12 @@ from PyQt5.QtGui import *       # GUI Elements
 
 ##################### Commands Window Class
 class commandWindow(QWidget):
-    def __init__(self, int_commands, ext_commands):
+    def __init__(self, int_commands, ext_commands, mix_commands):
         super().__init__()
         self.setWindowTitle("Commands")
         self.intCommands = int_commands
         self.extCommands = ext_commands
+        self.mixCommands = mix_commands
 
         self.commandOutputLine = QTextEdit()
         self.commandOutputLine.setReadOnly(True)
@@ -28,7 +29,8 @@ class commandWindow(QWidget):
     def setCommandText(self):
         self.commandOutputLine.setPlainText(self.logTextSplashScreen + \
                 "* Internal Commands - Processed by RaspberryPi:\n" + self.intCommands + "\n" + \
-                "* External Commands - Processed by Arduino:\n" + self.extCommands)
+                "* External Commands - Processed by Arduino:\n" + self.extCommands + "\n" +\
+                "* Mixed Commands - Processed by both RaspberryPi and Arduino:\n" +self.mixCommands )
 
     def updateExternalCommands(self,desc):
         self.extCommands = desc
