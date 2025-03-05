@@ -1,5 +1,10 @@
-##################### Input console
+##################### Imports
+from PyQt5.QtCore import *      # Basic Qt functionalities.
+from PyQt5.QtWidgets import *   # GUI windows
+from PyQt5.QtCore import *      # Qt threads, ...
+from PyQt5.QtGui import *       # GUI Elements
 
+##################### Input console class
 class inputConsole(QLineEdit):
     def __init__(self,logPath,mainWin,*args,**kwargs):
         super().__init__(*args,**kwargs)

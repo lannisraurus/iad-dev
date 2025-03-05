@@ -1,5 +1,10 @@
-##################### Commands Window
+##################### Imports
+from PyQt5.QtCore import *      # Basic Qt functionalities.
+from PyQt5.QtWidgets import *   # GUI windows
+from PyQt5.QtCore import *      # Qt threads, ...
+from PyQt5.QtGui import *       # GUI Elements
 
+##################### Commands Window Class
 class commandWindow(QWidget):
     def __init__(self, int_commands, ext_commands):
         super().__init__()

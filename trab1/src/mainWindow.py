@@ -1,43 +1,50 @@
+"""
+Duarte Tavares, João Camacho, Jorge Costa, Margarida Saraiva
+IST, 2025 - IAD
+
+This file contains the main window class, containing all the UI
+and programme methods.
+
+"""
 ##################### Python Library Imports
 from PyQt5.QtCore import *      # Basic Qt functionalities.
 from PyQt5.QtWidgets import *   # GUI windows
 from PyQt5.QtCore import *      # Qt threads, ...
 from PyQt5.QtGui import *       # GUI Elements
-import pyqtgraph                # Data Visualization.
 import re
 import time                     # For routines
 
 ##################### User defined functions (imports)
-from src.arduinoComms import arduinoComms
-from src.commandWindow import commandWindow
-from src.graphWindow import graphWindow
-from src.inputConsole import inputConsole
+from comms.arduinoComms import arduinoComms
+from ui.commandWindow import commandWindow
+from ui.graphWindow import graphWindow
+from ui.inputConsole import inputConsole
+from utils.internalCommandThread import internalCommandThread
 
 ##################### Main Programme Class
-
 class mainWindow(QWidget):
 
     ############ Constructor
     def __init__(self, *args, **kwargs):
 
         ##### UI
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)   # Initialize parent class
 
-        # Set title
+        # UI - General
         self.setWindowTitle('Raspberry Pi - Arduino Interface')
-
-        # Set Size
         self.setGeometry(500, 500, 420, 220)
 
         # UI Elements - Buttons
         self.startButton = QPushButton('Run')
-        
         self.startButton.clicked.connect(self.startCommand)
+        
         self.stopButton = QPushButton('Interrupt')
         self.stopButton.clicked.connect(self.stopCommand)
+        
         self.commandInfoButton = QPushButton('Commands')
         self.commandInfoButton.clicked.connect(self.infoCommand)
         self.commandInfoButton.setIcon(self.style().standardIcon(QStyle.SP_MessageBoxInformation))
+        
         self.graphButton = QPushButton('Graph')
         self.graphButton.clicked.connect(self.graphShow)
         self.graphButton.setIcon(self.style().standardIcon(QStyle.SP_FileDialogContentsView))
@@ -48,33 +55,40 @@ class mainWindow(QWidget):
 
         # UI Elements - Labels
         self.commandInputLabel = QLabel('Command:')
+
         self.groupLogoLabel = QLabel()
         self.groupLogoLabel.setPixmap(self.groupLogoPixmap)
 
         # UI Elements - Line/Text Edits
         self.commandInputLine = inputConsole('assets/input_log', self)
         self.commandInputLine.returnPressed.connect(self.startCommand)
+        
         self.commandOutputLine = QTextEdit()
         self.commandOutputLine.setReadOnly(True)
         self.commandOutputLine.setMinimumSize(500,250)
+        
         self.logTextSplashScreen = "******************************\n* RPi - Arduino Interface (Log) *\n******************************\n\n"
-        self.logText(self.logTextSplashScreen)
+        self.logText(self.logTextSplashScreen)  # Function defined further
 
         # Create a layouts
         self.mainLayout = QVBoxLayout()
         self.setLayout(self.mainLayout)
+        
         self.topLayout = QHBoxLayout()
+        self.midLayoyt = QHBoxLayout()
         self.bottomLayout = QHBoxLayout()
+        
         self.mainLayout.addLayout(self.topLayout)
+        self.mainLayout.addLayout(self.midLayout)
         self.mainLayout.addLayout(self.bottomLayout)
 
         # UI Elements - Top Layout 
         self.topLayout.addWidget(self.groupLogoLabel)
         self.topLayout.addWidget(self.commandOutputLine)
         
-        # UI Elements - Main Layout
-        self.mainLayout.addWidget(self.startButton)
-        self.mainLayout.addWidget(self.stopButton)
+        # UI Elements - Middle Layout
+        self.midLayout.addWidget(self.startButton)
+        self.midLayout.addWidget(self.stopButton)
         
         # UI Elements - Bottom Layout
         self.bottomLayout.addWidget(self.commandInputLabel)
@@ -85,12 +99,12 @@ class mainWindow(QWidget):
         # Show window
         self.show()
 
-        ##### COMMS
-        # Create Serial Communications
+
+        ##### COMMS - Serial Communication Object
         self.arduinoCommsObject = arduinoComms()
         self.logText(self.arduinoCommsObject.initialize())
 
-        ##### INTERNAL COMMANDS
+        ##### INTERNAL COMMANDS - function dictionary and descriptions
         self.intCommands = {
             "test_port": self.testPort,
             "change_port": self.changePort,
@@ -108,19 +122,21 @@ class mainWindow(QWidget):
             "set_titles: Set the X axis title (specified after -x), Y axis title (specified after -y) and/or graph title (specified after -g).\n" + \
             "clear_graph: Clears all data in the graph.\n"
         
-        ##### External Commands
+        ##### External Commands - descriptions (to be acquired from arduino)
         self.extCommandsDescription = ""
 
         ##### Additional Windows
         self.infoWindow = commandWindow(self.intCommandsDescription, self.extCommandsDescription)
         self.graphWindow = graphWindow()
 
-        ##### INTERRUPTING
-        self.interrupt = False
+        ##### Threaded processes booleans
+        self.interrupt = False  # Interrupt a thread
+        self.occupied = False   # Signal that communications are occupied with a thread
+
+
 
 
     ############# Events
-    
     def closeEvent(self,event):
         self.interrupt = True
         time.sleep(0.1)
@@ -130,10 +146,12 @@ class mainWindow(QWidget):
         self.commandInputLine.saveLog()
         event.accept()
 
-    ############ Button Functions
-    
+
+
+    ############ Button Methods
     # 'Run' Button; used to parse and send commands
     def startCommand(self):
+        
         # Uninterrupt for potential new thread routines.
         self.interrupt = False
 
@@ -142,14 +160,17 @@ class mainWindow(QWidget):
 
         # Clear command line input
         self.commandInputLine.clear()
+
         # Reset previous command log index
         self.commandInputLine.resetIndex()
+
         # Add new empty line to previous command log
         if cmd != "" and not cmd.isspace():
             self.commandInputLine.addLine()
 
         # Split the command into substrings
-        expression = r'(?:[^\s"]|"(?:\\.|[^"\\])*")+'  # Match non-space characters or quoted parts
+        # This regex certifies that data between quotes is not separated by spaces, allowing for string data with spaces.
+        expression = r'(?:[^\s"]|"(?:\\.|[^"\\])*")+'       # Regex for data between quotes
         cmdPartitions = re.findall(expression, cmd.strip())
         
         # Remove quotes from the quoted strings
@@ -159,10 +180,12 @@ class mainWindow(QWidget):
         cmdTag = ""
         if cmdPartitions:
             cmdTag = cmdPartitions[0]
+        
         # Command Extraction Variables
         cmdArgs = []
         cmdKwargs = {}
         keyKwarg = ""
+
         # Extract arguments from the command - place in cmgArgs and cmdKwargs
         if cmdPartitions:
             for string in cmdPartitions[1:]:
@@ -185,7 +208,7 @@ class mainWindow(QWidget):
             self.logText("* Running internal command \'"+cmd+"\'\n")
             self.intCommands[cmdTag](*cmdArgs,**cmdKwargs)
         elif cmd:
-            # Run external commands - processed by arduino
+            # Run external commands - processed by arduino (NON EMPTY ONLY)
             self.logText("* Running external command \'"+cmd+"\'\n")
             self.logText(self.arduinoCommsObject.writeMessage(cmd))
             self.logText(">>> "+self.arduinoCommsObject.readMessage()+"\n")
@@ -195,29 +218,40 @@ class mainWindow(QWidget):
         self.logText("* Interrupting...\n")
         self.interrupt = True
     
-    # Info icon button. Displays information on implemented commands.
+    # Info icon button. Displays information on implemented commands in separate window.
     def infoCommand(self):
+        # Retrieve descriptions from Arduino
         self.arduinoCommsObject.writeMessage("request_commands")
         self.extCommandsDescription = self.arduinoCommsObject.readMessage()
+        # Open info window with the descriptions
         self.infoWindow.updateExternalCommands(self.extCommandsDescription)
         self.infoWindow.show()
         self.infoWindow.activateWindow()
 
+    # Investigate icon button. Opens up a pyqtgraph window.
     def graphShow(self):
         self.graphWindow.show()
         self.graphWindow.activateWindow()
 
-    ############ Utility
 
+
+    ############ Utility
+    # Logs text onto the programme log window.
     def logText(self,msg): 
         self.commandOutputLine.setPlainText(self.commandOutputLine.toPlainText() + msg)
         self.commandOutputLine.moveCursor(self.commandOutputLine.textCursor().End)
 
+    # Adds a point to the pyqtgraph implemented in graphWindow.
     def addDataPoint(self,point):
         self.graphWindow.addDataPoint(point[0],point[1])
 
-    ############ Internal Commands
+    # Signals that the communication channel is occupied by a running thread
+    def setOccupied(self,state):
+        self.occupied = state
 
+
+
+    ############ Internal Commands - Routines processed by this programme.
     def logClear(self,*args,**kwargs):
         if args:
             self.logText("* ERROR: Unknown args in the clear function.\n")
@@ -279,6 +313,7 @@ class mainWindow(QWidget):
         self.logText("* Starting Acquisition Thread.\n")
         self.thread = internalCommandThread(self,'acquirePlotThread',[n_points,interval])
         self.thread.send_data.connect(self.addDataPoint)
+        self.thread.send_occupied.connect(self.setOccupied)
         self.thread.start()
                    
     def setTitles(self, *args, **kwargs):
@@ -306,13 +341,18 @@ class mainWindow(QWidget):
 
 ############ Internal Command Threading
 
-    def acquirePlotThread(self,params,signal):
+    def acquirePlotThread(self,params,signalPoint, signalOccupied):
         counter = 0
         while counter != params[0] and self.interrupt == False:
+            while(self.occupied):
+                pass
+            signalOccupied.emit(True)
             self.arduinoCommsObject.writeMessage("acquire")
             point = self.arduinoCommsObject.readMessage()
+            signalOccupied.emit(False)
+
             list_point = point.split()
             # self.graphWindow.addDataPoint(float(list_point[0])*1e-3, float(list_point[1]))
-            signal.emit( [float(list_point[0])*1e-3, float(list_point[1])] )
+            signalPoint.emit( [float(list_point[0])*1e-3, float(list_point[1])] )
             time.sleep(float(params[1])*float(1e-3))
             counter += 1
