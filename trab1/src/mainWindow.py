@@ -221,6 +221,8 @@ class mainWindow(QWidget):
         elif cmd:
             # Run external commands - processed by arduino (NON EMPTY ONLY)
             self.logText("* Running external command \'"+cmd+"\'\n")
+            if self.occupied:
+                print("Occupied")
             while(self.occupied):
                 time.sleep(0.001)
             self.occupied = True 
