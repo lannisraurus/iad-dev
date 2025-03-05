@@ -1,167 +1,17 @@
 ##################### Python Library Imports
-
-# UI
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (
-    QApplication,
-    QWidget,
-    QMainWindow,
-    QLineEdit,
-    QTextEdit,
-    QPushButton,
-    QVBoxLayout,
-    QHBoxLayout,
-    QLabel,
-    QStyle
-
-)
-from PyQt5.QtCore import QThread, pyqtSignal,QEvent
-from PyQt5.QtGui import QPixmap
-import pyqtgraph    # For Data Visualization.
+from PyQt5.QtCore import *      # Basic Qt functionalities.
+from PyQt5.QtWidgets import *   # GUI windows
+from PyQt5.QtCore import *      # Qt threads, ...
+from PyQt5.QtGui import *       # GUI Elements
+import pyqtgraph                # Data Visualization.
 import re
-import time
+import time                     # For routines
 
 ##################### User defined functions (imports)
-from arduinoComms import arduinoComms
-
-##################### Commands Window
-
-class commandWindow(QWidget):
-    def __init__(self, int_commands, ext_commands):
-        super().__init__()
-        self.setWindowTitle("Commands")
-        self.intCommands = int_commands
-        self.extCommands = ext_commands
-
-        self.commandOutputLine = QTextEdit()
-        self.commandOutputLine.setReadOnly(True)
-        
-        self.setFixedSize(600,500)
-
-        self.logTextSplashScreen = ""
-
-        self.setCommandText()
-
-        self.mainLayout = QVBoxLayout()
-        self.setLayout(self.mainLayout)
-        self.mainLayout.addWidget(self.commandOutputLine)
-
-    def setCommandText(self):
-        self.commandOutputLine.setPlainText(self.logTextSplashScreen + \
-                "* Internal Commands - Processed by RaspberryPi:\n" + self.intCommands + "\n" + \
-                "* External Commands - Processed by Arduino:\n" + self.extCommands)
-
-    def updateExternalCommands(self,desc):
-        self.extCommands = desc
-        self.setCommandText()
-
-##################### Graph Window
-
-class graphWindow(QMainWindow):
-    def __init__(self):
-        super().__init__() 
-         # Set title
-        self.setWindowTitle('Graph')
-
-        # Set Size
-        self.setGeometry(500, 500, 720, 420)
-
-        self.graphPlot = pyqtgraph.PlotWidget()
-        self.setCentralWidget(self.graphPlot)
-        self.graphPlot.setBackground("w")
-        self.xs = []
-        self.ys = []
-        self.graphPlot.setTitle("Title")
-        self.graphPlot.setLabel("left", "Y")
-        self.graphPlot.setLabel("bottom", "X")
-        self.line = self.graphPlot.plot(self.xs, self.ys)
-
-    def addDataPoint(self,x,y):
-        self.xs.append(x)
-        self.ys.append(y)
-        self.line.setData(self.xs, self.ys)
-    
-    def clearGraph(self):
-        self.xs = []
-        self.ys = []
-        self.line.setData(self.xs, self.ys)
-
-##################### Internal Command Thread
-
-class internalCommandThread(QThread):
-    
-    finished = pyqtSignal()
-
-    send_data = pyqtSignal(list)
-    
-    def __init__(self,obj,func,params):
-        super().__init__()
-        self.obj = obj
-        self.func = func
-        self.params = params
-
-    def run(self):
-        getattr(self.obj, self.func)(self.params,self.send_data)
-        self.finished.emit()
-
-##################### Input console
-
-class inputConsole(QLineEdit):
-    def __init__(self,logPath,mainWin,*args,**kwargs):
-        super().__init__(*args,**kwargs)
-        self.currentText = ""
-        self.index = 0
-        self.lines = [""]
-        self.logPath = logPath
-        # load log from previous sessions
-        self.loadLog()
-        self.mainWin = mainWin
-
-        
-    
-    def resetIndex(self):
-        self.index = 0
-
-    def addLine(self):
-        self.lines.insert(0,"")
-
-    def clearLines(self):
-        self.lines = [""]
-
-    def keyPressEvent(self,event):
-        key = event.key()
-        self.lines[self.index] = self.text()
-        if key == Qt.Key_Up:
-            if self.index < len(self.lines)-1:
-                self.index += 1
-                self.setText(self.lines[self.index])
-        elif key == Qt.Key_Down:
-            if self.index > 0:
-                self.index -= 1
-                self.setText(self.lines[self.index])
-        super().keyPressEvent(event)
-    
-    # needed to detect tab click
-    def event(self, event):
-        if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Tab:
-            #autocomplete, currently only for intcmds
-            autocomplete = [cmd for cmd in self.mainWin.intCommands.keys() if cmd.startswith(self.text())]
-            if len(autocomplete) == 1:
-                self.setText(autocomplete[0])
-            return True
-        return QWidget.event(self, event)
-
-    def saveLog(self):
-        with open(self.logPath,'w') as file:
-            for elem in self.lines:
-                if elem != "" and not elem.isspace():
-                    file.write(elem+'\n')
-
-    def loadLog(self):
-        with open(self.logPath, 'r') as file:
-            for line in file:
-                self.lines.append(line.strip())
-
+from src.arduinoComms import arduinoComms
+from src.commandWindow import commandWindow
+from src.graphWindow import graphWindow
+from src.inputConsole import inputConsole
 
 ##################### Main Programme Class
 
@@ -280,7 +130,6 @@ class mainWindow(QWidget):
         self.commandInputLine.saveLog()
         event.accept()
 
-
     ############ Button Functions
     
     # 'Run' Button; used to parse and send commands
@@ -302,6 +151,7 @@ class mainWindow(QWidget):
         # Split the command into substrings
         expression = r'(?:[^\s"]|"(?:\\.|[^"\\])*")+'  # Match non-space characters or quoted parts
         cmdPartitions = re.findall(expression, cmd.strip())
+        
         # Remove quotes from the quoted strings
         cmdPartitions = [part.strip('"') if part.startswith('"') and part.endswith('"') else part for part in cmdPartitions]
 

@@ -7,7 +7,7 @@ import os           # For USB access.
 import numpy        # For Numerical Calculations.
 
 ##################### User defined functions (imports)
-from mainWindow import mainWindow
+from src.mainWindow import mainWindow
 
 ##################### Main Programme Function
 
