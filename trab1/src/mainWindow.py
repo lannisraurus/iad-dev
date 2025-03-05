@@ -221,7 +221,7 @@ class mainWindow(QWidget):
             # Run external commands - processed by arduino (NON EMPTY ONLY)
             self.logText("* Running external command \'"+cmd+"\'\n")
             result = self.arduinoCommsObject.sendExternalCommand(cmd)
-            self.logText(">>> "+result[0])
+            self.logText(result[0])
             self.logText(">>> "+result[1])
 
 
