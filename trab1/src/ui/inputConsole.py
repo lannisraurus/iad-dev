@@ -33,7 +33,7 @@ class inputConsole(QLineEdit):
         self.lines = [""]
 
     def setFinal(self, cmd):
-        self.lines[-1] = cmd
+        self.lines[0] = cmd
 
     def keyPressEvent(self,event):
         key = event.key()
