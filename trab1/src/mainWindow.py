@@ -360,7 +360,7 @@ class mainWindow(QWidget):
 
     # Save current graph
     def saveGraph(self):
-        self.exporter = pyqtgraph.exporters.ImageExporter(self.graphPlot.scene())
+        self.exporter = pyqtgraph.exporters.ImageExporter(self.graphWindow.scene())
         self.exporter.export("data.png")
 
                 
