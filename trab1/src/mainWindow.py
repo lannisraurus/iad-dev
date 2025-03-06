@@ -145,7 +145,7 @@ class mainWindow(QWidget):
         self.interrupt = False  # Interrupt a thread
 
     ############# Setup
-    def initComms(self):
+    def commInit(self):
         # External Commands - descriptions (to be acquired from arduino)
         self.requestExternalCommands()
 
