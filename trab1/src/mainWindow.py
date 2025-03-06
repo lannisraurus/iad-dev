@@ -280,6 +280,7 @@ class mainWindow(QWidget):
     def requestExternalCommands(self):
         self.extCommandsDescription = self.arduinoCommsObject.sendExternalCommand("request_commands")[1].replace("|","\n")
         self.extCommandsKeys = [tag.partition(":")[0].partition(" ")[0] for tag in [tag for tag in self.extCommandsDescription.partition("\n")]]
+        print(self.extCommandsKeys)
 
 
 
@@ -459,13 +460,13 @@ class mainWindow(QWidget):
         
         # pick discharge resistance
         self.arduinoCommsObject.sendExternalCommand("change_output_pin 7")
-        state = bool(int(self.arduinoCommsObject.sendExternalCommand("read_output_pin")[1][-2]))
+        state = bool(int(self.arduinoCommsObject.sendExternalCommand("read_output_pin")[1][-3]))
         if (fast and (not state)) or ((not fast) and state):
             self.arduinoCommsObject.sendExternalCommand("switch_output_pin")
 
         # turn off charge pin if on
         self.arduinoCommsObject.sendExternalCommand("change_output_pin 2")
-        state = bool(int(self.arduinoCommsObject.sendExternalCommand("read_output_pin")[1][-2]))
+        state = bool(int(self.arduinoCommsObject.sendExternalCommand("read_output_pin")[1][-3]))
         if state: 
             self.arduinoCommsObject.sendExternalCommand("switch_output_pin")
 
