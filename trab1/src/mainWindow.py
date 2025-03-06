@@ -276,8 +276,7 @@ class mainWindow(QWidget):
     # Request external commands
     def requestExternalCommands(self):
         self.extCommandsDescription = self.arduinoCommsObject.sendExternalCommand("request_commands")[1].replace("|","\n")
-        auxList = [tag for tag in self.extCommandsDescription.partition("\n",":")]
-        self.extCommandsKeys = [auxList[i] for i in range(auxList) if (auxList[i].startswith(self.text()) and i%2==0)]
+        self.extCommandsKeys = [tag.partition(":")[0].partition(" ")[0] for tag in [tag for tag in self.extCommandsDescription.partition("\n")]]
 
 
 
