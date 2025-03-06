@@ -503,8 +503,8 @@ class mainWindow(QWidget):
         charging = True
         self.arduinoCommsObject.sendExternalCommand("switch_output_pin")
         startTime = time.time()
-        stopChargingTime = startTime + params[0]
-        endTime = startTime + params[1] + params[0]
+        stopChargingTime = startTime + float(params[0])
+        endTime = startTime + float(params[1]) + float(params[0])
         # interrupt signal may be sent to prematurely end acquisiton.
         while time.time() < endTime and self.interrupt == False:
             # Retrieve data from arduino - acquire external command
