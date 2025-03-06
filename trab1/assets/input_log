@@ -1,3 +1,9 @@
+acquire_plot -x 1000
+acquire_plot -x 100
+swit
+acquire
+request_commands
+acquire_plot
 switch_output_pin
 acquire_plot
 acquire_plot

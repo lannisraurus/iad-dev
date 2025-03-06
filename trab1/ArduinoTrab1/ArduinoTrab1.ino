@@ -48,7 +48,7 @@ void loop() {
       Serial.print("|change_read_pin [pin]: Change selected analog read pin.");
       Serial.print("|change_output_pin [pin]: Change selected digital output pin.");
       Serial.print("|switch_output_pin: Inverts selected digital pin output.");
-      Serial.print("|read_output_pin: Reads current state of selected digital output pin." );
+      Serial.println("|read_output_pin: Reads current state of selected digital output pin." );
       
 		}else if(currCmd.indexOf("change_read_pin") == 0) {
       // Change read pin to the selected analog pin, and print out message with changed pin
@@ -95,5 +95,6 @@ void loop() {
       // If command is not one of the above commands, sends error message for unknown instruction
 			Serial.println("ARDUINO ERROR: Unknown Instruction!");
 		}
+   currCmd="";
 	}
 }
