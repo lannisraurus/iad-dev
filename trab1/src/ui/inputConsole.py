@@ -82,7 +82,7 @@ class inputConsole(QLineEdit):
                     newautocomplete += [cmd for cmd in self.mainWin.mixCommands.keys() if cmd.startswith(self.text())]
                     newautocomplete += [cmd for cmd in self.mainWin.extCommandsKeys if cmd.startswith(self.text())]
                     if(len(newautocomplete) == len(autocomplete)):
-                        self.setText(autocomplete[0])
+                        self.setText(currText)
 
 
             return True
