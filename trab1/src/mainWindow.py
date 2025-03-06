@@ -136,6 +136,7 @@ class mainWindow(QWidget):
 
         ##### External commands
         self.extCommandsDescription = ""
+        self.hasRequestedExt =  False
 
         ##### Additional Windows
         self.infoWindow = commandWindow(self.intCommandsDescription, self.extCommandsDescription, self.mixCommandsDescription)
@@ -144,10 +145,6 @@ class mainWindow(QWidget):
         ##### Threaded processes booleans
         self.interrupt = False  # Interrupt a thread
 
-    ############# Setup
-    def commInit(self):
-        # External Commands - descriptions (to be acquired from arduino)
-        self.requestExternalCommands()
 
 
     ############# Events

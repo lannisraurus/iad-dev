@@ -63,6 +63,10 @@ class inputConsole(QLineEdit):
     # used for detecting tab clicking
     def event(self, event):
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Tab:
+            # Retrieve external commands if they have not been requisited yet
+            if self.mainWin.hasRequestedExt == False:
+                self.mainWin.requestExternalCommands()
+                self.mainWin.hasRequestedExt = True
             # simple autocomplete functionality
             autocomplete = [cmd for cmd in self.mainWin.intCommands.keys() if cmd.startswith(self.text())]
             autocomplete += [cmd for cmd in self.mainWin.mixCommands.keys() if cmd.startswith(self.text())]

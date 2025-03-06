@@ -36,7 +36,6 @@ if __name__ == '__main__':
     # Create main window
     mainWin = mainWindow()
     mainWin.installEventFilter(mainWin)
-    mainWin.commInit() # for initial communications
     
     # Start event loop
     mainApp.exec()
