@@ -111,25 +111,31 @@ class mainWindow(QWidget):
             "clear": self.logClear,
             "list_ports": self.listPorts,
             "set_titles": self.setTitles,
-            "clear_graph": self.clearGraph
+            "clear_graph": self.clearGraph,
+            "save_graph": self.saveGraph,
         }
         self.intCommandsDescription = "test_port: Tests communications through the selected port.\n" + \
             "change_port PORT_NAME: Changes the port to whatever the user provides.\n" + \
             "clear: Clears the console log.\n" + \
             "list_ports: Re-checks available ports and prints them on screen.\n" + \
             "set_titles: Set the X axis title (specified after -x), Y axis title (specified after -y) and/or graph title (specified after -g).\n" + \
-            "clear_graph: Clears all data in the graph.\n"
+            "clear_graph: Clears all data in the graph.\n" + \
+            "save_graph: Saves graph displayed in Graph window"
         
         self.mixCommands = {
             "acquire_plot": self.acquirePlot,
+            "discharge_curve": self.dischargeCurve,
         }
 
         self.mixCommandsDescription = "acquire_plot: Acquire the number of points specified (after -n) " + \
-            "with the time interval between each aquisition specified (after -t) and draw a graph.\n"
-            
+            "with the time interval between each aquisition specified (after -t) and draw a graph.\n" + \
+            "Set scale to X axis with multiplier given (specified after -x) and set scale to Y axis with the number of bytes (specified after -yb) corresponding to the highest voltage (specified after -yv). Use -c with nothing following to no clear graph.\n" + \
+            "discharge_curve: charges a capacitor for the specified time (after -c) and keeps acquiring for the specified time (after -d) to see the discharge curve. It uses the smaller resistance if specified with -f " + \
+            "with the time interval between each aquisition specified (after -t) and draw a graph.\n" + \
+            "Set scale to X axis with multiplier given (specified after -x) and set scale to Y axis with the number of bytes (specified after -yb) corresponding to the highest voltage (specified after -yv). Use -c with nothing following to no clear graph.\n"
 
         ##### External Commands - descriptions (to be acquired from arduino)
-        self.extCommandsDescription = ""
+        self.requestExternalCommands()
 
         ##### Additional Windows
         self.infoWindow = commandWindow(self.intCommandsDescription, self.extCommandsDescription, self.mixCommandsDescription)
@@ -233,7 +239,7 @@ class mainWindow(QWidget):
     # Info icon button. Displays information on implemented commands in separate window.
     def infoCommand(self):
         # Retrieve descriptions from Arduino
-        self.extCommandsDescription = self.arduinoCommsObject.sendExternalCommand("request_commands")[1].replace("|","\n")
+        self.requestExternalCommands()
         # Open info window with the descriptions
         self.infoWindow.updateExternalCommands(self.extCommandsDescription)
         self.infoWindow.show()
@@ -254,8 +260,10 @@ class mainWindow(QWidget):
 
     # Adds a point to the pyqtgraph implemented in graphWindow.
     def addDataPoint(self,point):
+        # If list is in the required format
         if len(point) == 2:
             self.graphWindow.addDataPoint(point[0],point[1])
+        # Otherwise - error
         else:
             self.logText("* ERROR: data point is not a data pair...\n")
             errMsg = ""
@@ -265,8 +273,11 @@ class mainWindow(QWidget):
             if len(errMsg) > 0:
                 self.logText("* ...the data received was: "+errMsg+'\n')
 
-
-    
+    # Request external commands
+    def requestExternalCommands(self):
+        self.extCommandsDescription = self.arduinoCommsObject.sendExternalCommand("request_commands")[1].replace("|","\n")
+        auxList = [tag for tag in self.extCommandsDescription.partition("\n",":")]
+        self.extCommandsKeys = [auxList[i] for i in range(auxList) if (auxList[i].startswith(self.text()) and i%2==0)]
 
 
 
@@ -316,43 +327,15 @@ class mainWindow(QWidget):
         else:
             self.logText(self.arduinoCommsObject.changePort(args[0]))
 
-    # Acquisition Routine; invokes threading
-    def acquirePlot(self,*args,**kwargs):
-        # Working parameters
-        n_points = -1
-        interval = 0
-        clear = True
-        if len(args) >0:
-            self.logText("* ERROR: acquire_plot does not take regular arguments, only kwargs.\n")
-        for tag in kwargs.keys():
-            if tag not in ["t", "n", "c"]:
-                return self.logText("* ERROR: unrecognised parameter in acquire_plot function\n")
-            if tag == "t":
-                interval = kwargs[tag]
-            if tag == "n":
-                n_points = kwargs[tag]
-            if tag == "c":
-                clear = False
-
-        # clear previous graph
-        if clear:
-            self.logText("* Clearing Graph...\n")
-            self.graphWindow.clearGraph()
-        # set start time to 0
-        self.logText("* Resetting Arduino Timer (set_pivot external command)...\n")
-        result = self.arduinoCommsObject.sendExternalCommand("set_pivot")
-        self.logText(">>> "+result[1])
-        # start thread for aquisition
-        self.logText("* Starting Acquisition Thread.\n")
-        self.thread = internalCommandThread(self,'acquirePlotThread',[n_points,interval])
-        self.thread.send_data.connect(self.addDataPoint)
-        self.thread.start()
-                   
+    
+    # Set the titles of the graph
     def setTitles(self, *args, **kwargs):
-        if len(args) >0:
-            self.logText("* ERROR: set_titles does not take regular arguments, only kwargs.\n")
+        # This function takes no args, only kwargs; error checking ahead:
+        if len(args) > 0:
+            return self.logText("* ERROR: set_titles does not take regular arguments, only kwargs.\n")
         if len(kwargs) == 0:
-            self.logText("* ERROR: Parameters missing in set_titles function\n")
+            return self.logText("* ERROR: Parameters missing in set_titles function\n")
+        # Read kwargs and set graph titles. x - x label; y - y label; g - graph title
         for tag in kwargs.keys():
             if tag not in ["x", "y", "g"]:
                 return self.logText("* ERROR: Unrecognised parameter in set_titles function\n")
@@ -363,24 +346,175 @@ class mainWindow(QWidget):
             if tag == "g":
                 self.graphWindow.graphPlot.setTitle(kwargs["g"])
 
+    # Clear current graph
     def clearGraph(self, *args, **kwargs):
+        # Function takes no arguments or kwargs.
         if args:
             self.logText("* ERROR: Unknown args in the clear_graph function.\n")
         if kwargs:
             self.logText("* ERROR: Unknown kwargs in the clear_graph function.\n")
+        # If no arguments, clear graph.
         if not args and not kwargs:
             self.graphWindow.clearGraph()
 
-############ Internal Command Threading
+    # Save current graph
+    def saveGraph(self):
+        self.exporter = pyqtgraph.exporters.ImageExporter(self.graphPlot.scene())
+        self.exporter.export("data.png")
 
+                
+
+    ############ Mixed Commands - Routines processed by this programme, using external commands as well
+
+    # Acquisition Routine; invokes threading
+    def acquirePlot(self,*args,**kwargs):
+        # Working parameters
+        n_points = -1
+        interval = 0
+        clear = True
+        x_multiplier = 0.001
+        bytes_maxV = 1024
+        maxV = 5
+        
+        # Function takes no arguments; only kwargs
+        if len(args) > 0:
+            return self.logText("* ERROR: acquire_plot does not take regular arguments, only kwargs.\n")
+        # Read kwargs. t - time between gatherings; n - number of points (-1 means infinite); c - if present, doesnt clear graph
+        for tag in kwargs.keys():
+            if tag not in ["t", "n", "c", "x", "yb", "yv"]:
+                return self.logText("* ERROR: unrecognised parameter in acquire_plot function\n")
+            if tag == "t":
+                interval = kwargs[tag]
+            if tag == "n":
+                n_points = kwargs[tag]
+            if tag == "c":
+                clear = False
+            if tag == "x":
+                x_multiplier = kwargs[tag]
+            if tag == "yb":
+                bytes_maxV = kwargs[tag]
+            if tag == "yv":
+                maxV = kwargs[tag]
+        # clear previous graph
+        if clear:
+            self.logText("* Clearing Graph...\n")
+            self.graphWindow.clearGraph()
+        
+        y_multipler = maxV/bytes_maxV
+
+        # set start time to 0
+        self.logText("* Resetting Arduino Timer (set_pivot external command)...\n")
+        result = self.arduinoCommsObject.sendExternalCommand("set_pivot")
+        self.logText(">>> "+result[1])
+        
+        # start thread for aquisition
+        self.logText("* Starting Acquisition Thread.\n")
+        self.thread = internalCommandThread(self,'acquirePlotThread',[n_points,interval,x_multiplier,y_multipler])
+        self.thread.send_data.connect(self.addDataPoint)
+        self.thread.start()
+
+    def dischargeCurve(self, *args, **kwargs):
+        chargeTime = 5 #sec
+        dischargeTime = 5 #sec
+        interval = 0 #ms
+        fast = False
+        x_multiplier = 0.001
+        bytes_maxV = 1024
+        maxV = 5
+        
+        # Function takes no arguments; only kwargs
+        if len(args) > 0:
+            return self.logText("* ERROR: discharge_curve does not take regular arguments, only kwargs.\n")
+        # Read kwargs. t - time between gatherings; n - number of points (-1 means infinite); c - if present, doesnt clear graph
+        for tag in kwargs.keys():
+            if tag not in ["c", "d", "t", "f","x","yb","yv"]:
+                return self.logText("* ERROR: unrecognised parameter in acquire_plot function\n")
+            if tag == "c":
+                chargeTime = kwargs[tag]
+            if tag == "d":
+                dischargeTime = kwargs[tag]
+            if tag == "t":
+                interval = True
+            if tag == "f":
+                fast = True
+            if tag == "x":
+                x_multiplier = kwargs[tag]
+            if tag == "yb":
+                bytes_maxV = kwargs[tag]
+            if tag == "yv":
+                maxV = kwargs[tag]
+
+        y_multipler = maxV/bytes_maxV
+
+       # clear previous graph
+        self.logText("* Clearing Graph...\n")
+        self.graphWindow.clearGraph()
+
+        # set start time to 0
+        self.logText("* Resetting Arduino Timer (set_pivot external command)...\n")
+        result = self.arduinoCommsObject.sendExternalCommand("set_pivot")
+        self.logText(">>> "+result[1])
+        
+        # pick discharge resistance
+        self.arduinoCommsObject.sendExternalCommand("change_output_pin 7")
+        state = bool(int(self.arduinoCommsObject.sendExternalCommand("read_output_pin")[1][-2]))
+        if (fast and (not state)) or ((not fast) and state):
+            self.arduinoCommsObject.sendExternalCommand("switch_output_pin")
+
+        # turn off charge pin if on
+        self.arduinoCommsObject.sendExternalCommand("change_output_pin 2")
+        state = bool(int(self.arduinoCommsObject.sendExternalCommand("read_output_pin")[1][-2]))
+        if state: 
+            self.arduinoCommsObject.sendExternalCommand("switch_output_pin")
+
+        # start thread for aquisition
+        self.logText("* Starting Acquisition Thread.\n")
+        self.thread = internalCommandThread(self,'dischargeCurveThread',[chargeTime,dischargeTime,interval,x_multiplier, y_multipler])
+        self.thread.send_data.connect(self.addDataPoint)
+        self.thread.start()
+        
+
+
+    ############ Mixed Command Threading
+
+    # Thread function used in the acquirePlot function
     def acquirePlotThread(self,params,signalPoint):
+        # Counter makes sure that N points have been acquired
         counter = 0
+        # interrupt signal may be sent to prematurely end acquisiton.
         while counter != params[0] and self.interrupt == False:
+            # Retrieve data from arduino - acquire external command
             point = self.arduinoCommsObject.sendExternalCommand("acquire")[1]
             list_point = point.split()
+            # Try send result (if it's not in the required format, simply returns the entire message)
             try:
-                signalPoint.emit( [float(list_point[0])*1e-3, float(list_point[1])] )
+                signalPoint.emit( [float(list_point[0])*params[2], float(list_point[1])*params[3]] )
             except:
                 signalPoint.emit( [point] )
+            # Sleep for given time between acquisitions
             time.sleep(float(params[1])*float(1e-3))
+            # Update count
             counter += 1
+
+    def dischargeCurveThread(self,params,signalPoint):
+        charging = True
+        self.arduinoCommsObject.sendExternalCommand("switch_output_pin")
+        startTime = time.time()
+        stopChargingTime = startTime + params[0]
+        endTime = startTime + params[1]
+        # interrupt signal may be sent to prematurely end acquisiton.
+        while time.time() < endTime and self.interrupt == False:
+            # Retrieve data from arduino - acquire external command
+            point = self.arduinoCommsObject.sendExternalCommand("acquire")[1]
+            list_point = point.split()
+            # Try send result (if it's not in the required format, simply returns the entire message)
+            try:
+                signalPoint.emit( [float(list_point[0])*params[3], float(list_point[1])*params[4]] )
+            except:
+                signalPoint.emit( [point] )
+            # Sleep for given time between acquisitions
+            time.sleep(float(params[1])*float(1e-3))
+            # Update count
+            if charging and time.time() > stopChargingTime:
+                charging = False
+                self.arduinoCommsObject.sendExternalCommand("switch_output_pin")

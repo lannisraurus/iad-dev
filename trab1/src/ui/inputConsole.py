@@ -2,7 +2,11 @@
 Duarte Tavares, João Camacho, Jorge Costa, Margarida Saraiva
 IST, 2025 - IAD
 
-This file contains the inputConsole
+This file contains the inputConsole, used in the main window.
+the input console can detect inputs and take in written text from the
+keyboard. It also has the capacity to save previous commands in a file, load
+them up, and a capacity to autocomplete given a list of command keys from the
+main window class.
 
 """
 ##################### Imports
@@ -13,8 +17,11 @@ from PyQt5.QtGui import *       # GUI Elements
 
 ##################### Input console class
 class inputConsole(QLineEdit):
+
+    # Constructor
     def __init__(self,logPath,mainWin,*args,**kwargs):
         super().__init__(*args,**kwargs)
+        # Working vars
         self.currentText = ""
         self.index = 0
         self.lines = [""]
@@ -23,18 +30,23 @@ class inputConsole(QLineEdit):
         self.loadLog()
         self.mainWin = mainWin
 
+    # Reset index of the list; called after employing command.
     def resetIndex(self):
         self.index = 0
 
+    # Add an empty line; called after employing command.
     def addLine(self):
         self.lines.insert(0,"")
 
+    # Clear all lines.
     def clearLines(self):
         self.lines = [""]
 
+    # Set most recent line to a cmd; called after employing command.
     def setFinal(self, cmd):
         self.lines[0] = cmd
 
+    # key press events; used for detecting going up and down the list.
     def keyPressEvent(self,event):
         key = event.key()
         self.lines[self.index] = self.text()
@@ -48,23 +60,26 @@ class inputConsole(QLineEdit):
                 self.setText(self.lines[self.index])
         super().keyPressEvent(event)
     
-    # needed to detect tab click
+    # used for detecting tab clicking
     def event(self, event):
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Tab:
-            #autocomplete, currently only for intcmds
+            # simple autocomplete functionality
             autocomplete = [cmd for cmd in self.mainWin.intCommands.keys() if cmd.startswith(self.text())]
             autocomplete += [cmd for cmd in self.mainWin.mixCommands.keys() if cmd.startswith(self.text())]
+            autocomplete += [cmd for cmd in self.mainWin.extCommandsKeys if cmd.startswith(self.text())]
             if len(autocomplete) == 1:
                 self.setText(autocomplete[0])
             return True
         return QWidget.event(self, event)
 
+    # Save a log to the defined path.
     def saveLog(self):
         with open(self.logPath,'w') as file:
             for elem in self.lines:
                 if elem != "" and not elem.isspace():
                     file.write(elem+'\n')
 
+    # Load log from the defined path.
     def loadLog(self):
         with open(self.logPath, 'r') as file:
             for line in file:
