@@ -73,6 +73,18 @@ class inputConsole(QLineEdit):
             autocomplete += [cmd for cmd in self.mainWin.extCommandsKeys if cmd.startswith(self.text())]
             if len(autocomplete) == 1:
                 self.setText(autocomplete[0])
+            else:
+                minLenght = min([len(s) for s in autocomplete])
+                currText = self.text()
+                while(len(currText) < minLenght):
+                    currText += autocomplete[0][len(currText)]
+                    newautocomplete = [cmd for cmd in self.mainWin.intCommands.keys() if cmd.startswith(currText)]
+                    newautocomplete += [cmd for cmd in self.mainWin.mixCommands.keys() if cmd.startswith(self.text())]
+                    newautocomplete += [cmd for cmd in self.mainWin.extCommandsKeys if cmd.startswith(self.text())]
+                    if(len(newautocomplete) == len(autocomplete)):
+                        self.setText(autocomplete[0])
+
+
             return True
         return QWidget.event(self, event)
 
