@@ -134,6 +134,9 @@ class mainWindow(QWidget):
             "with the time interval between each aquisition specified (after -t) and draw a graph.\n" + \
             "Set scale to X axis with multiplier given (specified after -x) and set scale to Y axis with the number of bytes (specified after -yb) corresponding to the highest voltage (specified after -yv). Use -c with nothing following to no clear graph.\n"
 
+        ##### External commands
+        self.extCommandsDescription = ""
+
         ##### Additional Windows
         self.infoWindow = commandWindow(self.intCommandsDescription, self.extCommandsDescription, self.mixCommandsDescription)
         self.graphWindow = graphWindow()
