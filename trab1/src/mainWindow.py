@@ -120,7 +120,7 @@ class mainWindow(QWidget):
             "list_ports: Re-checks available ports and prints them on screen.\n" + \
             "set_titles: Set the X axis title (specified after -x), Y axis title (specified after -y) and/or graph title (specified after -g).\n" + \
             "clear_graph: Clears all data in the graph.\n" + \
-            "save_graph: Saves graph displayed in Graph window"
+            "save_graph: Saves graph displayed in Graph window.\n"
         
         self.mixCommands = {
             "acquire_plot": self.acquirePlot,
@@ -134,9 +134,6 @@ class mainWindow(QWidget):
             "with the time interval between each aquisition specified (after -t) and draw a graph.\n" + \
             "Set scale to X axis with multiplier given (specified after -x) and set scale to Y axis with the number of bytes (specified after -yb) corresponding to the highest voltage (specified after -yv). Use -c with nothing following to no clear graph.\n"
 
-        ##### External Commands - descriptions (to be acquired from arduino)
-        self.requestExternalCommands()
-
         ##### Additional Windows
         self.infoWindow = commandWindow(self.intCommandsDescription, self.extCommandsDescription, self.mixCommandsDescription)
         self.graphWindow = graphWindow()
@@ -144,7 +141,10 @@ class mainWindow(QWidget):
         ##### Threaded processes booleans
         self.interrupt = False  # Interrupt a thread
 
-
+    ############# Setup
+    def initComms(self):
+        # External Commands - descriptions (to be acquired from arduino)
+        self.requestExternalCommands()
 
 
     ############# Events
@@ -487,7 +487,7 @@ class mainWindow(QWidget):
             list_point = point.split()
             # Try send result (if it's not in the required format, simply returns the entire message)
             try:
-                signalPoint.emit( [float(list_point[0])*params[2], float(list_point[1])*params[3]] )
+                signalPoint.emit( [float(list_point[0])*float(params[2]), float(list_point[1])*float(params[3])] )
             except:
                 signalPoint.emit( [point] )
             # Sleep for given time between acquisitions
@@ -508,7 +508,7 @@ class mainWindow(QWidget):
             list_point = point.split()
             # Try send result (if it's not in the required format, simply returns the entire message)
             try:
-                signalPoint.emit( [float(list_point[0])*params[3], float(list_point[1])*params[4]] )
+                signalPoint.emit( [float(list_point[0])*float(params[3]), float(list_point[1])*float(params[4])] )
             except:
                 signalPoint.emit( [point] )
             # Sleep for given time between acquisitions
