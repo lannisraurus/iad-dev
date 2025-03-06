@@ -13,6 +13,8 @@ from PyQt5.QtCore import *      # Qt threads, ...
 from PyQt5.QtGui import *       # GUI Elements
 import re
 import time                     # For routines
+import pyqtgraph.exporters
+import pyqtgraph
 
 ##################### User defined functions (imports)
 from src.comms.arduinoComms import arduinoComms
