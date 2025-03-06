@@ -1,3 +1,16 @@
+discharge_curve
+acquire
+s
+discharge_curve -c 1 -d 10
+discharge_curve -c 1 -d 10
+discharge_curve -c 1 -d 10 -f
+discharge_curve -c 1 -d 10
+discharge_curve -f -c 1 -d 10
+discharge_curve -f -c 1 -d 10
+discharge_curve -f -c 1 -d 10
+discharge_curve -
+discharge_curve
+discharge_curve
 acquire_plot -x 1000
 acquire_plot -x 100
 swit
