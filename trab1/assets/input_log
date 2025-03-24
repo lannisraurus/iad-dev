@@ -1,3 +1,21 @@
+save_graph
+discharge_curve -f
+discharge_curve -
+acquire_plot
+acquire
+discharge_curve -c 1 -d 20
+discharge_curve -c 1 -d 20 -f
+discharge_curve -c 1 -d 20
+discharge_curve -c 1 -d 10 -f
+save_graph
+discharge_curve -f
+save_graph
+discharge_curve -f
+save_graph
+discharge_curve -f
+save_graph
+acquire_plot
+discharge_curve
 discharge_curve
 acquire
 s
