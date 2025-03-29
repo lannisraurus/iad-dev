@@ -49,15 +49,20 @@ def backwards1(delay, steps):
             setStep1(Seq[j][0], Seq[j][1], Seq[j][2], Seq[j][3])
             time.sleep(delay)
 
+def backwards2(delay, steps):
+    for i in range(steps):
+        for j in reversed(range(StepCount)):
+            setStep2(Seq[j][0], Seq[j][1], Seq[j][2], Seq[j][3])
+            time.sleep(delay)
+
 
 #28BYJ-48 stepper has 512 cycles per rev (4096steps per rev)
-# actually 509.4712
-
+<      
 # motor1 512 slow steps forward
 delay = 20
 steps = 512
-forward1(delay / 1000.0, steps)
+# forward1(delay / 1000.0, steps)
 # motor1 512 quick steps backwards
 delay = 1
-steps = 512
-backwards1(delay / 1000.0, steps)
+steps = round(512*4*100)
+backwards2(delay / 1000.0, steps)
