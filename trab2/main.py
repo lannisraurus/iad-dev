@@ -1,5 +1,6 @@
 ##################### User defined classes/functions
 from src.Astrolocator import Astrolocator
+from src.StepperController import StepperController
 
 ##################### Main Programme Function
 
