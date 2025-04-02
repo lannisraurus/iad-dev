@@ -54,8 +54,8 @@ class StepperController():
         self.coil2_B_2_pin.value = self.Seq[indexSeq][3]
     
     def moveToAz(self, az, delay):
-        for i in range(self.az,az):
-            self.stepAz(i%8)
+        for i in range(self.az,az, 1 if self.az < az else -1):
+            self.stepAz((8-i)%8)
             time.sleep(delay)
         self.az=az
         
@@ -86,6 +86,6 @@ def backwards2(delay, steps):
     """
 
 
-A=StepperController()
+A = StepperController()
 A.moveToAlt(512*8*32,1./1000.)
-#A.moveToAz(512*8*32,1./1000.)
+A.moveToAz(512*8*32,1./1000.)
