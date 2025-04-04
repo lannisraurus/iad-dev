@@ -1,10 +1,26 @@
+"""
+Duarte Tavares, João Camacho, Jorge Costa, Margarida Saraiva
+IST, 2025 - IAD
+
+INSERT DESCRIPTION HERE
+
+"""
+##################### Python Libraries
+from PyQt5.QtWidgets import QApplication # Qt App
+
 ##################### User defined classes/functions
-from src.Astrolocator import Astrolocator
-from src.StepperController import StepperController
+from src.ui.mainWindow import mainWindow
 
 ##################### Main Programme Function
 
 if __name__ == '__main__':
-    astrolocator = Astrolocator()
-    AzAlt = astrolocator.getAnglesInSky('Sirius', 38.73557900984156, -9.139868411420947, 100.00)
-    print(AzAlt)
+
+    # Start QApplication
+    mainApp = QApplication([])
+    
+    # Create main window
+    mainWin = mainWindow()
+    mainWin.installEventFilter(mainWin)
+    
+    # Start event loop
+    mainApp.exec()

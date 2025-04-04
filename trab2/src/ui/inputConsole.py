@@ -4,9 +4,8 @@ IST, 2025 - IAD
 
 This file contains the inputConsole, used in the main window.
 the input console can detect inputs and take in written text from the
-keyboard. It also has the capacity to save previous commands in a file, load
-them up, and a capacity to autocomplete given a list of command keys from the
-main window class.
+keyboard. It also has the capacity to save previous commands in a file
+and load them up.
 
 """
 ##################### Imports
@@ -60,34 +59,6 @@ class inputConsole(QLineEdit):
                 self.setText(self.lines[self.index])
         super().keyPressEvent(event)
     
-    # used for detecting tab clicking
-    def event(self, event):
-        if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Tab:
-            # Retrieve external commands if they have not been requisited yet
-            if self.mainWin.hasRequestedExt == False:
-                self.mainWin.requestExternalCommands()
-                self.mainWin.hasRequestedExt = True
-            # simple autocomplete functionality
-            autocomplete = [cmd for cmd in self.mainWin.intCommands.keys() if cmd.startswith(self.text())]
-            autocomplete += [cmd for cmd in self.mainWin.mixCommands.keys() if cmd.startswith(self.text())]
-            autocomplete += [cmd for cmd in self.mainWin.extCommandsKeys if cmd.startswith(self.text())]
-            if len(autocomplete) == 1:
-                self.setText(autocomplete[0])
-            else:
-                minLenght = min([len(s) for s in autocomplete])
-                currText = self.text()
-                while(len(currText) < minLenght):
-                    currText += autocomplete[0][len(currText)]
-                    newautocomplete = [cmd for cmd in self.mainWin.intCommands.keys() if cmd.startswith(currText)]
-                    newautocomplete += [cmd for cmd in self.mainWin.mixCommands.keys() if cmd.startswith(self.text())]
-                    newautocomplete += [cmd for cmd in self.mainWin.extCommandsKeys if cmd.startswith(self.text())]
-                    if(len(newautocomplete) == len(autocomplete)):
-                        self.setText(currText)
-
-
-            return True
-        return QWidget.event(self, event)
-
     # Save a log to the defined path.
     def saveLog(self):
         with open(self.logPath,'w') as file:
