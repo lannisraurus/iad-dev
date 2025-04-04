@@ -13,8 +13,10 @@ import time
 
 ### Class Definition
 class StepperController():
+
     # Constructor
-    def __init__(self,initialAlt=0.0,initialAz=0.0):                                         
+    def __init__(self, alt = 0, az = 0): 
+
         # Define motor driver pins
         self.coil_A_1_pin = OutputDevice(24) # pink
         self.coil_A_2_pin = OutputDevice(4)  # orange
@@ -25,7 +27,7 @@ class StepperController():
         self.coil2_B_1_pin = OutputDevice(17) # blue
         self.coil2_B_2_pin = OutputDevice(27) # yellow
 
-        #define steps
+        # Step sequence
         self.Seq = list(range(0, 8))
         self.Seq[0] = [0,1,0,0]
         self.Seq[1] = [0,1,0,1]
@@ -36,50 +38,75 @@ class StepperController():
         self.Seq[6] = [0,0,1,0]
         self.Seq[7] = [0,1,1,0]
 
-        self.alt = round(512*8*32*initialAlt/360/2)
-        self.az = round(512*8*32*initialAz/360/2)
+        # Set current step count
+        self.centerCoords(az,alt)
 
-    # lower pins
+    # Convert degrees to stepper steps
+    def degToSteps(self,angleDeg):
+        return round(512*8*32*angleDeg/360)
+
+    # Azimuthal Stepping
     def stepAz(self,indexSeq):
         self.coil_A_1_pin.value = self.Seq[indexSeq][0]
         self.coil_A_2_pin.value = self.Seq[indexSeq][1]
         self.coil_B_1_pin.value = self.Seq[indexSeq][2]
         self.coil_B_2_pin.value = self.Seq[indexSeq][3]
 
-     # upper pins
+     # Altitude Stepping
     def stepAlt(self,indexSeq):
         self.coil2_A_1_pin.value = self.Seq[indexSeq][0]
         self.coil2_A_2_pin.value = self.Seq[indexSeq][1]
         self.coil2_B_1_pin.value = self.Seq[indexSeq][2]
         self.coil2_B_2_pin.value = self.Seq[indexSeq][3]
     
-    def moveToAz(self, az, delay=0.001):
-        az=round(512*8*32*az/360/2)
+    # Azimuthal full rotation
+    def moveToAz(self, azDeg, delay=0.001):
+        az=self.degToSteps(azDeg)
         for i in range(self.az,az, 1 if self.az < az else -1):
             self.stepAz((8-i)%8)
             time.sleep(delay)
         self.az=az
-        
-    def moveToAlt(self, alt, delay=0.001):
-        az=round(512*8*32*alt/360/2)
+    
+    # Altitude full rotation
+    def moveToAlt(self, altDeg, delay=0.001):
+        alt=self.degToSteps(altDeg)
         for i in range(self.alt,alt, 1 if self.alt < alt else -1):
             self.stepAlt(i%8)
             time.sleep(delay)   
         self.alt=alt  
 
-    def moveTo(self, az, alt, delay=0.001):
-        self.moveToAz(az,delay)
-        self.moveToAlt(alt,delay)
+    # Altitude+Azimuth full rotation
+    def moveTo(self, azDeg, altDeg, delay=0.001):
 
-    def centerCoords(self, currAz, currAlt):
-        self.az = round(currAz)
-        self.alt = round(currAlt)
+        az = self.degToSteps(azDeg)
+        alt = self.degToSteps(altDeg)
 
-A = StepperController()
-#A.moveToAlt(512*8*32,1./1000.)
-A.moveToAz(90)
-A.moveToAz(-90)
-A.moveToAz(90)
-A.moveToAz(-90)
-A.moveToAz(45)
-A.moveToAz(-45)
+        azStepCount = 0
+        altStepCount = 0
+
+        while azStepCount < self.az or altStepCount < self.alt:
+
+            if azStepCount < abs(self.az - az):
+                azStep = (8-azStepCount)%8
+                if self.az >= az:
+                    azStep = azStepCount%8
+                self.stepAz(azStep)
+            
+            if altStepCount < abs(self.alt- alt):
+                altStep = altStepCount%8
+                if self.alt >= alt:
+                    altStep = (8-altStepCount)%8
+                self.stepAlt(altStep)
+            
+            azStepCount += 1
+            altStepCount += 1
+            time.sleep(delay)
+        
+        self.az = az
+        self.alt = alt
+
+    # Set azimuth and altitude current steps from degrees
+    def centerCoords(self, azDeg, altDeg):
+        self.az = self.degToSteps(azDeg)
+        self.alt = self.degToSteps(altDeg)
+
