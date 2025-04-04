@@ -17,6 +17,9 @@ import time                     # For routines
 from src.ui.inputConsole import inputConsole
 from src.Astrolocator import Astrolocator
 from src.StepperController import StepperController
+from src.ui.stepperConfigWindow import stepperConfigWindow
+from src.ui.deviceConfigWindow import deviceConfigWindow
+from src.ui.othersConfigWindow import othersConfigWindow
 
 ##################### Main Programme Class
 class mainWindow(QWidget):
@@ -29,11 +32,20 @@ class mainWindow(QWidget):
         super().__init__(*args, **kwargs)   # Initialize parent class
 
         # UI - General
-        self.setWindowTitle('Astrolocator')
+        self.setFixedSize(1280,660)
+        self.setWindowFlags(Qt.FramelessWindowHint)
 
         # UI Elements - Buttons
+
+        self.closeButton = QPushButton("X")
+        self.closeButton.setFixedSize(30, 20)
+        self.closeButton.setStyleSheet(
+            "font-weight: bold; border: none;"
+        )
+        self.closeButton.clicked.connect(self.close)
+
         self.alignmentBeginButton = QPushButton('Begin Alignment')
-        self.alignmentBeginButton.setFixedWidth(364)
+        self.alignmentBeginButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.alignmentUp = QPushButton('')
         self.alignmentUp.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_ArrowUp))
         self.alignmentUp.setFixedSize(36, 28)
@@ -47,10 +59,22 @@ class mainWindow(QWidget):
         self.alignmentRight.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_ArrowForward))
         self.alignmentRight.setFixedSize(36, 28)
 
+        self.trackBeginButton = QPushButton('Begin Tracking')
+        self.trackBeginButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+
+        self.settingsSteppersButton = QPushButton('Configure Steppers')
+        self.settingsSteppersButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.settingsSteppersButton.clicked.connect(self.stepperConfigWindowShow)
+        self.settingsDeviceButton = QPushButton('Configure Acquisition Device')
+        self.settingsDeviceButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.settingsDeviceButton.clicked.connect(self.deviceConfigWindowShow)
+        self.settingsOthersButton = QPushButton('Configure Other Periferals')
+        self.settingsOthersButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.settingsOthersButton.clicked.connect(self.othersConfigWindowShow)
+
         # UI Elements - Sliders
         self.alignmentDelaySlider = QSlider(Qt.Horizontal, self)
-        self.alignmentDelaySlider.setFixedWidth(290)
-        self.alignmentDelaySlider.setMaximum(100)
+        self.alignmentDelaySlider.setMaximum(1000)
         self.alignmentDelaySlider.setMinimum(1)
         self.alignmentDelaySlider.valueChanged.connect(self.updateDelayValue)
 
@@ -66,20 +90,22 @@ class mainWindow(QWidget):
         self.alignmentLabel.setFixedWidth(200)
         self.alignmentDelayLabel = QLabel('Movement Delay:')
         self.alignmentTypeLabel = QLabel('Alignment Type:')
-        self.alignmentTypeLabel.setFixedWidth(100)
         self.trackLabel = QLabel('Tracking / Data Acquisition:')
         self.trackLabel.setFixedWidth(200)
         self.settingsLabel = QLabel('Settings:')
         self.settingsLabel.setFixedWidth(200)
         self.alignmentDelayValueLabel = QLabel('hi!')
         self.updateDelayValue()
-        self.alignmentAngles = QLabel('Angles = (az= , alt= )')
+        self.alignmentDelayValueLabel.setFixedWidth(90)
+        self.alignmentAngles = QLabel('(az= , alt= )')
+        self.trackDevicesLabel = QLabel('Acquisition Device:')
 
         # UI Elements - Line Edits
         self.commandOutputLine = QTextEdit()
         self.commandOutputLine.setReadOnly(True)
-        self.commandOutputLine.setMinimumSize(500,400)
-        self.logText("******************************\n*               Astrolocator (Log)               *\n******************************\n\n")
+        self.commandOutputLine.setFixedHeight(400)
+        self.commandOutputLine.setMinimumWidth(500)
+        self.logText("----- Astrolocator (Log) -----\n\n")
         self.logText("> Welcome to Astrolocator, a RPi application made for interfacing with astrolocation devices! Make sure to align your system before tracking objects. Enjoy!\n")
         self.logText("> Duarte Tavares, João Camacho, Jorge Costa, Margarida Saraiva (IST, 2025 - IAD)\n\n")
 
@@ -89,17 +115,23 @@ class mainWindow(QWidget):
         # UI Elements - Dropdowns
         self.alignmentDropdown = QComboBox()
         self.alignmentDropdown.addItems(['1 Point','3 Point'])
-        self.alignmentDropdown.setFixedWidth(350)
+        self.alignmentDropdown.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.trackDeviceDropdown = QComboBox()
         self.trackDeviceDropdown.addItems(['Telescope','Satellite Antena'])
+        self.trackDeviceDropdown.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.steppersDropdown = QComboBox()
         self.steppersDropdown.addItems(['RB-Moto2 (Joy-IT)'])
         self.cameraDropdown = QComboBox() # read devices in rpi
         self.antennaDropdown = QComboBox() # read devices in rpi
 
+        # UI - Spacers
+        self.spacer1 = QSpacerItem(40, 20, QSizePolicy.Minimum,QSizePolicy.Expanding)
+
         # Create a layouts
         self.mainLayout = QVBoxLayout()
+        self.mainLayout.setAlignment(Qt.AlignTop)
         self.setLayout(self.mainLayout)
+        self.mainLayout.addWidget(self.closeButton, alignment=Qt.AlignTop | Qt.AlignRight)
         
         self.topLayout = QHBoxLayout()
         self.midLayout = QHBoxLayout()
@@ -110,8 +142,8 @@ class mainWindow(QWidget):
         self.settingsLayout = QHBoxLayout()
         
         self.alignmentLayoutR = QHBoxLayout()
-        self.trackLayoutR = QVBoxLayout()
-        self.settingsLayoutR = QVBoxLayout()
+        self.trackLayoutR = QHBoxLayout()
+        self.settingsLayoutR = QHBoxLayout()
 
         self.alignmentLayoutRL = QVBoxLayout()
         self.alignmentLayoutRR = QVBoxLayout()
@@ -132,63 +164,126 @@ class mainWindow(QWidget):
         # UI Elements - Top Layout 
         self.topLayout.addWidget(self.groupLogoLabel)
         self.topLayout.addWidget(self.commandOutputLine)
+        self.topLayout.setAlignment(Qt.AlignTop)
         
         # UI Elements - Mid Layout
         self.midLayout.addWidget(self.inputCommandLabel)
         self.midLayout.addWidget(self.commandInputLine)
+        self.midLayout.setAlignment(Qt.AlignTop)
 
         # UI Elements - Bottom Layout
         self.bottomLayout.addLayout(self.alignmentLayout)
         self.bottomLayout.addLayout(self.trackLayout)
         self.bottomLayout.addLayout(self.settingsLayout)
+        self.bottomLayout.setAlignment(Qt.AlignTop)
 
         # UI Elements - Other Layouts
-        self.alignmentLayout.addWidget(self.alignmentLabel, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
-        self.trackLayout.addWidget(self.trackLabel, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
-        self.settingsLayout.addWidget(self.settingsLabel, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+        self.alignmentLayout.addWidget(self.alignmentLabel, alignment=Qt.AlignTop | Qt.AlignLeft)
 
         self.alignmentLayout.addLayout(self.alignmentLayoutR)
-        self.trackLayout.addLayout(self.trackLayoutR)
-        self.settingsLayout.addLayout(self.settingsLayoutR)
 
         self.alignmentLayoutR.addLayout(self.alignmentLayoutRL)
+        self.alignmentLayoutR.addItem(self.spacer1)
         self.alignmentLayoutR.addLayout(self.alignmentLayoutRR)
+        self.alignmentLayoutR.addItem(self.spacer1)
 
         self.alignmentLayoutRR.addLayout(self.alignmentLayoutR1)
         self.alignmentLayoutRR.addLayout(self.alignmentLayoutR2)
         self.alignmentLayoutRR.addLayout(self.alignmentLayoutR3)
 
         self.alignmentLayoutRL.addLayout(self.alignmentLayoutR4)
-        self.alignmentLayoutR4.addWidget(self.alignmentTypeLabel, alignment=Qt.AlignmentFlag.AlignLeft)
-        self.alignmentLayoutR4.addWidget(self.alignmentDropdown, alignment=Qt.AlignmentFlag.AlignLeft)
+        self.alignmentLayoutR4.addWidget(self.alignmentTypeLabel)
+        self.alignmentLayoutR4.addWidget(self.alignmentDropdown)
         self.alignmentLayoutRL.addLayout(self.alignmentLayoutR5)
-        self.alignmentLayoutR5.addWidget(self.alignmentDelayLabel, alignment=Qt.AlignmentFlag.AlignLeft)
-        self.alignmentLayoutR5.addWidget(self.alignmentDelaySlider, alignment=Qt.AlignmentFlag.AlignLeft)
-        self.alignmentLayoutR5.addWidget(self.alignmentDelayValueLabel, alignment=Qt.AlignmentFlag.AlignLeft)
+        self.alignmentLayoutR5.addWidget(self.alignmentDelayLabel)
+        self.alignmentLayoutR5.addWidget(self.alignmentDelaySlider)
+        self.alignmentLayoutR5.addWidget(self.alignmentDelayValueLabel)
         self.alignmentLayoutRL.addLayout(self.alignmentLayoutR6)
-        self.alignmentLayoutR6.addWidget(self.alignmentBeginButton, alignment=Qt.AlignmentFlag.AlignLeft)
-        self.alignmentLayoutR6.addWidget(self.alignmentAngles, alignment=Qt.AlignmentFlag.AlignLeft)
+        self.alignmentLayoutR6.addWidget(self.alignmentBeginButton)
+        self.alignmentLayoutR6.addWidget(self.alignmentAngles)
 
+        self.alignmentLayoutR1.addWidget(self.alignmentUp, alignment= Qt.AlignTop)
+        self.alignmentLayoutR2.addWidget(self.alignmentLeft, alignment= Qt.AlignTop)
+        self.alignmentLayoutR2.addWidget(self.alignmentRight, alignment= Qt.AlignTop)
+        self.alignmentLayoutR3.addWidget(self.alignmentDown, alignment= Qt.AlignTop)
+
+        self.alignmentLayout.setAlignment(Qt.AlignTop)
+        self.alignmentLayoutR.setAlignment(Qt.AlignTop)
+        self.alignmentLayoutRL.setAlignment(Qt.AlignTop)
+        self.alignmentLayoutRR.setAlignment(Qt.AlignTop)
+
+        self.trackLayout.addWidget(self.trackLabel, alignment= Qt.AlignTop | Qt.AlignLeft)
+        self.trackLayout.addLayout(self.trackLayoutR)
         
-
-        self.alignmentLayoutR1.addWidget(self.alignmentUp)
-        self.alignmentLayoutR2.addWidget(self.alignmentLeft, alignment=Qt.AlignmentFlag.AlignRight)
-        self.alignmentLayoutR2.addWidget(self.alignmentRight, alignment=Qt.AlignmentFlag.AlignLeft)
-        self.alignmentLayoutR3.addWidget(self.alignmentDown)
+        self.trackLayoutR.addWidget(self.trackBeginButton)
+        self.trackLayoutR.addWidget(self.trackDevicesLabel)
+        self.trackLayoutR.addWidget(self.trackDeviceDropdown)
         
+        self.trackLayout.setAlignment(Qt.AlignTop)
+        self.trackLayoutR.setAlignment(Qt.AlignTop)
 
+        self.settingsLayout.addWidget(self.settingsLabel, alignment= Qt.AlignTop | Qt.AlignLeft)
+        self.settingsLayout.addLayout(self.settingsLayoutR)
+
+        self.settingsLayoutR.addWidget(self.settingsSteppersButton)
+        self.settingsLayoutR.addWidget(self.settingsDeviceButton)
+        self.settingsLayoutR.addWidget(self.settingsOthersButton)
+
+        self.settingsLayout.setAlignment(Qt.AlignTop)
+        self.settingsLayoutR.setAlignment(Qt.AlignTop)
+        
         # Show window
         self.show()
 
+        # Settings Windows
+        self.stepperConfigWindow = stepperConfigWindow()
+        self.deviceConfigWindow = deviceConfigWindow()
+        self.othersConfigWindow = othersConfigWindow()
+
     ############# Events
     def closeEvent(self,event):
-        self.interrupt = True
-        time.sleep(0.1)
-        #self.arduinoCommsObject.closePort()
+        self.commandInputLine.saveLog()
+        self.stepperConfigWindow.close()
+        self.deviceConfigWindow.close()
+        self.othersConfigWindow.close()
         event.accept()
+    
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.dragging = True
+            self.offset = event.globalPos() - self.pos()
+
+    def mouseMoveEvent(self, event):
+        if self.dragging:
+            self.move(event.globalPos() - self.offset)
+
+    def mouseReleaseEvent(self, event):
+        self.dragging = False
+
+    def paintEvent(self, event):
+        # Draw the custom border around the window
+        painter = QPainter(self)
+        pen = QPen(QColor(170, 170, 170))  # Light gray color for the border
+        pen.setWidth(2)  # Set border thickness
+        painter.setPen(pen)
+        painter.setBrush(Qt.transparent)
+        
+        # Draw the border around the window (excluding the title bar area)
+        painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
 
     ############ Button Methods
+    def stepperConfigWindowShow(self):
+        self.stepperConfigWindow.show()
+        self.stepperConfigWindow.activateWindow()
     
+    def deviceConfigWindowShow(self):
+        self.deviceConfigWindow.show()
+        self.deviceConfigWindow.activateWindow()
+
+    def othersConfigWindowShow(self):
+        self.othersConfigWindow.show()
+        self.othersConfigWindow.activateWindow()
+
     ############ Utility
 
     # Logs text onto the programme log window.
