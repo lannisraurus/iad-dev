@@ -19,6 +19,7 @@ class stepperConfigWindow(QWidget):
         super().__init__()
         self.setFixedSize(500,500)
         self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setWindowTitle('Astrolocator - Stepper Configuration')
 
         # Close Button
         self.closeButton = QPushButton("X")

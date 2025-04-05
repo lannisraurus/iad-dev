@@ -19,6 +19,7 @@ class othersConfigWindow(QWidget):
         super().__init__()
         self.setFixedSize(500,500)
         self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setWindowTitle('Astrolocator - Other Configurations')
 
         # Close Button
         self.closeButton = QPushButton("X")

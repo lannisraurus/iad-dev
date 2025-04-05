@@ -34,6 +34,8 @@ class mainWindow(QWidget):
         # UI - General
         self.setFixedSize(1280,660)
         self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setWindowTitle('Astrolocator')
+        self.setWindowIcon(QIcon('assets/logo.png'))
 
         # UI Elements - Buttons
 
@@ -46,6 +48,8 @@ class mainWindow(QWidget):
 
         self.alignmentBeginButton = QPushButton('Begin Alignment')
         self.alignmentBeginButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.alignmentBeginButton.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_DialogYesButton))
+
         self.alignmentUp = QPushButton('')
         self.alignmentUp.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_ArrowUp))
         self.alignmentUp.setFixedSize(36, 28)
@@ -61,13 +65,16 @@ class mainWindow(QWidget):
 
         self.trackBeginButton = QPushButton('Begin Tracking')
         self.trackBeginButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.trackBeginButton.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_FileDialogContentsView))
 
         self.settingsSteppersButton = QPushButton('Configure Steppers')
         self.settingsSteppersButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.settingsSteppersButton.clicked.connect(self.stepperConfigWindowShow)
+        
         self.settingsDeviceButton = QPushButton('Configure Acquisition Device')
         self.settingsDeviceButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.settingsDeviceButton.clicked.connect(self.deviceConfigWindowShow)
+        
         self.settingsOthersButton = QPushButton('Configure Other Periferals')
         self.settingsOthersButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.settingsOthersButton.clicked.connect(self.othersConfigWindowShow)

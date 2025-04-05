@@ -7,13 +7,13 @@ INSERT DESCRIPTION HERE
 """
 ##################### Python Libraries
 from PyQt5.QtWidgets import QApplication # Qt App
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPalette, QColor
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 
 ##################### User defined classes/functions
 from src.ui.mainWindow import mainWindow
 
-##################### Set Dark Mode to App
+##################### App aesthetics
 def setAppDarkMode(app):
     app.setStyle("Fusion")
     
@@ -57,12 +57,18 @@ def setAppDarkMode(app):
         }
     """)
 
+def setAppIcon(app):
+    appIcon = QIcon('assets/logo.png')
+    app.setWindowIcon(appIcon)
+
+
 ##################### Main Programme Function
 if __name__ == '__main__':
 
     # Start QApplication
     mainApp = QApplication([])
     setAppDarkMode(mainApp)
+    setAppIcon(mainApp)
     
     # Create main window
     mainWin = mainWindow()
