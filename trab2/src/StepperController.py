@@ -15,38 +15,83 @@ import time
 class StepperController():
 
     # Constructor
-    def __init__(self, alt = 0, az = 0): 
+    def __init__(self, settings, mainWindow, alt = 0, az = 0):
+        
+        # Default
+        self.working = False
 
-        # Define motor driver pins
-        self.coil_A_1_pin = OutputDevice(24) # pink
-        self.coil_A_2_pin = OutputDevice(4)  # orange
-        self.coil_B_1_pin = OutputDevice(23) # blue
-        self.coil_B_2_pin = OutputDevice(25) # yellow
-        self.coil2_A_1_pin = OutputDevice(18) # pink
-        self.coil2_A_2_pin = OutputDevice(22) # orange
-        self.coil2_B_1_pin = OutputDevice(17) # blue
-        self.coil2_B_2_pin = OutputDevice(27) # yellow
+        # Log
+        mainWindow.logText('> Configuring StepperController Object...\n')
 
-        # Step sequence
-        self.Seq = list(range(0, 8))
-        self.Seq[0] = [0,1,0,0]
-        self.Seq[1] = [0,1,0,1]
-        self.Seq[2] = [0,0,0,1]
-        self.Seq[3] = [1,0,0,1]
-        self.Seq[4] = [1,0,0,0]
-        self.Seq[5] = [1,0,1,0] 
-        self.Seq[6] = [0,0,1,0]
-        self.Seq[7] = [0,1,1,0]
+        # Set motor type
+        self.motorType = settings[0]
+        mainWindow.logText('> Initializing motor type '+self.motorType+'\n')
+
+        # RB-MOTO2 (Joy-IT)
+        if self.motorType == 'RB-MOTO2 (Joy-IT)':
+
+            self.working = True
+
+            # Steps in 360 deg
+            self.stepsInRevolution = 512
+
+            # Step sequence
+            mainWindow.logText('> Setting sequences...\n')
+            self.Seq = list(range(0, 8))
+            self.Seq[0] = [0,1,0,0]
+            self.Seq[1] = [0,1,0,1]
+            self.Seq[2] = [0,0,0,1]
+            self.Seq[3] = [1,0,0,1]
+            self.Seq[4] = [1,0,0,0]
+            self.Seq[5] = [1,0,1,0] 
+            self.Seq[6] = [0,0,1,0]
+            self.Seq[7] = [0,1,1,0]
+            
+            # Pins
+            mainWindow.logText('> Extracting pin information...\n')
+            pins = settings[1]
+            pins = pins.split(' ')
+            if len(pins) == 8:
+                try:
+                    self.coil_A_1_pin = OutputDevice(int(pins[0])) # pink
+                    self.coil_A_2_pin = OutputDevice(int(pins[1]))  # orange
+                    self.coil_B_1_pin = OutputDevice(int(pins[2])) # blue
+                    self.coil_B_2_pin = OutputDevice(int(pins[3])) # yellow
+                    self.coil2_A_1_pin = OutputDevice(int(pins[4])) # pink
+                    self.coil2_A_2_pin = OutputDevice(int(pins[5])) # orange
+                    self.coil2_B_1_pin = OutputDevice(int(pins[6])) # blue
+                    self.coil2_B_2_pin = OutputDevice(int(pins[7])) # yellow
+                except:
+                    self.working = False
+                    mainWindow.logText('> ERROR! Could not set output pins! Either the pins are not ints, or your device cannot access the GPIO pins!\n')
+            else:
+                self.working = False
+                mainWindow.logText('> ERROR! Pin configuration is wrong! These should be 8!\n')
+
+        # Gear Ratio
+        mainWindow.logText('> Configuring mount gear ratio...\n')
+        self.gearRatio = settings[2]
+        mainWindow.logText('> Finished StepperController Object configuration.\n\n')
 
         # Set current step count
         self.centerCoords(az,alt)
 
     # Convert degrees to stepper steps
     def degToSteps(self,angleDeg):
-        return round(512*8*32*angleDeg/360)
+        if not self.working:
+            return -999
+        return round(self.stepsInRevolution*8*self.gearRatio*angleDeg/360)
+
+    def stepsToDeg(self,angleSteps):
+        if not self.working:
+            return -999
+        return 360*angleSteps/self.stepsInRevolution/8/self.gearRatio
+
 
     # Azimuthal Stepping
     def stepAz(self,indexSeq):
+        if not self.working:
+            return
         self.coil_A_1_pin.value = self.Seq[indexSeq][0]
         self.coil_A_2_pin.value = self.Seq[indexSeq][1]
         self.coil_B_1_pin.value = self.Seq[indexSeq][2]
@@ -54,13 +99,18 @@ class StepperController():
 
      # Altitude Stepping
     def stepAlt(self,indexSeq):
+        if not self.working:
+            return
         self.coil2_A_1_pin.value = self.Seq[indexSeq][0]
         self.coil2_A_2_pin.value = self.Seq[indexSeq][1]
         self.coil2_B_1_pin.value = self.Seq[indexSeq][2]
         self.coil2_B_2_pin.value = self.Seq[indexSeq][3]
     
+
     # Azimuthal full rotation
     def moveToAz(self, azDeg, delay=0.001):
+        if not self.working:
+            return
         az=self.degToSteps(azDeg)
         for i in range(self.az,az, 1 if self.az < az else -1):
             self.stepAz((8-i)%8)
@@ -69,6 +119,8 @@ class StepperController():
     
     # Altitude full rotation
     def moveToAlt(self, altDeg, delay=0.001):
+        if not self.working:
+            return
         alt=self.degToSteps(altDeg)
         for i in range(self.alt,alt, 1 if self.alt < alt else -1):
             self.stepAlt(i%8)
@@ -76,10 +128,11 @@ class StepperController():
         self.alt=alt  
 
     # Altitude+Azimuth full rotation
-    def moveTo(self, azDeg, altDeg, delay=0.001):
-
-        az = self.degToSteps(azDeg)
-        alt = self.degToSteps(altDeg)
+    def moveTo(self, coordDeg, delay=0.001):
+        if not self.working:
+            return
+        az = self.degToSteps(coordDeg[0])
+        alt = self.degToSteps(coordDeg[1])
 
         azStepCount = 0
         altStepCount = 0
@@ -107,6 +160,13 @@ class StepperController():
 
     # Set azimuth and altitude current steps from degrees
     def centerCoords(self, azDeg, altDeg):
+        if not self.working:
+            return
         self.az = self.degToSteps(azDeg)
         self.alt = self.degToSteps(altDeg)
 
+    # Set azimuth and altitude current steps from degrees
+    def getCoords(self):
+        if not self.working:
+            return (-999, -999)
+        return (self.stepsToDeg(self.az),self.stepsToDeg(self.alt))

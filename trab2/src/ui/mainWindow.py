@@ -17,9 +17,11 @@ import time                     # For routines
 from src.ui.inputConsole import inputConsole
 from src.Astrolocator import Astrolocator
 from src.StepperController import StepperController
+from src.Tracker import Tracker
 from src.ui.stepperConfigWindow import stepperConfigWindow
 from src.ui.deviceConfigWindow import deviceConfigWindow
 from src.ui.othersConfigWindow import othersConfigWindow
+from src.utils.commandThread import CommandThread
 
 ##################### Main Programme Class
 class mainWindow(QWidget):
@@ -27,7 +29,7 @@ class mainWindow(QWidget):
     ############ Constructor
     def __init__(self, *args, **kwargs):
 
-        ##### UI
+        ############################# UI
 
         super().__init__(*args, **kwargs)   # Initialize parent class
 
@@ -56,6 +58,10 @@ class mainWindow(QWidget):
         self.alignmentDown = QPushButton('')
         self.alignmentDown.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_ArrowDown))
         self.alignmentDown.setFixedSize(36, 28)
+        self.laserButton = QPushButton('')
+        self.laserButton.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_DialogNoButton))
+        self.laserButton.setFixedSize(36, 28)
+        
         self.alignmentLeft = QPushButton('')
         self.alignmentLeft.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_ArrowBack))
         self.alignmentLeft.setFixedSize(36, 28)
@@ -66,6 +72,7 @@ class mainWindow(QWidget):
         self.trackBeginButton = QPushButton('Begin Tracking')
         self.trackBeginButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.trackBeginButton.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_FileDialogContentsView))
+        self.trackBeginButton.clicked.connect(self.beginStopTracking)
 
         self.settingsSteppersButton = QPushButton('Configure Steppers')
         self.settingsSteppersButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
@@ -117,7 +124,7 @@ class mainWindow(QWidget):
         self.logText("> Duarte Tavares, João Camacho, Jorge Costa, Margarida Saraiva (IST, 2025 - IAD)\n\n")
 
         self.commandInputLine = inputConsole('assets/input_log', self)
-        #self.commandInputLine.returnPressed.connect(self.startCommand)
+        self.commandInputLine.returnPressed.connect(self.sendText)
 
         # UI Elements - Dropdowns
         self.alignmentDropdown = QComboBox()
@@ -211,6 +218,7 @@ class mainWindow(QWidget):
 
         self.alignmentLayoutR1.addWidget(self.alignmentUp, alignment= Qt.AlignTop)
         self.alignmentLayoutR2.addWidget(self.alignmentLeft, alignment= Qt.AlignTop)
+        self.alignmentLayoutR2.addWidget(self.laserButton, alignment= Qt.AlignTop)
         self.alignmentLayoutR2.addWidget(self.alignmentRight, alignment= Qt.AlignTop)
         self.alignmentLayoutR3.addWidget(self.alignmentDown, alignment= Qt.AlignTop)
 
@@ -242,12 +250,43 @@ class mainWindow(QWidget):
         # Show window
         self.show()
 
-        # Settings Windows
-        self.stepperConfigWindow = stepperConfigWindow()
+        ############################ TECHNICAL
+
+        # Load Stepper Configuration
+        self.stepperConfigWindow = stepperConfigWindow(self)
+        self.stepperController = None
+        self.updateStepperController()
+
+        # Device Configuration
         self.deviceConfigWindow = deviceConfigWindow()
-        self.othersConfigWindow = othersConfigWindow()
+
+        # Other Configurations
+        self.othersConfigWindow = othersConfigWindow(self)
+        self.laserButton.clicked.connect(self.othersConfigWindow.laser)
+
+        # Movement Buttons Connect
+        self.alignmentUp.pressed.connect(self.stepperUpPress)
+        self.alignmentDown.pressed.connect(self.stepperDownPress)
+        self.alignmentLeft.pressed.connect(self.stepperLeftPress)
+        self.alignmentRight.pressed.connect(self.stepperRightPress)
+        self.alignmentUp.released.connect(self.stepperUpRelease)
+        self.alignmentDown.released.connect(self.stepperDownRelease)
+        self.alignmentLeft.released.connect(self.stepperLeftRelease)
+        self.alignmentRight.released.connect(self.stepperRightRelease)
+        
+        # getInput
+        self.waitingForText = False
+        self.inputtedText = ""
+        self.receiverForText = None
+
+        # Tracking
+        self.tracking = False
+        self.tracker = Tracker(self.stepperController)#None
+        self.requestPosition()
+
 
     ############# Events
+    
     def closeEvent(self,event):
         self.commandInputLine.saveLog()
         self.stepperConfigWindow.close()
@@ -279,6 +318,7 @@ class mainWindow(QWidget):
         painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
 
     ############ Button Methods
+
     def stepperConfigWindowShow(self):
         self.stepperConfigWindow.show()
         self.stepperConfigWindow.activateWindow()
@@ -298,41 +338,170 @@ class mainWindow(QWidget):
         self.commandOutputLine.setPlainText(self.commandOutputLine.toPlainText() + msg)
         self.commandOutputLine.moveCursor(self.commandOutputLine.textCursor().End)
 
+    def sendText(self):
+        if self.waitingForText:
+            self.inputtedText = self.commandInputLine.text()
+            self.waitingForText = False
+            self.receiverForText()
+
     # Update the delay value from the slider
     def updateDelayValue(self):
         self.alignmentDelayValueLabel.setText('Value: '+str(self.alignmentDelaySlider.value())+' ms')
-
-    ############ Internal Commands - Routines processed by this programme.
     
-    def location(self, *args, **kwargs):
-        # O user mete a sua localização
-        if args:
-            return self.logText("* ERROR: location function does not take regular arguments, only kwargs.\n")
-        if len(kwargs)==0:
-            return self.logText("* ERROR: location function must take kwargs.\n")
-        for tag in kwargs.keys():
-            if tag not in ["lat", "long", "alt"]:
-                return self.logText("* ERROR: unrecognised parameter in location function\n")
-            if (tag == "lat" and kwargs[tag] != "" and kwargs[tag] != True):
-                self.latitude = kwargs[tag]
-            if (tag == "long" and kwargs[tag] != "" and kwargs[tag] != True):
-                self.longitude = kwargs[tag]
-            if (tag == "alt" and kwargs[tag] != "" and kwargs[tag] != True):
-                self.altitude = kwargs[tag]
-        if self.latitude == "":
-            self.logText("* WARNING: Latitude missing.\n")
-        if self.longitude == "":
-            self.logText("* WARNING: Longitude missing.\n")
-        if self.altitude == "":
-            self.logText("* WARNING: Altitude missing.\n")
-        #FALTA METER UMA FUNÇÃO QUE DEPOIS ENVIE A INFORMAÇÃO DA LOCALIZAÇÃO PARA A CLASSE RESPETIVA
+    # Load Stepper Settings onto StepperController object
+    def updateStepperController(self):
+        self.stepperController = StepperController(self.stepperConfigWindow.getSettings(), self)
+    
+    ######################### MANUAL STEPPER CONTROL
 
-    def request_location(self, *args, **kwargs):
-        # O user pede a localização que a antena conhece
-        if args:
-            return self.logText("* ERROR: Unknown args in the request_location function.\n")
-        if kwargs:
-            return self.logText("* ERROR: Unknown kwargs in the request_location function.\n")            
-        if (self.latitude == "" and self.longitude == "" and self.altitude == ""):
-            return self.logText("* No location has been provided.\n")
-        return self.logText("*LOCATION: \n*Latitude: " + self.latitude + "\n*Longitude: " + self.longitude + "\n*Altitude:" + self.altitude + "\n")
+    def stepperUpPress(self):
+        print('a')
+    
+    def stepperUpRelease(self):
+        print('a')
+
+    def stepperDownPress(self):
+        print('a')
+    
+    def stepperDownRelease(self):
+        print('a')
+    
+    def stepperLeftPress(self):
+        print('a')
+    
+    def stepperLeftRelease(self):
+        print('a')
+    
+    def stepperRightPress(self):
+        print('a')
+    
+    def stepperRightRelease(self):
+        print('a')
+
+
+
+
+    #def stepperUpThread(self):
+        print('a')
+        #while True:
+        #    self.stepperController.moveToAz
+
+    def stepperDownThread(self):
+        print('a')
+
+    def stepperLeftThread(self):
+        print('a')
+
+    def stepperRightThread(self):
+        print('a')
+
+    ######################### INTERACTION WITH OTHER CLASSES FOR ALIGNMENT ROUTINE
+    
+    def readCoords(self):
+        input = self.inputCommandLabel.text()
+
+
+    def requestPosition(self):
+        self.logText("> Please insert your current coordinates in the following format (enter to ignore): latitude longitude altitude  \n")
+        self.waitingForText = True
+        self.receiverForText = self.setTracker
+
+    def setTracker(self):
+        text = self.inputtedText
+        if text == "":
+            self.tracker = Tracker(self.stepperController)
+            return
+        coords = text.split(" ")
+        if len(coords) != 3:
+            self.logText("> ERROR: Invalid coordinates, please follow the requested format.\n")
+            self.requestPosition()
+            return        
+        self.tracker = Tracker(self.stepperController, coords[0], coords[1], coords[2])
+        self.logText(f"> Initialized with latitude: {coords[0]}, longitude: {coords[1]}, altitude: {coords[2]}\n\n")
+
+
+    def alignmentRoutine(self):
+        if self.alignmentDropdown.currentIndex() == 0:
+            self.tracker.nearestOnePointAlign()
+            
+        
+    def beginStopTracking(self):
+        if self.tracking:
+            self.logText("* Ending Tracking Threads.\n")
+            self.tracker.stopTracking = True
+
+            self.tracking = False
+            self.waitingForText = False
+            return
+            
+        self.tracking = True
+        self.logText("> Please input object name\n")
+        self.waitingForText = True
+        self.receiverForText = self.beginTrackingThreads
+
+
+    def beginTrackingThreads(self):
+        objName = self.inputtedText
+        
+        # start thread for motor tracking
+        self.logText("* Starting Motor Tracking Thread.\n")
+        self.threadMotor = CommandThread(self.tracker.trackingRoutine,[objName])
+        self.threadMotor.start()
+        time.sleep(100)
+        # start thread for aquisition
+        self.logText("* Starting Acquisition Thread.\n")
+        self.thread = CommandThread(self,'acquirePlotThread',[n_points,interval,x_multiplier,y_multipler])
+        self.thread.send_data.connect(self.addDataPoint)
+        self.thread.start()
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    ############ COMANDOS MAGABIBA 1 SESSÃO
+    #
+    #def location(self, *args, **kwargs):
+    #    # O user mete a sua localização
+    #    if args:
+    #        return self.logText("* ERROR: location function does not take regular arguments, only kwargs.\n")
+    #    if len(kwargs)==0:
+    #        return self.logText("* ERROR: location function must take kwargs.\n")
+    #    for tag in kwargs.keys():
+    #        if tag not in ["lat", "long", "alt"]:
+    #            return self.logText("* ERROR: unrecognised parameter in location function\n")
+    #        if (tag == "lat" and kwargs[tag] != "" and kwargs[tag] != True):
+    #            self.latitude = kwargs[tag]
+    #        if (tag == "long" and kwargs[tag] != "" and kwargs[tag] != True):
+    #            self.longitude = kwargs[tag]
+    #        if (tag == "alt" and kwargs[tag] != "" and kwargs[tag] != True):
+    #            self.altitude = kwargs[tag]
+    #    if self.latitude == "":
+    #        self.logText("* WARNING: Latitude missing.\n")
+    #    if self.longitude == "":
+    #        self.logText("* WARNING: Longitude missing.\n")
+    #    if self.altitude == "":
+    #        self.logText("* WARNING: Altitude missing.\n")
+    #    #FALTA METER UMA FUNÇÃO QUE DEPOIS ENVIE A INFORMAÇÃO DA LOCALIZAÇÃO PARA A CLASSE RESPETIVA
+
+    #def request_location(self, *args, **kwargs):
+    #    # O user pede a localização que a antena conhece
+    #    if args:
+    #        return self.logText("* ERROR: Unknown args in the request_location function.\n")
+    #    if kwargs:
+    #        return self.logText("* ERROR: Unknown kwargs in the request_location function.\n")            
+    #    if (self.latitude == "" and self.longitude == "" and self.altitude == ""):
+    #        return self.logText("* No location has been provided.\n")
+    #    return self.logText("*LOCATION: \n*Latitude: " + self.latitude + "\n*Longitude: " + self.longitude + "\n*Altitude:" + self.altitude + "\n")

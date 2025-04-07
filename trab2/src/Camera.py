@@ -1,4 +1,6 @@
 import time
+from datetime import datetime
+
 from picamera2 import Picamera2, Preview
 
 class RPiCamera2:
@@ -21,10 +23,10 @@ class RPiCamera2:
             # And wait for those settings to take effect
             time.sleep(1)
 
-        return f"Camera initialized with resolution {resolution}, framerate {framerate} fps and {if (not autoBalance) "no " else ""}auto balance."
+        return f"Camera initialized with resolution {resolution}, framerate {framerate} fps and {"no " if not autoBalance else ""}auto balance."
     
     #exposure time in microsecs
-    def changeSettings(framerate=30, autobalance=false, exposureTime=int(1000000/30), analogueGain=1.0):
+    def changeSettings(self, framerate=30, autobalance=False, exposureTime=int(1000000/30), analogueGain=1.0):
         self.camera.set_controls({"AeEnable": autobalance, "AwbEnable": autobalance, "FrameRate": framerate,'ExposureTime': exposureTime, 'AnalogueGain': analogueGain})
         # Wait for those settings to take effect
         time.sleep(1)
@@ -38,7 +40,7 @@ class RPiCamera2:
         except Exception as e:
             return f"Error starting preview: {e}"
 
-    def capture_image(self, filename="image.jpg", timestamp=false):
+    def capture_image(self, filename="image.jpg", timestamp=False):
         self.camera.configure(self.capture_config)
         if timestamp:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
