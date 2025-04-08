@@ -20,6 +20,7 @@ from src.Tracker import Tracker                             # Coordinating Stepp
 from src.ui.stepperConfigWindow import stepperConfigWindow  # Configuration window for steppers
 from src.ui.deviceConfigWindow import deviceConfigWindow    # Configuration window for acquisition devices
 from src.ui.othersConfigWindow import othersConfigWindow    # Configuration window for other periferals
+from src.ui.locationConfigWindow import locationConfigWindow    # Configuration window for location
 from src.ui.graphWindow import graphWindow                  # For data visualization
 from src.utils.commandThread import CommandThread           # For multithreading routines
 
@@ -78,17 +79,21 @@ class mainWindow(QWidget):
         self.trackBeginButton.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_FileDialogContentsView))
         self.trackBeginButton.clicked.connect(self.beginStopTracking)
 
-        self.settingsSteppersButton = QPushButton('Configure Steppers')
+        self.settingsSteppersButton = QPushButton('Steppers')
         self.settingsSteppersButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.settingsSteppersButton.clicked.connect(self.stepperConfigWindowShow)
         
-        self.settingsDeviceButton = QPushButton('Configure Acquisition Device')
+        self.settingsDeviceButton = QPushButton('Acquisition Device')
         self.settingsDeviceButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.settingsDeviceButton.clicked.connect(self.deviceConfigWindowShow)
         
-        self.settingsOthersButton = QPushButton('Configure Other Periferals')
+        self.settingsOthersButton = QPushButton('Other Periferals')
         self.settingsOthersButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.settingsOthersButton.clicked.connect(self.othersConfigWindowShow)
+
+        self.settingsLocationButton = QPushButton('Location Settings')
+        self.settingsLocationButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.settingsLocationButton.clicked.connect(self.locationConfigWindowShow)
 
         # UI Elements - Sliders
         self.alignmentDelaySlider = QSlider(Qt.Horizontal, self)
@@ -247,6 +252,7 @@ class mainWindow(QWidget):
         self.settingsLayoutR.addWidget(self.settingsSteppersButton)
         self.settingsLayoutR.addWidget(self.settingsDeviceButton)
         self.settingsLayoutR.addWidget(self.settingsOthersButton)
+        self.settingsLayoutR.addWidget(self.settingsLocationButton)
 
         self.settingsLayout.setAlignment(Qt.AlignTop)
         self.settingsLayoutR.setAlignment(Qt.AlignTop)
@@ -263,6 +269,9 @@ class mainWindow(QWidget):
 
         # Device Configuration
         self.deviceConfigWindow = deviceConfigWindow()
+
+        # Location Configuration
+        self.locationConfigWindow = locationConfigWindow(self)
 
         # Other Configurations for periferals (example: laser)
         self.othersConfigWindow = othersConfigWindow(self)
@@ -292,7 +301,7 @@ class mainWindow(QWidget):
         # Tracking
         self.tracking = False
         self.tracker = Tracker(self.stepperController)
-        self.requestPosition()  # Maybe add position configuration window?
+        # self.requestPosition()  # ADDED CONFIGURATION WINDOW FOR THIS!
 
         # Graphing Window
         self.grapher = graphWindow()
@@ -316,6 +325,7 @@ class mainWindow(QWidget):
         self.stepperConfigWindow.close()
         self.deviceConfigWindow.close()
         self.othersConfigWindow.close()
+        self.locationConfigWindow.close()
         # Close running Threads
         self.stepperUpRelease()
         self.stepperDownRelease()
@@ -368,6 +378,10 @@ class mainWindow(QWidget):
     def othersConfigWindowShow(self):
         self.othersConfigWindow.show()
         self.othersConfigWindow.activateWindow()
+
+    def locationConfigWindowShow(self):
+        self.locationConfigWindow.show()
+        self.locationConfigWindow.activateWindow()
 
 
 
@@ -485,16 +499,14 @@ class mainWindow(QWidget):
 
 
     ######################### ALIGNMENT AND TRACKING METHODS
-    
-    def readCoords(self):
-        input = self.inputCommandLabel.text()
 
-    def requestPosition(self):
-        self.logText("> Please insert your current coordinates in the following format (enter to ignore): latitude longitude altitude  \n")
-        self.waitingForText = True
-        self.receiverForText = self.setTracker
+    #def requestPosition(self):
+    #    self.logText("> Please insert your current coordinates in the following format (enter to ignore): latitude longitude altitude  \n")
+    #    self.waitingForText = True
+    #    self.receiverForText = self.setTracker
 
     def setTracker(self):
+        """
         text = self.inputtedText
         if text == "":
             self.tracker = Tracker(self.stepperController)
@@ -503,9 +515,12 @@ class mainWindow(QWidget):
         if len(coords) != 3:
             self.logText("> ERROR: Invalid coordinates, please follow the requested format.\n")
             self.requestPosition()
-            return        
+            return   
+        
+        """
+        coords = self.locationConfigWindow.getSettings()
         self.tracker = Tracker(self.stepperController, coords[0], coords[1], coords[2])
-        self.logText(f"> Initialized with latitude: {coords[0]}, longitude: {coords[1]}, altitude: {coords[2]}\n\n")
+        self.logText(f"> Initialized Tracker with latitude: {coords[0]}, longitude: {coords[1]}, altitude: {coords[2]}\n\n")
 
     def alignmentRoutine(self):
         if self.alignmentDropdown.currentIndex() == 0:
