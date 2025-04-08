@@ -1,3 +1,12 @@
+"""
+Grupo I, IAD, 2025
+João Camacho, Duarte Tavares, Margarida Saraiva, Jorge Costa
+
+This file contains various methods to interface with an
+RPi camera.
+
+"""
+
 import time
 from datetime import datetime
 
@@ -6,7 +15,9 @@ try:
 except:
     print('ERROR in Camera: Could not import picamera2! Please install!')
 
+################ Class
 class RPiCamera2:
+    
     def __init__(self, resolution=(1024, 768), framerate=30, autoBalance=False):
         
         try:

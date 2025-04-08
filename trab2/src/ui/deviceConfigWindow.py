@@ -13,7 +13,8 @@ from PyQt5.QtGui import *       # GUI Elements
 
 ##################### Commands Window Class
 class deviceConfigWindow(QWidget):
-    # Constructor
+
+    ############################################### Constructor
     def __init__(self):
         # Intializing general stuff
         super().__init__()
@@ -34,6 +35,10 @@ class deviceConfigWindow(QWidget):
         self.setLayout(self.mainLayout)
         self.mainLayout.addWidget(self.closeButton)
         self.mainLayout.addWidget(self.closeButton, alignment=Qt.AlignTop | Qt.AlignRight)
+
+
+
+    ############################################### Events
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -57,3 +62,7 @@ class deviceConfigWindow(QWidget):
         
         # Draw the border around the window (excluding the title bar area)
         painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
+
+
+
+    ############################################### Settings

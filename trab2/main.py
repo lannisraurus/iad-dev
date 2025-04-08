@@ -10,6 +10,10 @@ from PyQt5.QtWidgets import QApplication # Qt App
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
+##################### Stop __pycache__ from generating
+import sys
+sys.dont_write_bytecode = True
+
 ##################### User defined classes/functions
 from src.ui.mainWindow import mainWindow
 

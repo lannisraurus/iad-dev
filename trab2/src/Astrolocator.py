@@ -19,6 +19,7 @@ from astropy.time import Time
 
 ### Class
 class Astrolocator():
+    
     # Constructor
     def __init__(self, lat=90, lon=0, alt=0):
         # Using SIMBAD database

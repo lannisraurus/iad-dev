@@ -15,6 +15,8 @@ import pyqtgraph.exporters
 
 ##################### Graph Window Class
 class graphWindow(QMainWindow):
+
+    # Constructor
     def __init__(self):
         super().__init__() 
          # Set title

@@ -17,7 +17,8 @@ except:
 
 ##################### Commands Window Class
 class othersConfigWindow(QWidget):
-    # Constructor
+
+    ################################################# Constructor
     def __init__(self, mainWindow):
         # Intializing general stuff
         self.mainWindow = mainWindow
@@ -86,6 +87,11 @@ class othersConfigWindow(QWidget):
         mainWindow.logText('\n')
         self.changeLaserType()
 
+
+
+
+    ################################################# Events
+
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.dragging = True
@@ -109,31 +115,41 @@ class othersConfigWindow(QWidget):
         # Draw the border around the window (excluding the title bar area)
         painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
 
+
+
+
+
+    ################################################# Settings
+
     def loadSettings(self, mainWindow):
         pins = []
         try:
             file = open('assets/other_settings','r')
-            mainWindow.logText('> Opened laser configuration file.\n')
+            mainWindow.logText('> Opened other configurations file.\n')
         except:
             file = None
-            mainWindow.logText('> Could not open laser configuration file!\n')
+            mainWindow.logText('> Could not open other configurations file!\n')
         try:    
             self.laserPinsConfig.setText(file.readline())
-            mainWindow.logText('> Successfully loaded previous laser settings.\n')
-            pins = self.laserPinsConfig.split(' ')
+            mainWindow.logText('> Successfully loaded previous other settings.\n')
+            pins = self.laserPinsConfig.text().split(' ')
         except:
             self.laserPinsConfig.setText('')
-            #É POSSÍVEL QUE EXISTAM 2 PINS EM VEZ DE 3
+            self.mainWindow.logText('> Could not load previous other settings. Please configure and apply settings!\n')
+
+
         if len(pins) == 3:
             try:
-                    self.laserPin1 = OutputDevice(int(pins[0]))
-                    self.laserPin2 = OutputDevice(int(pins[1]))
-                    self.laserPin3 = OutputDevice(int(pins[2]))
+                self.laserPin1 = OutputDevice(int(pins[0]))
+                self.laserPin2 = OutputDevice(int(pins[1]))
+                self.laserPin3 = OutputDevice(int(pins[2]))
             except:
-                    mainWindow.logText('> ERROR! Could not set output pins! Either the pins are not ints, or your device cannot access the GPIO pins!\n')
+                mainWindow.logText('> ERROR! Could not set output pins! Either the pins are not ints, or your device cannot access the GPIO pins!\n')
         else:
-                mainWindow.logText('> ERROR! Pin configuration is wrong! These should be 3!\n')
-        file.close()
+            mainWindow.logText('> ERROR! Pin configuration is wrong! These should be 3!\n')
+
+        if file:
+            file.close()
 
     def saveSettings(self):
         file = open('assets/other_settings','w')
@@ -155,4 +171,4 @@ class othersConfigWindow(QWidget):
             self.laserPin2.toggle()
             self.laserPin3.toggle()
         except:
-            self.mainWindow.logText('> Laser is not connected! \n')     
+            self.mainWindow.logText('> ERROR: Laser is not connected / set up properly! \n\n')     
