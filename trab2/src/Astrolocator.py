@@ -25,11 +25,13 @@ class Astrolocator():
         Simbad.TIMEOUT = 500
         self.simbadData = Simbad()
         self.simbadData.add_votable_fields("allfluxes")
-        self.observer = EarthLocation.from_geodetic(lon, lat, alt)
+        print(lon, lat, alt)
+        self.observer = EarthLocation.from_geodetic(lon=lon, lat=lat, height=alt)
+        print(self.observer)
 
     # Updates observers position on Earth
     def updateObserver(self, lon=0, lat=90, alt=0):
-        self.observer = EarthLocation.from_geodetic(lon, lat, alt)
+        self.observer = EarthLocation.from_geodetic(lon=lon, lat=lat, height=alt)
 
     # Returns astropy Time obeject with current time
     def getTime(self):
@@ -59,11 +61,13 @@ class Astrolocator():
         
         bright_objects = bright_stars
         planetsIdsHorizons = ["199","299","499","599","699","799","899","999"]
-        location = {'lon': self.observer.lon.value,
-            'lat': self.observer.lat.value,
-            'elevation': self.observer.height.value}
+        location = {"lon": self.observer.lon.value,
+            "lat": self.observer.lat.value,
+            "elevation": self.observer.height.value,
+            "body": "399"}
+        print("location", location)
         for id in planetsIdsHorizons:
-            planet = Horizons(id=id, location=location, epochs=Time.now().jd).ephemerides()
+            planet = Horizons(id=id, location=location).ephemerides()
             planet.rename_column("targetname", "Name")
             planet["Name"].unit = None
             planet["Name"] = planet["Name"].astype(str)
@@ -78,15 +82,19 @@ class Astrolocator():
         for obj in bright_objects:
             print(obj["Name"], obj["RA"], obj["DEC"])
             objectCoords = coord.SkyCoord(ra=obj["RA"]*u.deg, dec=obj["DEC"]*u.deg, frame="icrs")
+            print(objectCoords)
             # Convert to AltAz frame of self.observer
             altazFrame = AltAz(obstime=self.getTime(), location=self.observer)
+            print(self.getTime(),self.observer )
+            print(altazFrame)
             altazCoords = objectCoords.transform_to(altazFrame)
+            print(altazCoords)
             if altazCoords.alt.value > 0:
                 if bright_objects_in_sky is None:
                     bright_objects_in_sky = astropy.table.Table(obj)
                 else:
                     bright_objects_in_sky.add_row(obj)
-            print(altazCoords.az.value,altazCoords.alt.value)
+            
         print(bright_objects_in_sky)
         return bright_objects_in_sky
 
