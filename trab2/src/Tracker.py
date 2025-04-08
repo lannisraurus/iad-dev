@@ -9,6 +9,7 @@ João Camacho, Duarte Tavares, Margarida Saraiva, Jorge Costa
 from src.Astrolocator import Astrolocator
 from src.StepperController import StepperController
 import astroalign
+import numpy as np
 
 ### Class
 class Tracker():
@@ -52,7 +53,8 @@ class Tracker():
         if self.currAlignmentType == "NearestOnePoint":
             return (realPos[0] + self.currAlignment[0], realPos[1] + self.currAlignment[1])
         if self.currAlignmentType == "NPoint":
-            return astroalign.matrixtransform(realPos, currAlignment[1].params)
+            realPos = np.array(realPos)
+            return astroalign.matrix_transform(realPos, self.currAlignment[1].params)
     
     def motorToReal(self, motorPos):
         if self.currAlignmentType == "None":
@@ -60,13 +62,18 @@ class Tracker():
         if self.currAlignmentType == "NearestOnePoint":
             return (motorPos[0] - self.currAlignment[0], motorPos[1] - self.currAlignment[1])
         if self.currAlignmentType == "NPoint":
-            return astroalign.matrixtransform(motorPos, currAlignment[0].params)
+            motorPos = np.array(motorPos)
+            return astroalign.matrix_transform(motorPos, self.currAlignment[0].params)
 
     def pointAlignment(self, npoint):
+        src = []
+        sky = []
         i = 0
         for i in npoint-1:
-            src = self.alignmentPoints[i][1]
-            sky = self.alignmentPoints[i][0]
+            src.append(self.alignmentPoints[i][1])
+            sky.append(self.alignmentPoints[i][0])
+        src = np.array(src)
+        sky = np.array(sky)
         self.currAlignmentType = "NPoint"
         self.currAlignment = (astroalign.estimate_transform('affine', src, sky), astroalign.estimate_transform('affine', sky, src))
 
