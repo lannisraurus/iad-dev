@@ -13,12 +13,12 @@ import time
 
 ### Class Definition
 class StepperController():
-
     # Constructor
     def __init__(self, settings, mainWindow, alt = 0, az = 0):
         
         # Default
         self.working = False
+        self.currentSequenceIndex = 0 # For threading movement
 
         # Log
         mainWindow.logText('> Configuring StepperController Object...\n')
@@ -30,10 +30,14 @@ class StepperController():
         # RB-MOTO2 (Joy-IT)
         if self.motorType == 'RB-MOTO2 (Joy-IT)':
 
+            # Vars
             self.working = True
 
             # Steps in 360 deg
             self.stepsInRevolution = 512
+
+            # Sequence Size
+            self.stepsInSequence = 8
 
             # Step sequence
             mainWindow.logText('> Setting sequences...\n')
@@ -79,14 +83,13 @@ class StepperController():
     # Convert degrees to stepper steps
     def degToSteps(self,angleDeg):
         if not self.working:
-            return -999
-        return round(self.stepsInRevolution*8*self.gearRatio*angleDeg/360)
+            return None
+        return round(self.stepsInRevolution*self.stepsInSequence*self.gearRatio*angleDeg/360)
 
     def stepsToDeg(self,angleSteps):
         if not self.working:
-            return -999
-        return 360*angleSteps/self.stepsInRevolution/8/self.gearRatio
-
+            return None
+        return 360*angleSteps/self.stepsInRevolution/self.stepsInSequence/self.gearRatio
 
     # Azimuthal Stepping
     def stepAz(self,indexSeq):
@@ -106,6 +109,51 @@ class StepperController():
         self.coil2_B_1_pin.value = self.Seq[indexSeq][2]
         self.coil2_B_2_pin.value = self.Seq[indexSeq][3]
     
+    # Azimuthal threaded rotation
+    def moveAz(self, reverse=False, delay=0.001):
+
+        if not self.working:
+            time.sleep(delay)
+            return
+        
+        if not reverse:
+            self.stepAz((self.stepsInSequence-self.currentSequenceIndex)%self.stepsInSequence)
+            self.currentSequenceIndex += 1
+            self.az += 1
+        else:
+            self.stepAz((self.stepsInSequence-self.currentSequenceIndex)%self.stepsInSequence)
+            self.currentSequenceIndex -= 1
+            self.az -= 1
+        time.sleep(delay)
+
+        if self.currentSequenceIndex < 0:
+            self.currentSequenceIndex = self.stepsInSequence-1
+        if self.currentSequenceIndex >= self.stepsInSequence:
+            self.currentSequenceIndex = 0
+        
+
+    # Azimuthal threaded rotation
+    def moveAlt(self, reverse=False, delay=0.001):
+
+        if not self.working:
+            time.sleep(delay)
+            return
+        
+        if reverse:
+            self.stepAlt((self.stepsInSequence-self.currentSequenceIndex)%self.stepsInSequence)
+            self.currentSequenceIndex -= 1
+            self.alt -= 1
+        else:
+            self.stepAlt((self.stepsInSequence-self.currentSequenceIndex)%self.stepsInSequence)
+            self.currentSequenceIndex += 1
+            self.alt += 1
+        time.sleep(delay)
+
+        if self.currentSequenceIndex < 0:
+            self.currentSequenceIndex = self.stepsInSequence-1
+        if self.currentSequenceIndex >= self.stepsInSequence:
+            self.currentSequenceIndex = 0
+
 
     # Azimuthal full rotation
     def moveToAz(self, azDeg, delay=0.001):
@@ -113,7 +161,7 @@ class StepperController():
             return
         az=self.degToSteps(azDeg)
         for i in range(self.az,az, 1 if self.az < az else -1):
-            self.stepAz((8-i)%8)
+            self.stepAz((self.stepsInSequence-i)%self.stepsInSequence)
             time.sleep(delay)
         self.az=az
     
@@ -123,7 +171,7 @@ class StepperController():
             return
         alt=self.degToSteps(altDeg)
         for i in range(self.alt,alt, 1 if self.alt < alt else -1):
-            self.stepAlt(i%8)
+            self.stepAlt(i%self.stepsInSequence)
             time.sleep(delay)   
         self.alt=alt  
 
@@ -140,15 +188,15 @@ class StepperController():
         while azStepCount < self.az or altStepCount < self.alt:
 
             if azStepCount < abs(self.az - az):
-                azStep = (8-azStepCount)%8
+                azStep = (self.stepsInSequence-azStepCount)%self.stepsInSequence
                 if self.az >= az:
-                    azStep = azStepCount%8
+                    azStep = azStepCount%self.stepsInSequence
                 self.stepAz(azStep)
             
             if altStepCount < abs(self.alt- alt):
-                altStep = altStepCount%8
+                altStep = altStepCount%self.stepsInSequence
                 if self.alt >= alt:
-                    altStep = (8-altStepCount)%8
+                    altStep = (self.stepsInSequence-altStepCount)%self.stepsInSequence
                 self.stepAlt(altStep)
             
             azStepCount += 1

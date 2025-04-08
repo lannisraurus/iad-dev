@@ -20,18 +20,16 @@ from astropy.time import Time
 ### Class
 class Astrolocator():
     # Constructor
-    def __init__(self, lon=0, lat=90, alt=0):
+    def __init__(self, lat=90, lon=0, alt=0):
         # Using SIMBAD database
         Simbad.TIMEOUT = 500
         self.simbadData = Simbad()
         self.simbadData.add_votable_fields("allfluxes")
-        print(lon, lat, alt)
-        self.observer = EarthLocation.from_geodetic(lon=lon, lat=lat, height=alt)
-        print(self.observer)
+        self.observer = EarthLocation.from_geodetic(lat=lat, lon=lon, height=alt)
 
     # Updates observers position on Earth
-    def updateObserver(self, lon=0, lat=90, alt=0):
-        self.observer = EarthLocation.from_geodetic(lon=lon, lat=lat, height=alt)
+    def updateObserver(self, lat=90, lon=0, alt=0):
+        self.observer = EarthLocation.from_geodetic(lat=lat, lon=lon, height=alt)
 
     # Returns astropy Time obeject with current time
     def getTime(self):
@@ -40,7 +38,7 @@ class Astrolocator():
     # Returns an astropy table of the given object. If fails returns None
     def querySimbad(self, identifier):
         result = self.simbadData.query_object(identifier)
-        if result is None or len(result) == 0 or "RA" not in result.colnames or "DEC" not in result.colnames:
+        if result is None or len(result) == 0 or "ra" not in result.colnames or "dec" not in result.colnames:
             return None
         return result
     
@@ -65,7 +63,6 @@ class Astrolocator():
             "lat": self.observer.lat.value,
             "elevation": self.observer.height.value,
             "body": "399"}
-        print("location", location)
         for id in planetsIdsHorizons:
             planet = Horizons(id=id, location=location).ephemerides()
             planet.rename_column("targetname", "Name")
@@ -76,19 +73,13 @@ class Astrolocator():
                 bright_objects = astropy.table.vstack([bright_objects, planet])
 
         bright_objects = bright_objects.group_by("V")
-        print(bright_objects)
 
         bright_objects_in_sky = None
         for obj in bright_objects:
-            print(obj["Name"], obj["RA"], obj["DEC"])
-            objectCoords = coord.SkyCoord(ra=obj["RA"]*u.deg, dec=obj["DEC"]*u.deg, frame="icrs")
-            print(objectCoords)
+            objectCoords = coord.SkyCoord(ra=obj["RA"], dec=obj["DEC"], unit="deg", frame="icrs")
             # Convert to AltAz frame of self.observer
             altazFrame = AltAz(obstime=self.getTime(), location=self.observer)
-            print(self.getTime(),self.observer )
-            print(altazFrame)
             altazCoords = objectCoords.transform_to(altazFrame)
-            print(altazCoords)
             if altazCoords.alt.value > 0:
                 if bright_objects_in_sky is None:
                     bright_objects_in_sky = astropy.table.Table(obj)
@@ -105,7 +96,7 @@ class Astrolocator():
         ra = object["ra"][0]
         dec = object["dec"][0]
         # SkyCoord object
-        objectCoords = coord.SkyCoord(ra, dec, unit=(u.hourangle, u.deg), frame="icrs")
+        objectCoords = coord.SkyCoord(ra, dec, unit="deg", frame="icrs")
         # Convert to AltAz frame of self.observer
         altazFrame = AltAz(obstime=time, location=self.observer)
         altazCoords = objectCoords.transform_to(altazFrame)

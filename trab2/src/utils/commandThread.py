@@ -14,7 +14,7 @@ from PyQt5.QtCore import *  # Qt threads, ...
 class CommandThread(QThread):
     # Signals
     finished = pyqtSignal()
-    send_data = pyqtSignal(list)
+    send_data = pyqtSignal(tuple)
     
     # Constructor
     def __init__(self, func, params):

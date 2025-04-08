@@ -1,11 +1,18 @@
 import time
 from datetime import datetime
 
-from picamera2 import Picamera2, Preview
+try:
+    from picamera2 import Picamera2, Preview
+except:
+    print('Picamera2 not found in system! Please download!')
 
 class RPiCamera2:
-    def __init__(self, resolution=(1024, 768), framerate=30, autoBalance=false):
-        self.camera = Picamera2()
+    def __init__(self, resolution=(1024, 768), framerate=30, autoBalance=False):
+        
+        try:
+            self.camera = Picamera2()
+        except:
+            self.camera = None
 
         self.preview_config = self.camera.create_preview_configuration(
             main={"size": resolution})
@@ -23,7 +30,7 @@ class RPiCamera2:
             # And wait for those settings to take effect
             time.sleep(1)
 
-        return f"Camera initialized with resolution {resolution}, framerate {framerate} fps and {"no " if not autoBalance else ""}auto balance."
+        return f"Camera initialized with resolution {resolution}, framerate {framerate} fps and auto balance = {autoBalance}."
     
     #exposure time in microsecs
     def changeSettings(self, framerate=30, autobalance=False, exposureTime=int(1000000/30), analogueGain=1.0):
@@ -55,6 +62,15 @@ class RPiCamera2:
         self.camera.stop_recording()
         return f"Video saved as {filename}."
     
+    def start_video(self, filename="video.h264"):
+        self.camera.configure(self.video_config)
+        self.camera.start_recording(filename)
+        return f"Video started in {filename}."
+    
+    def end_video(self):
+        self.camera.stop_recording()
+        return f"Video finished."
+
     def close(self):
         self.camera.stop_preview()
         self.camera.close()

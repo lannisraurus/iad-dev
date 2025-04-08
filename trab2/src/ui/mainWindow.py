@@ -21,6 +21,7 @@ from src.Tracker import Tracker
 from src.ui.stepperConfigWindow import stepperConfigWindow
 from src.ui.deviceConfigWindow import deviceConfigWindow
 from src.ui.othersConfigWindow import othersConfigWindow
+from src.ui.graphWindow import graphWindow
 from src.utils.commandThread import CommandThread
 
 ##################### Main Programme Class
@@ -273,6 +274,11 @@ class mainWindow(QWidget):
         self.alignmentDown.released.connect(self.stepperDownRelease)
         self.alignmentLeft.released.connect(self.stepperLeftRelease)
         self.alignmentRight.released.connect(self.stepperRightRelease)
+
+        self.stepperUpThreadObj = None
+        self.stepperDownThreadObj = None
+        self.stepperLeftThreadObj = None
+        self.stepperRightThreadObj = None
         
         # getInput
         self.waitingForText = False
@@ -281,17 +287,29 @@ class mainWindow(QWidget):
 
         # Tracking
         self.tracking = False
-        self.tracker = Tracker(self.stepperController)#None
+        self.tracker = Tracker(self.stepperController) #None
         self.requestPosition()
+
+        # Graphing Window
+        self.grapher = graphWindow()
+
+        # Angle labels
+        self.updateAltAzLabel()
+        
 
 
     ############# Events
     
     def closeEvent(self,event):
         self.commandInputLine.saveLog()
+        self.grapher.close()
         self.stepperConfigWindow.close()
         self.deviceConfigWindow.close()
         self.othersConfigWindow.close()
+        self.stepperUpRelease()
+        self.stepperDownRelease()
+        self.stepperLeftRelease()
+        self.stepperRightRelease()
         event.accept()
     
     def mousePressEvent(self, event):
@@ -343,6 +361,7 @@ class mainWindow(QWidget):
             self.inputtedText = self.commandInputLine.text()
             self.waitingForText = False
             self.receiverForText()
+            self.commandInputLine.setText('')
 
     # Update the delay value from the slider
     def updateDelayValue(self):
@@ -352,48 +371,76 @@ class mainWindow(QWidget):
     def updateStepperController(self):
         self.stepperController = StepperController(self.stepperConfigWindow.getSettings(), self)
     
+    # Update Az and Alt labels
+    def updateAltAzLabel(self):
+        angles = self.tracker.motorToReal(self.stepperController.getCoords())
+        self.alignmentAngles.setText(f"(az= {angles[0]}, alt= {angles[1]})")
+    
     ######################### MANUAL STEPPER CONTROL
 
     def stepperUpPress(self):
-        print('a')
+        if not self.stepperUpThreadObj:
+            self.stepperUpThreadObj = CommandThread(self.stepperUpThread, [])
+            self.stepperUpThreadObj.start()
     
     def stepperUpRelease(self):
-        print('a')
+        if self.stepperUpThreadObj:
+            self.stepperUpThreadObj.terminate()
+            self.stepperUpThreadObj.wait()
+            self.stepperUpThreadObj = None
 
     def stepperDownPress(self):
-        print('a')
+        if not self.stepperDownThreadObj:
+            self.stepperDownThreadObj = CommandThread(self.stepperDownThread, [])
+            self.stepperDownThreadObj.start()
     
     def stepperDownRelease(self):
-        print('a')
+        if self.stepperDownThreadObj:
+            self.stepperDownThreadObj.terminate()
+            self.stepperDownThreadObj.wait()
+            self.stepperDownThreadObj = None
     
     def stepperLeftPress(self):
-        print('a')
+        if not self.stepperLeftThreadObj:
+            self.stepperLeftThreadObj = CommandThread(self.stepperLeftThread, [])
+            self.stepperLeftThreadObj.start()
     
     def stepperLeftRelease(self):
-        print('a')
+        if self.stepperLeftThreadObj:
+            self.stepperLeftThreadObj.terminate()
+            self.stepperLeftThreadObj.wait()
+            self.stepperLeftThreadObj = None
     
     def stepperRightPress(self):
-        print('a')
+        if not self.stepperRightThreadObj:
+            self.stepperRightThreadObj = CommandThread(self.stepperRightThread, [])
+            self.stepperRightThreadObj.start()
     
     def stepperRightRelease(self):
-        print('a')
+        if self.stepperRightThreadObj:
+            self.stepperRightThreadObj.terminate()
+            self.stepperRightThreadObj.wait()
+            self.stepperRightThreadObj = None
 
+    def stepperUpThread(self, params, send_data):
+        while True:
+            self.stepperController.moveAlt(False, float(self.alignmentDelaySlider.value() / 1000.) )
+            self.updateAltAzLabel()
 
+    def stepperDownThread(self, params, send_data):
+        while True:
+            self.stepperController.moveAlt(True, float(self.alignmentDelaySlider.value() / 1000.) )
+            self.updateAltAzLabel()
 
+    def stepperLeftThread(self, params, send_data):
+        while True:
+            self.stepperController.moveAz(True, float(self.alignmentDelaySlider.value() / 1000.) )
+            self.updateAltAzLabel()
 
-    #def stepperUpThread(self):
-        print('a')
-        #while True:
-        #    self.stepperController.moveToAz
-
-    def stepperDownThread(self):
-        print('a')
-
-    def stepperLeftThread(self):
-        print('a')
-
-    def stepperRightThread(self):
-        print('a')
+    def stepperRightThread(self, params, send_data):
+        while True:
+            self.stepperController.moveAz(False, float(self.alignmentDelaySlider.value() / 1000.) )
+            self.updateAltAzLabel()
 
     ######################### INTERACTION WITH OTHER CLASSES FOR ALIGNMENT ROUTINE
     
@@ -418,6 +465,7 @@ class mainWindow(QWidget):
             return        
         self.tracker = Tracker(self.stepperController, coords[0], coords[1], coords[2])
         self.logText(f"> Initialized with latitude: {coords[0]}, longitude: {coords[1]}, altitude: {coords[2]}\n\n")
+        
 
 
     def alignmentRoutine(self):
@@ -446,13 +494,23 @@ class mainWindow(QWidget):
         # start thread for motor tracking
         self.logText("* Starting Motor Tracking Thread.\n")
         self.threadMotor = CommandThread(self.tracker.trackingRoutine,[objName])
+        self.threadMotor.send_data.connect(self.updateAltAzLabel)
         self.threadMotor.start()
-        time.sleep(100)
+
         # start thread for aquisition
-        self.logText("* Starting Acquisition Thread.\n")
-        self.thread = CommandThread(self,'acquirePlotThread',[n_points,interval,x_multiplier,y_multipler])
-        self.thread.send_data.connect(self.addDataPoint)
-        self.thread.start()
+        if self.trackDeviceDropdown.currentIndex() == 0:     
+            self.logText("* Starting Telecope Thread.\n")
+            # get params from config screen
+            params = [0,0,0,0]
+            self.threadTelescope = CommandThread(self.tracker.telecopeRoutine, params)
+            self.threadTelescope.start()
+        elif self.trackDeviceDropdown.currentIndex() == 1:  
+            self.grapher.show()   
+            self.logText("* Starting Antenna Thread.\n")
+            # get params from config screen
+            params = [self.grapher,0,0,0]
+            self.threadAntenna = CommandThread(self.tracker.antennaRoutine, params)
+            self.threadAntenna.start()
     
     
     
