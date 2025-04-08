@@ -8,12 +8,16 @@ driver, and control the angles of the 28BYJ-48 step motors.
 """
 
 ### Imports
-from gpiozero import OutputDevice
+try:
+    from gpiozero import OutputDevice
+except:
+    print('ERROR in StepperController: Could not import gpiozero! Please install!')
 import time
 
 ### Class Definition
 class StepperController():
-    # Constructor
+
+    ########################################################## Constructor
     def __init__(self, settings, mainWindow, alt = 0, az = 0):
         
         # Default
@@ -41,7 +45,7 @@ class StepperController():
 
             # Step sequence
             mainWindow.logText('> Setting sequences...\n')
-            self.Seq = list(range(0, 8))
+            self.Seq = list(range(0, self.stepsInSequence))
             self.Seq[0] = [0,1,0,0]
             self.Seq[1] = [0,1,0,1]
             self.Seq[2] = [0,0,0,1]
@@ -55,7 +59,7 @@ class StepperController():
             mainWindow.logText('> Extracting pin information...\n')
             pins = settings[1]
             pins = pins.split(' ')
-            if len(pins) == 8:
+            if len(pins) == self.stepsInSequence:
                 try:
                     self.coil_A_1_pin = OutputDevice(int(pins[0])) # pink
                     self.coil_A_2_pin = OutputDevice(int(pins[1]))  # orange
@@ -80,16 +84,20 @@ class StepperController():
         # Set current step count
         self.centerCoords(az,alt)
 
+    ########################################################## Conversions
+
     # Convert degrees to stepper steps
     def degToSteps(self,angleDeg):
         if not self.working:
-            return None
+            return 'ERR'
         return round(self.stepsInRevolution*self.stepsInSequence*self.gearRatio*angleDeg/360)
 
     def stepsToDeg(self,angleSteps):
         if not self.working:
-            return None
+            return 'ERR'
         return 360*angleSteps/self.stepsInRevolution/self.stepsInSequence/self.gearRatio
+
+    ########################################################## Stepping Operations
 
     # Azimuthal Stepping
     def stepAz(self,indexSeq):
@@ -109,6 +117,8 @@ class StepperController():
         self.coil2_B_1_pin.value = self.Seq[indexSeq][2]
         self.coil2_B_2_pin.value = self.Seq[indexSeq][3]
     
+    ########################################################## Moving Operations - Threadable
+
     # Azimuthal threaded rotation
     def moveAz(self, reverse=False, delay=0.001):
 
@@ -154,6 +164,7 @@ class StepperController():
         if self.currentSequenceIndex >= self.stepsInSequence:
             self.currentSequenceIndex = 0
 
+    ########################################################## Moving Operations - Specific Angle
 
     # Azimuthal full rotation
     def moveToAz(self, azDeg, delay=0.001):
@@ -206,6 +217,8 @@ class StepperController():
         self.az = az
         self.alt = alt
 
+    ########################################################## Setters
+
     # Set azimuth and altitude current steps from degrees
     def centerCoords(self, azDeg, altDeg):
         if not self.working:
@@ -213,8 +226,10 @@ class StepperController():
         self.az = self.degToSteps(azDeg)
         self.alt = self.degToSteps(altDeg)
 
+    ########################################################## Getters
+
     # Set azimuth and altitude current steps from degrees
     def getCoords(self):
         if not self.working:
-            return (-999, -999)
+            return ('ERR', 'ERR')
         return (self.stepsToDeg(self.az),self.stepsToDeg(self.alt))

@@ -10,7 +10,10 @@ from PyQt5.QtCore import *      # Basic Qt functionalities.
 from PyQt5.QtWidgets import *   # GUI windows
 from PyQt5.QtCore import *      # Qt threads, ...
 from PyQt5.QtGui import *       # GUI Elements
-from gpiozero import OutputDevice
+try:
+    from gpiozero import OutputDevice
+except:
+    print('ERROR in othersConfigWindow: Could not import gpiozero! Please install!')
 
 ##################### Commands Window Class
 class othersConfigWindow(QWidget):

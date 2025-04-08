@@ -11,21 +11,24 @@ from PyQt5.QtCore import *      # Basic Qt functionalities.
 from PyQt5.QtWidgets import *   # GUI windows
 from PyQt5.QtCore import *      # Qt threads, ...
 from PyQt5.QtGui import *       # GUI Elements
-import time                     # For routines
 
 ##################### User defined functions (imports)
-from src.ui.inputConsole import inputConsole
-from src.Astrolocator import Astrolocator
-from src.StepperController import StepperController
-from src.Tracker import Tracker
-from src.ui.stepperConfigWindow import stepperConfigWindow
-from src.ui.deviceConfigWindow import deviceConfigWindow
-from src.ui.othersConfigWindow import othersConfigWindow
-from src.ui.graphWindow import graphWindow
-from src.utils.commandThread import CommandThread
+from src.ui.inputConsole import inputConsole                # User input
+from src.Astrolocator import Astrolocator                   # Locating astronomical objects
+from src.StepperController import StepperController         # Manipulating Stepper Motors
+from src.Tracker import Tracker                             # Coordinating StepperController with Astrolocator
+from src.ui.stepperConfigWindow import stepperConfigWindow  # Configuration window for steppers
+from src.ui.deviceConfigWindow import deviceConfigWindow    # Configuration window for acquisition devices
+from src.ui.othersConfigWindow import othersConfigWindow    # Configuration window for other periferals
+from src.ui.graphWindow import graphWindow                  # For data visualization
+from src.utils.commandThread import CommandThread           # For multithreading routines
 
 ##################### Main Programme Class
 class mainWindow(QWidget):
+
+
+
+
 
     ############ Constructor
     def __init__(self, *args, **kwargs):
@@ -112,7 +115,7 @@ class mainWindow(QWidget):
         self.alignmentDelayValueLabel = QLabel('hi!')
         self.updateDelayValue()
         self.alignmentDelayValueLabel.setFixedWidth(90)
-        self.alignmentAngles = QLabel('(az= , alt= )')
+        self.alignmentAngles = QLabel('(az=ERR , alt=ERR )')
         self.trackDevicesLabel = QLabel('Acquisition Device:')
 
         # UI Elements - Line Edits
@@ -251,21 +254,21 @@ class mainWindow(QWidget):
         # Show window
         self.show()
 
-        ############################ TECHNICAL
+        ############################ TECHNICAL FUNCTIONALITIES
 
         # Load Stepper Configuration
         self.stepperConfigWindow = stepperConfigWindow(self)
         self.stepperController = None
-        self.updateStepperController()
+        self.updateStepperController()  # Creates stepperController from settings window.
 
         # Device Configuration
         self.deviceConfigWindow = deviceConfigWindow()
 
-        # Other Configurations
+        # Other Configurations for periferals (example: laser)
         self.othersConfigWindow = othersConfigWindow(self)
         self.laserButton.clicked.connect(self.othersConfigWindow.laser)
 
-        # Movement Buttons Connect
+        # Movement Buttons Connect - Steppers
         self.alignmentUp.pressed.connect(self.stepperUpPress)
         self.alignmentDown.pressed.connect(self.stepperDownPress)
         self.alignmentLeft.pressed.connect(self.stepperLeftPress)
@@ -275,20 +278,21 @@ class mainWindow(QWidget):
         self.alignmentLeft.released.connect(self.stepperLeftRelease)
         self.alignmentRight.released.connect(self.stepperRightRelease)
 
+        # Stepper manual movement threads
         self.stepperUpThreadObj = None
         self.stepperDownThreadObj = None
         self.stepperLeftThreadObj = None
         self.stepperRightThreadObj = None
         
-        # getInput
-        self.waitingForText = False
-        self.inputtedText = ""
-        self.receiverForText = None
+        # User Input vars
+        self.waitingForText = False     # detect if programme is asking for information
+        self.inputtedText = ""          # text user inputted
+        self.receiverForText = None     # function which runs
 
         # Tracking
         self.tracking = False
-        self.tracker = Tracker(self.stepperController) #None
-        self.requestPosition()
+        self.tracker = Tracker(self.stepperController)
+        self.requestPosition()  # Maybe add position configuration window?
 
         # Graphing Window
         self.grapher = graphWindow()
@@ -298,44 +302,60 @@ class mainWindow(QWidget):
         
 
 
+
+
+
+
     ############# Events
     
     def closeEvent(self,event):
+        # Save Input Log
         self.commandInputLine.saveLog()
+        # Close additional windows
         self.grapher.close()
         self.stepperConfigWindow.close()
         self.deviceConfigWindow.close()
         self.othersConfigWindow.close()
+        # Close running Threads
         self.stepperUpRelease()
         self.stepperDownRelease()
         self.stepperLeftRelease()
         self.stepperRightRelease()
+        # Accept event
         event.accept()
     
+    # Move window around
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.dragging = True
             self.offset = event.globalPos() - self.pos()
 
+    # Move window around
     def mouseMoveEvent(self, event):
         if self.dragging:
             self.move(event.globalPos() - self.offset)
 
+    # Move window around
     def mouseReleaseEvent(self, event):
         self.dragging = False
 
+    # Add grey border to window
     def paintEvent(self, event):
-        # Draw the custom border around the window
         painter = QPainter(self)
-        pen = QPen(QColor(170, 170, 170))  # Light gray color for the border
-        pen.setWidth(2)  # Set border thickness
+        pen = QPen(QColor(170, 170, 170))
+        pen.setWidth(2)
         painter.setPen(pen)
         painter.setBrush(Qt.transparent)
-        
-        # Draw the border around the window (excluding the title bar area)
         painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
 
-    ############ Button Methods
+
+
+
+
+
+
+
+    ############ Configuration Button Methods
 
     def stepperConfigWindowShow(self):
         self.stepperConfigWindow.show()
@@ -349,13 +369,19 @@ class mainWindow(QWidget):
         self.othersConfigWindow.show()
         self.othersConfigWindow.activateWindow()
 
-    ############ Utility
+
+
+
+
+
+    ############ General Utility
 
     # Logs text onto the programme log window.
     def logText(self,msg): 
         self.commandOutputLine.setPlainText(self.commandOutputLine.toPlainText() + msg)
         self.commandOutputLine.moveCursor(self.commandOutputLine.textCursor().End)
 
+    # Send requested user input to requesting function
     def sendText(self):
         if self.waitingForText:
             self.inputtedText = self.commandInputLine.text()
@@ -375,7 +401,13 @@ class mainWindow(QWidget):
     def updateAltAzLabel(self):
         angles = self.tracker.motorToReal(self.stepperController.getCoords())
         self.alignmentAngles.setText(f"(az= {angles[0]}, alt= {angles[1]})")
-    
+
+
+
+
+
+
+
     ######################### MANUAL STEPPER CONTROL
 
     def stepperUpPress(self):
@@ -442,11 +474,20 @@ class mainWindow(QWidget):
             self.stepperController.moveAz(False, float(self.alignmentDelaySlider.value() / 1000.) )
             self.updateAltAzLabel()
 
-    ######################### INTERACTION WITH OTHER CLASSES FOR ALIGNMENT ROUTINE
+
+
+
+
+
+
+
+
+
+
+    ######################### ALIGNMENT AND TRACKING METHODS
     
     def readCoords(self):
         input = self.inputCommandLabel.text()
-
 
     def requestPosition(self):
         self.logText("> Please insert your current coordinates in the following format (enter to ignore): latitude longitude altitude  \n")
@@ -465,13 +506,10 @@ class mainWindow(QWidget):
             return        
         self.tracker = Tracker(self.stepperController, coords[0], coords[1], coords[2])
         self.logText(f"> Initialized with latitude: {coords[0]}, longitude: {coords[1]}, altitude: {coords[2]}\n\n")
-        
-
 
     def alignmentRoutine(self):
         if self.alignmentDropdown.currentIndex() == 0:
             self.tracker.nearestOnePointAlign()
-            
         
     def beginStopTracking(self):
         if self.tracking:
@@ -486,7 +524,6 @@ class mainWindow(QWidget):
         self.logText("> Please input object name\n")
         self.waitingForText = True
         self.receiverForText = self.beginTrackingThreads
-
 
     def beginTrackingThreads(self):
         objName = self.inputtedText
@@ -511,55 +548,3 @@ class mainWindow(QWidget):
             params = [self.grapher,0,0,0]
             self.threadAntenna = CommandThread(self.tracker.antennaRoutine, params)
             self.threadAntenna.start()
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    ############ COMANDOS MAGABIBA 1 SESSÃO
-    #
-    #def location(self, *args, **kwargs):
-    #    # O user mete a sua localização
-    #    if args:
-    #        return self.logText("* ERROR: location function does not take regular arguments, only kwargs.\n")
-    #    if len(kwargs)==0:
-    #        return self.logText("* ERROR: location function must take kwargs.\n")
-    #    for tag in kwargs.keys():
-    #        if tag not in ["lat", "long", "alt"]:
-    #            return self.logText("* ERROR: unrecognised parameter in location function\n")
-    #        if (tag == "lat" and kwargs[tag] != "" and kwargs[tag] != True):
-    #            self.latitude = kwargs[tag]
-    #        if (tag == "long" and kwargs[tag] != "" and kwargs[tag] != True):
-    #            self.longitude = kwargs[tag]
-    #        if (tag == "alt" and kwargs[tag] != "" and kwargs[tag] != True):
-    #            self.altitude = kwargs[tag]
-    #    if self.latitude == "":
-    #        self.logText("* WARNING: Latitude missing.\n")
-    #    if self.longitude == "":
-    #        self.logText("* WARNING: Longitude missing.\n")
-    #    if self.altitude == "":
-    #        self.logText("* WARNING: Altitude missing.\n")
-    #    #FALTA METER UMA FUNÇÃO QUE DEPOIS ENVIE A INFORMAÇÃO DA LOCALIZAÇÃO PARA A CLASSE RESPETIVA
-
-    #def request_location(self, *args, **kwargs):
-    #    # O user pede a localização que a antena conhece
-    #    if args:
-    #        return self.logText("* ERROR: Unknown args in the request_location function.\n")
-    #    if kwargs:
-    #        return self.logText("* ERROR: Unknown kwargs in the request_location function.\n")            
-    #    if (self.latitude == "" and self.longitude == "" and self.altitude == ""):
-    #        return self.logText("* No location has been provided.\n")
-    #    return self.logText("*LOCATION: \n*Latitude: " + self.latitude + "\n*Longitude: " + self.longitude + "\n*Altitude:" + self.altitude + "\n")

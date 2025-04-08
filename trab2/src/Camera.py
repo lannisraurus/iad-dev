@@ -4,7 +4,7 @@ from datetime import datetime
 try:
     from picamera2 import Picamera2, Preview
 except:
-    print('Picamera2 not found in system! Please download!')
+    print('ERROR in Camera: Could not import picamera2! Please install!')
 
 class RPiCamera2:
     def __init__(self, resolution=(1024, 768), framerate=30, autoBalance=False):

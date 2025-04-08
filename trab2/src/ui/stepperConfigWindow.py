@@ -13,7 +13,8 @@ from PyQt5.QtGui import *       # GUI Elements
 
 ##################### Commands Window Class
 class stepperConfigWindow(QWidget):
-    # Constructor
+    
+    ############################### Constructor
     def __init__(self, mainWindow):
         
         self.mainWindow = mainWindow
@@ -87,10 +88,15 @@ class stepperConfigWindow(QWidget):
 
         # Load default settings
         mainWindow.logText('> Configuring Stepper Settings...\n')
-        self.loadSettings(mainWindow)
-        mainWindow.logText('\n')
+        self.loadSettings()
         self.changeStepperType()
 
+
+
+
+
+
+    ############################### Events
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -115,6 +121,12 @@ class stepperConfigWindow(QWidget):
         # Draw the border around the window (excluding the title bar area)
         painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
 
+
+
+
+
+    ############################### Settings
+
     def changeStepperType(self):
         match self.stepperTypeDropdown.currentIndex():
             case 0:
@@ -122,27 +134,29 @@ class stepperConfigWindow(QWidget):
             case 1:
                 self.stepperDescription.setText('RB-Moto2 (Joy-It) steppers: In the pin configuration, simply write a sequence of the connected pins to GPIO in the following order: Coil1A1 Coil1A2 Coil1B1 Coil1B2 Coil2A1 Coil2A2 Coil2B1 Coil2B2')
 
-    def loadSettings(self, mainWindow):
+    def loadSettings(self):
         try:
             file = open('assets/stepper_settings','r')
-            mainWindow.logText('> Opened configuration file.\n')
+            self.mainWindow.logText('> Opened configuration file.\n')
         except:
             file = None
-            mainWindow.logText('> Could not open configuration file!\n')
+            self.mainWindow.logText('> Could not open configuration file!\n')
 
         try:
             self.stepperTypeDropdown.setCurrentIndex(int(file.readline()))
             self.pinsConfig.setText(file.readline())
             self.gearRatioInput.setValue(float(file.readline()))
-            mainWindow.logText('> Successfully loaded previous stepper settings.\n')
+            self.mainWindow.logText('> Successfully loaded previous stepper settings.\n')
         except:
             self.stepperTypeDropdown.setCurrentIndex(0)
             self.pinsConfig.setText('')
             self.gearRatioInput.setValue(1)
-            mainWindow.logText('> Could not load previous stepper settings. Please configure and apply settings!\n')
+            self.mainWindow.logText('> Could not load previous stepper settings. Please configure and apply settings!\n')
         
         if file:
             file.close()
+        
+        self.mainWindow.logText('\n')
 
     def saveSettings(self):
         try:
