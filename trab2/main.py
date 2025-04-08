@@ -64,7 +64,7 @@ def setAppIcon(app):
 
 ##################### Main Programme Function
 if __name__ == '__main__':
-
+    
     # Start QApplication
     mainApp = QApplication([])
     setAppDarkMode(mainApp)

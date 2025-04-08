@@ -25,8 +25,9 @@ class Tracker():
         self.currAlignmentType = "None"
         self.currAlignment = None
 
-        self.stopTracking = False
+        self.trackingInterrupt = False
 
+    # After 
     def addAlignmentPoint(self, name):
         currTime = self.aloc.getTime()
         realPos = self.aloc.getAzAlt(name, self.lat, self.lon, self.alt, currTime) #returns (az, alt)
@@ -52,7 +53,7 @@ class Tracker():
         if self.currAlignmentType == "NearestOnePoint":
             return (realPos[0] + self.currAlignment[0], realPos[1] + self.currAlignment[1])
         if self.currAlignmentType == "NPoint":
-            return astroalign.matrixtransform(realPos, currAlignment[1].params)
+            return astroalign.matrixtransform(realPos, self.currAlignment[1].params)
     
     def motorToReal(self, motorPos):
         if self.currAlignmentType == "None":
@@ -60,7 +61,7 @@ class Tracker():
         if self.currAlignmentType == "NearestOnePoint":
             return (motorPos[0] - self.currAlignment[0], motorPos[1] - self.currAlignment[1])
         if self.currAlignmentType == "NPoint":
-            return astroalign.matrixtransform(motorPos, currAlignment[0].params)
+            return astroalign.matrixtransform(motorPos, self.currAlignment[0].params)
 
     def pointAlignment(self, npoint):
         i = 0
