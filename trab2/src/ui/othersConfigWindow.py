@@ -164,7 +164,7 @@ class othersConfigWindow(QWidget):
                 #MUDAR ISTO QUANDO TIVER O MANUAL DO LASER
                 self.laserDescription.setText('Módulo laser 5mW - Ponto vermelho: In the pin configuration, simply write a sequence of the connected pins to GPIO in the following order: pin1 pin2 pin3')
 
-    def laser(self):
+    def laserToggle(self):
         try:
             #MUDAR ISTO QUANDO TIVER O MANUAL DO LASER
             self.laserPin1.toggle()

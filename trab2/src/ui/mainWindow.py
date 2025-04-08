@@ -174,7 +174,7 @@ class mainWindow(QWidget):
         self.alignmentLayoutR1 = QHBoxLayout()
         self.alignmentLayoutR2 = QHBoxLayout()
         self.alignmentLayoutR3 = QHBoxLayout()
-        self.alignmentLayoutR2.setSpacing(32)
+        #self.alignmentLayoutR2.setSpacing(32)
 
         self.alignmentLayoutR4 = QHBoxLayout()
         self.alignmentLayoutR5 = QHBoxLayout()
@@ -275,7 +275,8 @@ class mainWindow(QWidget):
 
         # Other Configurations for periferals (example: laser)
         self.othersConfigWindow = othersConfigWindow(self)
-        self.laserButton.clicked.connect(self.othersConfigWindow.laser)
+        self.laserButton.pressed.connect(self.othersConfigWindow.laserToggle)
+        self.laserButton.released.connect(self.othersConfigWindow.laserToggle)
 
         # Movement Buttons Connect - Steppers
         self.alignmentUp.pressed.connect(self.stepperUpPress)
