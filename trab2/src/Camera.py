@@ -17,7 +17,8 @@ except:
 
 ################ Class
 class RPiCamera2:
-    
+
+    # Constructor
     def __init__(self, resolution=(1024, 768), framerate=30, autoBalance=False):
         
         try:
@@ -43,13 +44,14 @@ class RPiCamera2:
 
         return f"Camera initialized with resolution {resolution}, framerate {framerate} fps and auto balance = {autoBalance}."
     
-    #exposure time in microsecs
+    # Exposure time in microsecs
     def changeSettings(self, framerate=30, autobalance=False, exposureTime=int(1000000/30), analogueGain=1.0):
         self.camera.set_controls({"AeEnable": autobalance, "AwbEnable": autobalance, "FrameRate": framerate,'ExposureTime': exposureTime, 'AnalogueGain': analogueGain})
         # Wait for those settings to take effect
         time.sleep(1)
         return self.camera.capture_metadata()
 
+    # Preview Window
     def openPreview(self):
         try:
             self.camera.configure(self.preview_config)
@@ -58,6 +60,7 @@ class RPiCamera2:
         except Exception as e:
             return f"Error starting preview: {e}"
 
+    # Capture Image
     def capture_image(self, filename="image.jpg", timestamp=False):
         self.camera.configure(self.capture_config)
         if timestamp:
@@ -66,6 +69,7 @@ class RPiCamera2:
         self.camera.capture_file(filename)
         print(f"Image saved as {filename}.")
     
+    # Capture Video - start and end
     def capture_video(self, filename="video.h264", duration=10):
         self.camera.configure(self.video_config)
         self.camera.start_recording(filename)
@@ -73,15 +77,18 @@ class RPiCamera2:
         self.camera.stop_recording()
         return f"Video saved as {filename}."
     
+    # Start Video
     def start_video(self, filename="video.h264"):
         self.camera.configure(self.video_config)
         self.camera.start_recording(filename)
         return f"Video started in {filename}."
     
+    # End video
     def end_video(self):
         self.camera.stop_recording()
         return f"Video finished."
 
+    # Close preview
     def close(self):
         self.camera.stop_preview()
         self.camera.close()

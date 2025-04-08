@@ -2,7 +2,8 @@
 Grupo I, IAD, 2025
 João Camacho, Duarte Tavares, Margarida Saraiva, Jorge Costa
 
-
+This file contains a class to coordinate StepperController and
+Astrolocator.
 
 """
 ### Imports
