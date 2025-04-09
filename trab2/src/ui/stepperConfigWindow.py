@@ -159,7 +159,7 @@ class stepperConfigWindow(QWidget):
         if file:
             file.close()
         
-        self.mainWindow.logText('\n')
+        #self.mainWindow.logText('\n')
 
     def saveSettings(self):
         try:

@@ -24,38 +24,6 @@ from src.ui.locationConfigWindow import locationConfigWindow    # Configuration 
 from src.ui.graphWindow import graphWindow                  # For data visualization
 from src.utils.commandThread import CommandThread           # For multithreading routines
 
-##################### Main Programme Thread data sending
-class stepperWorker(QObject):
-
-    terminateUpMove = pyqtSignal()
-    terminateDownMove = pyqtSignal()
-    terminateLeftMove = pyqtSignal()
-    terminateRightMove = pyqtSignal()
-
-    def connectUp(self, func):
-        self.terminateUpMove.connect(func)
-    
-    def connectDown(self, func):
-        self.terminateDownMove.connect(func)
-    
-    def connectLeft(self, func):
-        self.terminateLeftMove.connect(func)
-
-    def connectRight(self, func):
-        self.terminateRightMove.connect(func)
-    
-    def terminateUp(self):
-        self.terminateUpMove.emit()
-    
-    def terminateDown(self):
-        self.terminateDownMove.emit()
-    
-    def terminateLeft(self):
-        self.terminateLeftMove.emit()
-    
-    def terminateRight(self):
-        self.terminateRightMove.emit()
-
 ##################### Main Programme Class
 class mainWindow(QWidget):
 
@@ -125,7 +93,7 @@ class mainWindow(QWidget):
 
         # UI Elements - Sliders
         self.alignmentDelaySlider = QSlider(Qt.Horizontal, self)
-        self.alignmentDelaySlider.setMaximum(1000)
+        self.alignmentDelaySlider.setMaximum(100)
         self.alignmentDelaySlider.setMinimum(1)
         self.alignmentDelaySlider.valueChanged.connect(self.updateDelayValue)
 
@@ -453,7 +421,7 @@ class mainWindow(QWidget):
     def updateAltAzLabel(self, sent_data):
         if not (type(sent_data[0] == str and sent_data[1] == str)):
             angles = self.tracker.motorToReal(sent_data)
-            self.alignmentAngles.setText(f"(az= {angles[0]}, alt= {angles[1]})")
+            self.alignmentAngles.setText(f"(az= {angles[0]:.3f}, alt= {angles[1]:.3f})")
 
 
 
