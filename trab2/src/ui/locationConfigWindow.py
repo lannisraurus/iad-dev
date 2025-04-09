@@ -85,6 +85,9 @@ class locationConfigWindow(QWidget):
         self.mainWindow.logText('> Configuring Location Settings...\n')
         self.loadSettings()
 
+        # Dragging window
+        self.dragging = False
+
 
 
 

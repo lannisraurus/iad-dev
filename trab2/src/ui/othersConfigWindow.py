@@ -83,9 +83,13 @@ class othersConfigWindow(QWidget):
 
         # Load default settings
         mainWindow.logText('> Configuring Other Settings...\n')
-        self.loadSettings(mainWindow)
+        self.loadSettings()
         mainWindow.logText('\n')
         self.changeLaserType()
+
+        # Dragging window
+        self.dragging = False
+        self.errCountToggle = 0
 
 
 
@@ -121,40 +125,54 @@ class othersConfigWindow(QWidget):
 
     ################################################# Settings
 
-    def loadSettings(self, mainWindow):
+
+    def loadSettings(self):
         pins = []
         try:
             file = open('assets/other_settings','r')
-            mainWindow.logText('> Opened other configurations file.\n')
+            self.mainWindow.logText('> Opened other configurations file.\n')
         except:
             file = None
-            mainWindow.logText('> Could not open other configurations file!\n')
-        try:    
+            self.mainWindow.logText('> Could not open other configurations file!\n')
+        try:
+            self.laserTypeDropdown.setCurrentIndex(int(file.readline()))
             self.laserPinsConfig.setText(file.readline())
-            mainWindow.logText('> Successfully loaded previous other settings.\n')
+            self.mainWindow.logText('> Successfully loaded previous other settings.\n')
             pins = self.laserPinsConfig.text().strip().split(' ')
         except:
             self.laserPinsConfig.setText('')
             self.mainWindow.logText('> Could not load previous other settings. Please configure and apply settings!\n')
-        print(pins)
 
-        if len(pins) == 3:
-            
-            #self.laserPin1 = OutputDevice(int(pins[0]))
-            #self.laserPin2 = OutputDevice(int(pins[1]))
-            self.laserPin3 = OutputDevice(21)
-            
-            mainWindow.logText('> ERROR! Could not set output pins! Either the pins are not ints, or your device cannot access the GPIO pins!\n')
+        if len(pins) == 1:
+            try:
+                self.laserPin3 = OutputDevice(int(pins[0]))
+            except:
+                self.mainWindow.logText('> ERROR! Could not set output pins! Either the pins are not ints, or your device cannot access the GPIO pins!\n')
         else:
-            mainWindow.logText('> ERROR! Pin configuration is wrong! These should be 3!\n')
+            self.mainWindow.logText('> ERROR! Pin configuration is wrong! These should be 1!\n')
 
         if file:
             file.close()
 
     def saveSettings(self):
-        file = open('assets/other_settings','w')
-        file.write(self.laserPinsConfig.text()+'\n')
-        file.close()
+        try:
+            file = open('assets/other_settings','w')
+            file.write(str(self.laserTypeDropdown.currentIndex())+'\n')
+            file.write(self.laserPinsConfig.text()+'\n')
+            file.close()
+            self.mainWindow.logText('> Successfully saved other settings.\n')
+            try:
+                pins = self.laserPinsConfig.text().strip().split(' ')
+                self.laserPin3 = OutputDevice(int(pins[0]))
+                self.mainWindow.logText('> Successfully applied other settings.\n\n')
+            except:
+                self.mainWindow.logText('> ERROR: Could not apply other settings!\n\n')
+        except:
+            file = None
+            self.mainWindow.logText('> ERROR! Could not save other configurations!\n\n')
+        
+        if file:
+            file.close()
 
     def changeLaserType(self):
         match self.laserTypeDropdown.currentIndex():
@@ -166,9 +184,9 @@ class othersConfigWindow(QWidget):
 
     def laserToggle(self):
         try:
-            #MUDAR ISTO QUANDO TIVER O MANUAL DO LASER
-            #self.laserPin1.toggle()
-            #self.laserPin2.toggle()
             self.laserPin3.toggle()
         except:
-            self.mainWindow.logText('> ERROR: Laser is not connected / set up properly! \n\n')     
+            self.errCountToggle += 1
+            if self.errCountToggle >= 1:
+                self.mainWindow.logText('> ERROR: Laser is not connected / set up properly! \n\n')
+                self.errCountToggle = -1    

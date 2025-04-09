@@ -24,12 +24,40 @@ from src.ui.locationConfigWindow import locationConfigWindow    # Configuration 
 from src.ui.graphWindow import graphWindow                  # For data visualization
 from src.utils.commandThread import CommandThread           # For multithreading routines
 
+##################### Main Programme Thread data sending
+class stepperWorker(QObject):
+
+    terminateUpMove = pyqtSignal()
+    terminateDownMove = pyqtSignal()
+    terminateLeftMove = pyqtSignal()
+    terminateRightMove = pyqtSignal()
+
+    def connectUp(self, func):
+        self.terminateUpMove.connect(func)
+    
+    def connectDown(self, func):
+        self.terminateDownMove.connect(func)
+    
+    def connectLeft(self, func):
+        self.terminateLeftMove.connect(func)
+
+    def connectRight(self, func):
+        self.terminateRightMove.connect(func)
+    
+    def terminateUp(self):
+        self.terminateUpMove.emit()
+    
+    def terminateDown(self):
+        self.terminateDownMove.emit()
+    
+    def terminateLeft(self):
+        self.terminateLeftMove.emit()
+    
+    def terminateRight(self):
+        self.terminateRightMove.emit()
+
 ##################### Main Programme Class
 class mainWindow(QWidget):
-
-
-
-
 
     ############ Constructor
     def __init__(self, *args, **kwargs):
@@ -262,6 +290,9 @@ class mainWindow(QWidget):
 
         ############################ TECHNICAL FUNCTIONALITIES
 
+        # Dragging window
+        self.dragging = False
+
         # Load Stepper Configuration
         self.stepperConfigWindow = stepperConfigWindow(self)
         self.stepperController = None
@@ -293,6 +324,12 @@ class mainWindow(QWidget):
         self.stepperDownThreadObj = None
         self.stepperLeftThreadObj = None
         self.stepperRightThreadObj = None
+
+        # Thread worker for steppers
+        self.stepperUpThreadRunning = False
+        self.stepperDownThreadRunning = False
+        self.stepperLeftThreadRunning = False
+        self.stepperRightThreadRunning = False
         
         # User Input vars
         self.waitingForText = False     # detect if programme is asking for information
@@ -308,7 +345,7 @@ class mainWindow(QWidget):
         self.grapher = graphWindow()
 
         # Angle labels
-        self.updateAltAzLabel()
+        self.updateAltAzLabel(self.stepperController.getCoords())
         
 
 
@@ -413,9 +450,10 @@ class mainWindow(QWidget):
         self.stepperController = StepperController(self.stepperConfigWindow.getSettings(), self)
     
     # Update Az and Alt labels
-    def updateAltAzLabel(self):
-        angles = self.tracker.motorToReal(self.stepperController.getCoords())
-        #self.alignmentAngles.setText(f"(az= {angles[0]}, alt= {angles[1]})")
+    def updateAltAzLabel(self, sent_data):
+        if not (type(sent_data[0] == str and sent_data[1] == str)):
+            angles = self.tracker.motorToReal(sent_data)
+            self.alignmentAngles.setText(f"(az= {angles[0]}, alt= {angles[1]})")
 
 
 
@@ -428,66 +466,77 @@ class mainWindow(QWidget):
     def stepperUpPress(self):
         if not self.stepperUpThreadObj:
             self.stepperUpThreadObj = CommandThread(self.stepperUpThread, [])
+            self.stepperUpThreadObj.send_data.connect(self.updateAltAzLabel)
+            self.stepperUpThreadRunning = True
             self.stepperUpThreadObj.start()
     
     def stepperUpRelease(self):
         if self.stepperUpThreadObj:
-            self.stepperUpThreadObj.terminate()
+            self.stepperUpThreadRunning = False
             self.stepperUpThreadObj.wait()
             self.stepperUpThreadObj = None
 
     def stepperDownPress(self):
         if not self.stepperDownThreadObj:
             self.stepperDownThreadObj = CommandThread(self.stepperDownThread, [])
+            self.stepperDownThreadObj.send_data.connect(self.updateAltAzLabel)
+            self.stepperDownThreadRunning = True
             self.stepperDownThreadObj.start()
     
     def stepperDownRelease(self):
         if self.stepperDownThreadObj:
-            self.stepperDownThreadObj.terminate()
+            self.stepperDownThreadRunning = False
             self.stepperDownThreadObj.wait()
             self.stepperDownThreadObj = None
     
     def stepperLeftPress(self):
         if not self.stepperLeftThreadObj:
             self.stepperLeftThreadObj = CommandThread(self.stepperLeftThread, [])
+            self.stepperLeftThreadObj.send_data.connect(self.updateAltAzLabel)
+            self.stepperLeftThreadRunning = True
             self.stepperLeftThreadObj.start()
     
     def stepperLeftRelease(self):
         if self.stepperLeftThreadObj:
-            self.stepperLeftThreadObj.terminate()
+            self.stepperLeftThreadRunning = False
             self.stepperLeftThreadObj.wait()
             self.stepperLeftThreadObj = None
     
     def stepperRightPress(self):
         if not self.stepperRightThreadObj:
             self.stepperRightThreadObj = CommandThread(self.stepperRightThread, [])
+            self.stepperRightThreadObj.send_data.connect(self.updateAltAzLabel)
+            self.stepperRightThreadRunning = True
             self.stepperRightThreadObj.start()
     
     def stepperRightRelease(self):
         if self.stepperRightThreadObj:
-            self.stepperRightThreadObj.terminate()
+            self.stepperRightThreadRunning = False
             self.stepperRightThreadObj.wait()
             self.stepperRightThreadObj = None
 
+
+
+
     def stepperUpThread(self, params, send_data):
-        while True:
+        while self.stepperUpThreadRunning:
             self.stepperController.moveAlt(False, float(self.alignmentDelaySlider.value() / 1000.) )
-            self.updateAltAzLabel()
+            send_data.emit(self.stepperController.getCoords())
 
     def stepperDownThread(self, params, send_data):
-        while True:
+        while self.stepperDownThreadRunning:
             self.stepperController.moveAlt(True, float(self.alignmentDelaySlider.value() / 1000.) )
-            self.updateAltAzLabel()
+            send_data.emit(self.stepperController.getCoords())
 
     def stepperLeftThread(self, params, send_data):
-        while True:
+        while self.stepperLeftThreadRunning:
             self.stepperController.moveAz(True, float(self.alignmentDelaySlider.value() / 1000.) )
-            self.updateAltAzLabel()
+            send_data.emit(self.stepperController.getCoords())
 
     def stepperRightThread(self, params, send_data):
-        while True:
+        while self.stepperRightThreadRunning:
             self.stepperController.moveAz(False, float(self.alignmentDelaySlider.value() / 1000.) )
-            self.updateAltAzLabel()
+            send_data.emit(self.stepperController.getCoords())
 
 
 

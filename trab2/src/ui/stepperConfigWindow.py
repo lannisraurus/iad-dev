@@ -91,6 +91,9 @@ class stepperConfigWindow(QWidget):
         self.loadSettings()
         self.changeStepperType()
 
+        # Dragging window
+        self.dragging = False
+
 
 
 
