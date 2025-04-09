@@ -22,7 +22,6 @@ class StepperController():
         
         # Default
         self.working = False
-        self.currentSequenceIndex = 0 # For threading movement
 
         # Log
         mainWindow.logText('> Configuring StepperController Object...\n')
@@ -127,19 +126,12 @@ class StepperController():
             return
         
         if not reverse:
-            self.stepAz((self.stepsInSequence-self.currentSequenceIndex)%self.stepsInSequence)
-            self.currentSequenceIndex += 1
+            self.stepAz((self.stepsInSequence-self.az)%self.stepsInSequence)
             self.az += 1
         else:
-            self.stepAz((self.stepsInSequence-self.currentSequenceIndex)%self.stepsInSequence)
-            self.currentSequenceIndex -= 1
+            self.stepAz((self.stepsInSequence-self.az)%self.stepsInSequence)
             self.az -= 1
         time.sleep(delay)
-
-        if self.currentSequenceIndex < 0:
-            self.currentSequenceIndex = self.stepsInSequence-1
-        if self.currentSequenceIndex >= self.stepsInSequence:
-            self.currentSequenceIndex = 0
         
 
     # Azimuthal threaded rotation
@@ -150,19 +142,12 @@ class StepperController():
             return
         
         if reverse:
-            self.stepAlt((self.stepsInSequence-self.currentSequenceIndex)%self.stepsInSequence)
-            self.currentSequenceIndex -= 1
+            self.stepAlt((self.stepsInSequence-self.alt)%self.stepsInSequence)
             self.alt -= 1
         else:
-            self.stepAlt((self.stepsInSequence-self.currentSequenceIndex)%self.stepsInSequence)
-            self.currentSequenceIndex += 1
+            self.stepAlt((self.stepsInSequence-self.alt)%self.stepsInSequence)
             self.alt += 1
         time.sleep(delay)
-
-        if self.currentSequenceIndex < 0:
-            self.currentSequenceIndex = self.stepsInSequence-1
-        if self.currentSequenceIndex >= self.stepsInSequence:
-            self.currentSequenceIndex = 0
 
     ########################################################## Moving Operations - Specific Angle
 

@@ -132,19 +132,19 @@ class othersConfigWindow(QWidget):
         try:    
             self.laserPinsConfig.setText(file.readline())
             mainWindow.logText('> Successfully loaded previous other settings.\n')
-            pins = self.laserPinsConfig.text().split(' ')
+            pins = self.laserPinsConfig.text().strip().split(' ')
         except:
             self.laserPinsConfig.setText('')
             self.mainWindow.logText('> Could not load previous other settings. Please configure and apply settings!\n')
-
+        print(pins)
 
         if len(pins) == 3:
-            try:
-                self.laserPin1 = OutputDevice(int(pins[0]))
-                self.laserPin2 = OutputDevice(int(pins[1]))
-                self.laserPin3 = OutputDevice(int(pins[2]))
-            except:
-                mainWindow.logText('> ERROR! Could not set output pins! Either the pins are not ints, or your device cannot access the GPIO pins!\n')
+            
+            #self.laserPin1 = OutputDevice(int(pins[0]))
+            #self.laserPin2 = OutputDevice(int(pins[1]))
+            self.laserPin3 = OutputDevice(21)
+            
+            mainWindow.logText('> ERROR! Could not set output pins! Either the pins are not ints, or your device cannot access the GPIO pins!\n')
         else:
             mainWindow.logText('> ERROR! Pin configuration is wrong! These should be 3!\n')
 
@@ -167,8 +167,8 @@ class othersConfigWindow(QWidget):
     def laserToggle(self):
         try:
             #MUDAR ISTO QUANDO TIVER O MANUAL DO LASER
-            self.laserPin1.toggle()
-            self.laserPin2.toggle()
+            #self.laserPin1.toggle()
+            #self.laserPin2.toggle()
             self.laserPin3.toggle()
         except:
             self.mainWindow.logText('> ERROR: Laser is not connected / set up properly! \n\n')     

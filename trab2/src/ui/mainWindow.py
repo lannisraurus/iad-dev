@@ -415,7 +415,7 @@ class mainWindow(QWidget):
     # Update Az and Alt labels
     def updateAltAzLabel(self):
         angles = self.tracker.motorToReal(self.stepperController.getCoords())
-        self.alignmentAngles.setText(f"(az= {angles[0]}, alt= {angles[1]})")
+        #self.alignmentAngles.setText(f"(az= {angles[0]}, alt= {angles[1]})")
 
 
 
