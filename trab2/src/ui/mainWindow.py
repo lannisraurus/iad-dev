@@ -134,7 +134,7 @@ class mainWindow(QWidget):
 
         # UI Elements - Dropdowns
         self.alignmentDropdown = QComboBox()
-        self.alignmentDropdown.addItems(['1 Point','3 Point'])
+        self.alignmentDropdown.addItems(['1 Point','N Point'])
         self.alignmentDropdown.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.trackDeviceDropdown = QComboBox()
         self.trackDeviceDropdown.addItems(['Telescope','Satellite Antena'])
@@ -557,11 +557,12 @@ class mainWindow(QWidget):
             #PODEMOS PENSAR EM METER MELHOR FORMATADO, MAS HONESTAMENTE ESTA INFORMAÇÃO É BOA
 
             self.logText("Please select ")
-            self.logText("one" if self.alignmentDropdown.currentIndex() == 0 else "at least three (separated by commas) ")
+            self.logText("one " if self.alignmentDropdown.currentIndex() == 0 else "at least three (separated by commas) ")
             self.logText("of the provided objects for alignment, or provide the name of your preferred object(s). " + \
                         "Type exit to cancel alignment.\n" +\
                         "Below are the recommended objects:\n" + str(objs[:10]))
             self.receiverForText = self.alignmentRoutine3
+            self.waitingForText = True
         else:
             self.logText("Input not recognised, please type either ok or exit.\n")
 
@@ -581,6 +582,7 @@ class mainWindow(QWidget):
             #SÍTIO PARA FAZER O MOVIMENTO PRÉVIO PARA AJUDAR
 
             responses = response.split(",")
+            print(responses)
             if len(responses) != 1 and self.alignmentDropdown.currentIndex() == 0:
                 self.logText("Please provide only one object for alignment, or type exit to cancel.\n")
                 return
@@ -588,18 +590,16 @@ class mainWindow(QWidget):
                 self.logText("Please provide at least three objects for alignment, or type exit to cancel.\n")
                 return
             for obj in responses:
-                try:
-                    astro.querySimbad(obj)
-                except:
+                if not astro.querySimbad(obj):
                     self.logText(f"{obj} not recognised, please type either exit or valid identifier, preferrably one of the recommended.\n")
-                return
+                    return
             self.alignList = responses
             self.logText(f"Starting alignment with {response}...\n" if self.alignmentDropdown.currentIndex() == 1 else "")
             self.logText(f"Using {responses[0]} to align, please point to it and type ok when finished, or type exit to cancel.\n")
             self.inputtedText = ""
             self.receiverForText = self.alignmentRoutine4(len(responses))
 
-    def alignmentRoutine4(items: int):
+    def alignmentRoutine4(self, items: int):
         response = self.inputtedText
         if response == "exit":
             self.logText("Cancelling alignment...\n")
