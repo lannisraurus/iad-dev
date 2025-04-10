@@ -560,7 +560,7 @@ class mainWindow(QWidget):
             self.logText("one " if self.alignmentDropdown.currentIndex() == 0 else "at least three (separated by commas) ")
             self.logText("of the provided objects for alignment, or provide the name of your preferred object(s). " + \
                         "Type exit to cancel alignment.\n" +\
-                        "Below are the recommended objects:\n" + str(objs[:10] + "\n"))
+                        "Below are the recommended objects:\n" + str(objs[:10]) + "\n")
             self.receiverForText = self.alignmentRoutine3
         else:
             self.logText("Input not recognised, please type either ok or exit.\n")
