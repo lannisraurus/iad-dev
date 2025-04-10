@@ -274,8 +274,7 @@ class mainWindow(QWidget):
 
         # Other Configurations for periferals (example: laser)
         self.othersConfigWindow = othersConfigWindow(self)
-        self.laserButton.pressed.connect(self.othersConfigWindow.laserToggle)
-        self.laserButton.released.connect(self.othersConfigWindow.laserToggle)
+        self.laserButton.clicked.connect(self.othersConfigWindow.laserToggle)
 
         # Movement Buttons Connect - Steppers
         self.alignmentUp.pressed.connect(self.stepperUpPress)
