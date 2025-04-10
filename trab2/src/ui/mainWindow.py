@@ -304,6 +304,9 @@ class mainWindow(QWidget):
         self.inputtedText = ""          # text user inputted
         self.receiverForText = None     # function which runs
 
+        #Alignment
+        self.alignList = []
+
         # Tracking
         self.tracking = False
         self.tracker = Tracker(self.stepperController)
@@ -529,8 +532,100 @@ class mainWindow(QWidget):
         self.logText(f"> Initialized Tracker with latitude: {coords[0]}, longitude: {coords[1]}, altitude: {coords[2]}\n\n")
 
     def alignmentRoutine1(self):
-        if self.alignmentDropdown.currentIndex() == 0:
-            self.tracker.nearestOnePointAlign()
+
+        self.logText("-----------------\n\nStarting alignment routine...\n" + \
+                    "Please confirm your current coordinates are the ones in the location window (bottom right corner button). " + \
+                    "When finished, please type ok, or type exit to cancel alignment\n")
+        self.waitingForText = True
+        self.receiverForText = self.alignmentRoutine2
+
+    def alignmentRoutine2(self):
+        response = self.inputtedText
+        if response == "exit":
+            self.logText("Cancelling alignment...\n")
+            self.waitingForText = False
+            self.receiverForText = None
+        elif response == "ok":
+            self.setTracker()
+            astro=self.tracker.aloc
+            mag = 0 # MUDAR POR ALGO Q O USER POSSA ESCOLHER
+            objs = astro.queryBrightObjects(mag)
+            while len(objs) < 10 :
+                mag += 0.5
+                objs = astro.queryBrightObjects(mag)
+
+            #PODEMOS PENSAR EM METER MELHOR FORMATADO, MAS HONESTAMENTE ESTA INFORMAÇÃO É BOA
+
+            self.logText("Please select ")
+            self.logText("one" if self.alignmentDropdown.currentIndex() == 0 else "at least three (separated by commas) ")
+            self.logText("of the provided objects for alignment, or provide the name of your preferred object(s). " + \
+                        "Type exit to cancel alignment.\n" +\
+                        "Below are the recommended objects:\n" + str(objs[:10]))
+            self.receiverForText = self.alignmentRoutine3
+        else:
+            self.logText("Input not recognised, please type either ok or exit.\n")
+
+        self.inputtedText = ""
+
+
+    def alignmentRoutine3(self):
+        response = self.inputtedText
+        if response == "exit":
+            self.logText("Cancelling alignment...\n")
+            self.waitingForText = False
+            self.inputtedText = ""
+            self.receiverForText = None
+        else:
+            astro = self.tracker.aloc
+                
+            #SÍTIO PARA FAZER O MOVIMENTO PRÉVIO PARA AJUDAR
+
+            responses = response.split(",")
+            if len(responses) != 1 and self.alignmentDropdown.currentIndex() == 0:
+                self.logText("Please provide only one object for alignment, or type exit to cancel.\n")
+                return
+            if len(responses) < 3 and self.alignmentDropdown.currentIndex() == 1:
+                self.logText("Please provide at least three objects for alignment, or type exit to cancel.\n")
+                return
+            for obj in responses:
+                try:
+                    astro.querySimbad(obj)
+                except:
+                    self.logText(f"{obj} not recognised, please type either exit or valid identifier, preferrably one of the recommended.\n")
+                return
+            self.alignList = responses
+            self.logText(f"Starting alignment with {response}...\n" if self.alignmentDropdown.currentIndex() == 1 else "")
+            self.logText(f"Using {responses[0]} to align, please point to it and type ok when finished, or type exit to cancel.\n")
+            self.inputtedText = ""
+            self.receiverForText = self.alignmentRoutine4(len(responses))
+
+    def alignmentRoutine4(items: int):
+        response = self.inputtedText
+        if response == "exit":
+            self.logText("Cancelling alignment...\n")
+            self.waitingForText = False
+            self.inputtedText = ""
+            self.receiverForText = None
+        elif response == "ok":
+            self.inputtedText = ""
+            astro = self.tracker.aloc
+            name = self.alignList[-items]
+            self.tracker.addAlignmentPoint( astro.getAzAlt( astro.querySimbad(name),astro.getTime() ) , name)
+            self.logText(f"Success in using {name} to align.")
+
+            if items == 1:
+                if self.alignmentDropdown.currentIndex() == 0:
+                    self.tracker.nearestOnePointAlign() # FALTA AQUI METER TALVEZ OS PARAMS DO MOTOR, PERGUNTAR
+                else:
+                    self.tracker.pointAlignment(len(self.alignList))
+                self.alignList = []
+                self.logText("Alignment complete. \n" + "-----------------\n\n")
+                self.waitingForText = False
+                self.receiverForText = None
+                return
+            
+            self.logText(f"Using {self.alignList(-items+1)} to align, please point to it and type ok when finished, or type exit to cancel.\n")
+            self.receiverForText = self.alignmentRoutine4(items-1)
         
     def beginStopTracking(self):
         if self.tracking:
