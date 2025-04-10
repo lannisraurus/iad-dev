@@ -52,6 +52,7 @@ class mainWindow(QWidget):
         self.alignmentBeginButton = QPushButton('Begin Alignment')
         self.alignmentBeginButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.alignmentBeginButton.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_DialogYesButton))
+        self.alignmentBeginButton.clicked.connect(self.alignmentRoutine1)
 
         self.alignmentUp = QPushButton('')
         self.alignmentUp.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_ArrowUp))

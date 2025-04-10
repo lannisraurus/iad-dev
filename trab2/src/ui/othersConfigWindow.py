@@ -89,7 +89,6 @@ class othersConfigWindow(QWidget):
 
         # Dragging window
         self.dragging = False
-        self.errCountToggle = 0
 
     ################################################# Events
 
@@ -177,7 +176,4 @@ class othersConfigWindow(QWidget):
         try:
             self.laserPin.toggle()
         except:
-            self.errCountToggle += 1
-            if self.errCountToggle >= 1:
-                self.mainWindow.logText('> ERROR: Laser is not connected / set up properly! \n\n')
-                self.errCountToggle = -1    
+            self.mainWindow.logText('> ERROR: Laser is not connected / set up properly! \n\n')
