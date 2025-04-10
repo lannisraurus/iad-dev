@@ -306,6 +306,7 @@ class mainWindow(QWidget):
 
         #Alignment
         self.alignList = []
+        self.itemsInAlign = 0
 
         # Tracking
         self.tracking = False
@@ -595,10 +596,12 @@ class mainWindow(QWidget):
             self.logText(f"Starting alignment with {response}...\n" if self.alignmentDropdown.currentIndex() == 1 else "")
             self.logText(f"Using {responses[0]} to align, please point to it and type ok when finished, or type exit to cancel.\n")
             self.inputtedText = ""
-            self.receiverForText = self.alignmentRoutine4(len(responses))
+            self.itemsInAlign = len(responses)
+            self.receiverForText = self.alignmentRoutine4
             self.waitingForText = True
 
-    def alignmentRoutine4(self, items: int):
+
+    def alignmentRoutine4(self):
         response = self.inputtedText
         if response == "exit":
             self.logText("Cancelling alignment...\n")
@@ -607,11 +610,11 @@ class mainWindow(QWidget):
         elif response == "ok":
             self.inputtedText = ""
             astro = self.tracker.aloc
-            name = self.alignList[-items]
+            name = self.alignList[-self.itemsInAlign]
             self.tracker.addAlignmentPoint( astro.getAzAlt( astro.querySimbad(name),astro.getTime() ) , name)
             self.logText(f"Success in using {name} to align.")
 
-            if items == 1:
+            if self.itemsInAlign == 1:
                 if self.alignmentDropdown.currentIndex() == 0:
                     self.tracker.nearestOnePointAlign() # FALTA AQUI METER TALVEZ OS PARAMS DO MOTOR, PERGUNTAR
                 else:
@@ -621,8 +624,9 @@ class mainWindow(QWidget):
                 self.receiverForText = None
                 return
             
-            self.logText(f"Using {self.alignList(-items+1)} to align, please point to it and type ok when finished, or type exit to cancel.\n")
-            self.receiverForText = self.alignmentRoutine4(items-1)
+            self.logText(f"Using {self.alignList(-self.itemsInAlign+1)} to align, please point to it and type ok when finished, or type exit to cancel.\n")
+            self.itemsInAlign -= 1
+            self.receiverForText = self.alignmentRoutine4
             self.waitingForText = True
         
     def beginStopTracking(self):
