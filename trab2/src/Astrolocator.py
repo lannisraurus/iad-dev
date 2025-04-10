@@ -32,7 +32,7 @@ class Astrolocator():
     def updateObserver(self, lat=90, lon=0, alt=0):
         self.observer = EarthLocation.from_geodetic(lat=lat, lon=lon, height=alt)
 
-    # Returns astropy Time obeject with current time
+    # Returns astropy Time object with current time
     def getTime(self):
         return Time.now()
 
@@ -44,7 +44,7 @@ class Astrolocator():
         return result
     
     # Returns an astropy table of brigthest objects in the sky
-    def queryBrightObjets(self, magnitude_threshold=0):
+    def queryBrightObjects(self, magnitude_threshold=0):
         # ADQL query string with magnitude threshold
         brigthCriteria = f"V < {magnitude_threshold}"
 

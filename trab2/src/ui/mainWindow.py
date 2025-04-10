@@ -524,23 +524,11 @@ class mainWindow(QWidget):
     #    self.receiverForText = self.setTracker
 
     def setTracker(self):
-        """
-        text = self.inputtedText
-        if text == "":
-            self.tracker = Tracker(self.stepperController)
-            return
-        coords = text.split(" ")
-        if len(coords) != 3:
-            self.logText("> ERROR: Invalid coordinates, please follow the requested format.\n")
-            self.requestPosition()
-            return   
-        
-        """
         coords = self.locationConfigWindow.getSettings()
         self.tracker = Tracker(self.stepperController, coords[0], coords[1], coords[2])
         self.logText(f"> Initialized Tracker with latitude: {coords[0]}, longitude: {coords[1]}, altitude: {coords[2]}\n\n")
 
-    def alignmentRoutine(self):
+    def alignmentRoutine1(self):
         if self.alignmentDropdown.currentIndex() == 0:
             self.tracker.nearestOnePointAlign()
         
