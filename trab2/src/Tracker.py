@@ -76,6 +76,7 @@ class Tracker():
         for i in npoint-1:
             src.append(self.alignmentPoints[i][1])
             sky.append(self.alignmentPoints[i][0])
+            i = i+1
         src = np.array(src)
         sky = np.array(sky)
         self.currAlignmentType = "NPoint"

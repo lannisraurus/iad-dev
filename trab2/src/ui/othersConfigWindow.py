@@ -46,7 +46,7 @@ class othersConfigWindow(QWidget):
                 
         #Dropdown
         self.laserTypeDropdown = QComboBox()
-        self.laserTypeDropdown.addItems(['None','Módulo laser 5mW - Ponto vermelho'])
+        self.laserTypeDropdown.addItems(['None','Laser 5mW - Ponto vermelho'])
         self.laserTypeDropdown.currentIndexChanged.connect(self.changeLaserType)
 
         # Text Edits
@@ -91,9 +91,6 @@ class othersConfigWindow(QWidget):
         self.dragging = False
         self.errCountToggle = 0
 
-
-
-
     ################################################# Events
 
     def mousePressEvent(self, event):
@@ -119,12 +116,7 @@ class othersConfigWindow(QWidget):
         # Draw the border around the window (excluding the title bar area)
         painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
 
-
-
-
-
     ################################################# Settings
-
 
     def loadSettings(self):
         pins = []
@@ -145,7 +137,7 @@ class othersConfigWindow(QWidget):
 
         if len(pins) == 1:
             try:
-                self.laserPin3 = OutputDevice(int(pins[0]))
+                self.laserPin = OutputDevice(int(pins[0]))
             except:
                 self.mainWindow.logText('> ERROR! Could not set output pins! Either the pins are not ints, or your device cannot access the GPIO pins!\n')
         else:
@@ -179,12 +171,11 @@ class othersConfigWindow(QWidget):
             case 0:
                 self.laserDescription.setText('Please select a laser.')
             case 1:
-                #MUDAR ISTO QUANDO TIVER O MANUAL DO LASER
-                self.laserDescription.setText('Módulo laser 5mW - Ponto vermelho: In the pin configuration, simply write a sequence of the connected pins to GPIO in the following order: pin1 pin2 pin3')
+                self.laserDescription.setText('Laser 5mW - Ponto vermelho: In the pin configuration, simply write a sequence of the connected pin to GPIO')
 
     def laserToggle(self):
         try:
-            self.laserPin3.toggle()
+            self.laserPin.toggle()
         except:
             self.errCountToggle += 1
             if self.errCountToggle >= 1:
