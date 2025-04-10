@@ -565,6 +565,7 @@ class mainWindow(QWidget):
             self.waitingForText = True
         else:
             self.logText("Input not recognised, please type either ok or exit.\n")
+            self.waitingForText = True
 
         self.inputtedText = ""
 
@@ -584,13 +585,16 @@ class mainWindow(QWidget):
             print(responses)
             if len(responses) != 1 and self.alignmentDropdown.currentIndex() == 0:
                 self.logText("Please provide only one object for alignment, or type exit to cancel.\n")
+                self.waitingForText = True
                 return
             if len(responses) < 3 and self.alignmentDropdown.currentIndex() == 1:
                 self.logText("Please provide at least three objects for alignment, or type exit to cancel.\n")
+                self.waitingForText = True
                 return
             for obj in responses:
                 if not astro.querySimbad(obj):
                     self.logText(f"{obj} not recognised, please type either exit or valid identifier, preferrably one of the recommended.\n")
+                    self.waitingForText = True
                     return
             self.alignList = responses
             self.logText(f"Starting alignment with {response}...\n" if self.alignmentDropdown.currentIndex() == 1 else "")
@@ -628,6 +632,11 @@ class mainWindow(QWidget):
             self.itemsInAlign -= 1
             self.receiverForText = self.alignmentRoutine4
             self.waitingForText = True
+        
+        else:
+            self.logText("Input not recognised, please type either ok or exit.\n")
+            self.waitingForText = True
+            self.inputtedText = ""
         
     def beginStopTracking(self):
         if self.tracking:
