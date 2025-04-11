@@ -217,4 +217,4 @@ class StepperController():
     def getCoords(self):
         if not self.working:
             return ('ERR', 'ERR')
-        return (self.stepsToDeg(self.az),self.stepsToDeg(self.alt))
+        return (float(self.stepsToDeg(self.az)),float(self.stepsToDeg(self.alt)))
