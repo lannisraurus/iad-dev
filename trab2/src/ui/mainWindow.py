@@ -423,14 +423,9 @@ class mainWindow(QWidget):
     
     # Update Az and Alt labels
     def updateAltAzLabel(self, sent_data):
-        print('updating labels...')
-        print(sent_data)
         if not (type(sent_data[0]) == str and type(sent_data[1]) == str):
-            
             angles = self.tracker.motorToReal(sent_data)
             self.alignmentAngles.setText(f"(az= {angles[0]:.3f}, alt= {angles[1]:.3f})")
-
-            print('motor to real ran')
 
 
 
