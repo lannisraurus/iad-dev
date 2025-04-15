@@ -80,9 +80,9 @@ class mainWindow(QWidget):
         self.settingsSteppersButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.settingsSteppersButton.clicked.connect(self.stepperConfigWindowShow)
         
-        self.settingsDeviceButton = QPushButton('Acquisition Device')
-        self.settingsDeviceButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        self.settingsDeviceButton.clicked.connect(self.deviceConfigWindowShow)
+        #self.settingsDeviceButton = QPushButton('Acquisition Device')
+        #self.settingsDeviceButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        #self.settingsDeviceButton.clicked.connect(self.deviceConfigWindowShow)
         
         self.settingsOthersButton = QPushButton('Other Periferals')
         self.settingsOthersButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
@@ -247,7 +247,7 @@ class mainWindow(QWidget):
         self.settingsLayout.addLayout(self.settingsLayoutR)
 
         self.settingsLayoutR.addWidget(self.settingsSteppersButton)
-        self.settingsLayoutR.addWidget(self.settingsDeviceButton)
+        #self.settingsLayoutR.addWidget(self.settingsDeviceButton)
         self.settingsLayoutR.addWidget(self.settingsOthersButton)
         self.settingsLayoutR.addWidget(self.settingsLocationButton)
 
@@ -381,9 +381,9 @@ class mainWindow(QWidget):
         self.stepperConfigWindow.show()
         self.stepperConfigWindow.activateWindow()
     
-    def deviceConfigWindowShow(self):
-        self.deviceConfigWindow.show()
-        self.deviceConfigWindow.activateWindow()
+    #def deviceConfigWindowShow(self):
+    #    self.deviceConfigWindow.show()
+    #    self.deviceConfigWindow.activateWindow()
 
     def othersConfigWindowShow(self):
         self.othersConfigWindow.show()
