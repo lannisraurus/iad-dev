@@ -213,8 +213,7 @@ class StepperController():
 
     # Altitude+Azimuth full rotation
     def moveTo(self, coordDeg, delay=0.001):
-        if not self.working
-            print("error")
+        if not self.working:
             return
         az = self.degToSteps(coordDeg[0])
         alt = self.degToSteps(coordDeg[1])
