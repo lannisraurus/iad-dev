@@ -51,14 +51,14 @@ class Tracker():
             
             SE ESTIVER TD BEM TIRAR COMENTÁRIO
             """
-        self.currAlignmentType = "NearestOnePoint"
+        self.currAlignmentType = "OnePoint"
         aligner = self.alignmentPoints[0]
         self.currAlignment = (aligner[1][0]-aligner[0][0], aligner[1][1]-aligner[0][1])
         
     def realToMotor(self, realPos):
         if self.currAlignmentType == "None":
             return realPos 
-        if self.currAlignmentType == "NearestOnePoint":
+        if self.currAlignmentType == "OnePoint":
             return (realPos[0] + self.currAlignment[0], realPos[1] + self.currAlignment[1])
         if self.currAlignmentType == "NPoint":
             realPos = np.array(realPos)
@@ -67,7 +67,7 @@ class Tracker():
     def motorToReal(self, motorPos):
         if self.currAlignmentType == "None":
             return motorPos 
-        if self.currAlignmentType == "NearestOnePoint":
+        if self.currAlignmentType == "OnePoint":
             return (motorPos[0] - self.currAlignment[0], motorPos[1] - self.currAlignment[1])
         if self.currAlignmentType == "NPoint":
             motorPos = np.array(motorPos)
@@ -90,31 +90,10 @@ class Tracker():
         objName = params[0]
         self.interruptTracking = False
         trackObj = self.aloc.querySimbad(objName)
+        if trackObj == None:
+            trackObj = self.aloc.queryHorizons(objName)
         while self.interruptTracking == False:
             currTime = self.aloc.getTime()
             realPos = self.aloc.getAzAlt(trackObj, currTime)
             self.motors.moveTo(self.realToMotor(realPos))
             signalPoint.emit(realPos)
-
-    def telecopeRoutine(self, params ,signalPoint):
-        sensor = RPiCamera2()
-        fileName = params[0]
-        exposure = params[1]
-        gain = params[2]
-        frameTime = params[3]
-        fps = 1/max(exposure, frameTime)
-        sensor.changeSettings(framerate=fps, exposureTime=exposure, analogueGain=gain)
-        self.interruptTracking = False
-        sensor.start_video(fileName)
-        while self.interruptTracking == False:
-            time.sleep(0.01)
-        sensor.end_video()
-
-    def antennaRoutine(self, params ,signalPoint):
-        graphWindow = params[0]
-        sampleRate = params[1]
-        centerFreq = params[2]
-        gain = params[3]
-        sdr = RTLSDRInterface(sampleRate,centerFreq,gain)
-        while self.interruptTracking == False:
-            sdr.calculate_plot_psd(graphWindow)

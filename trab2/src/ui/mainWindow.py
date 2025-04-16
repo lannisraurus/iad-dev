@@ -696,6 +696,10 @@ class mainWindow(QWidget):
                     self.logText(f"{obj} not recognised, please type either exit or valid identifier, preferrably one of the recommended.\n")
                     self.waitingForText = True
                     return
+                if len(astro.queryHorizons(obj)) > 1 or len(astro.querySimbad(obj)) > 1:
+                    self.logText(f"{obj} provided various possible objects. Please be more specific (use only ID for planet).\n")
+                    self.waitingForText = True
+                    return
             self.alignList = responses
             self.logText(f"Starting alignment with {response}...\n" if self.alignmentDropdown.currentIndex() == 1 else "")
             self.logText(f"Using {responses[0]} to align, please point to it and type ok when finished, or type exit to cancel.\n")
