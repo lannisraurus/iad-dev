@@ -90,7 +90,6 @@ class Tracker():
         objDatabase = params[0]
         objId = params[1]
         self.interruptTracking = False
-        startCount = 100
         trackObj = None
         while self.interruptTracking == False:
             if objDatabase == "SIMBAD":
@@ -101,7 +100,7 @@ class Tracker():
                 trackObj = self.aloc.queryN2YO(objId)
             currTime = self.aloc.getTime()
             realPos = self.aloc.getAzAlt(trackObj, currTime)
-            self.motors.moveTo((self.motors.getCoords()[0] + (self.realToMotor(realPos)[0]-self.motors.getCoords()[0])/startCount,self.motors.getCoords()[1] + (self.realToMotor(realPos)[1]-self.motors.getCoords()[1])/startCount))
+            self.motors.moveTo(self.realToMotor(realPos))
             signalPoint.emit(self.motors.getCoords())
             if startCount > 1:
                 startCount = startCount - 1
