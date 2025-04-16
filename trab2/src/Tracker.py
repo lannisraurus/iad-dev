@@ -93,7 +93,7 @@ class Tracker():
         while self.interruptTracking == False:
             currTime = self.aloc.getTime()
             realPos = self.aloc.getAzAlt(trackObj, currTime)
-            self.motors.moveTo(self.motors.getCoords() + (self.realToMotor(realPos)-self.motors.getCoords())/startCount)
+            self.motors.moveTo((self.motors.getCoords()[0] + (self.realToMotor(realPos)[0]-self.motors.getCoords()[0])/startCount,self.motors.getCoords()[1] + (self.realToMotor(realPos)[1]-self.motors.getCoords()[1])/startCount))
             signalPoint.emit(self.motors.getCoords())
             if startCount > 1:
                 startCount = startCount - 1
