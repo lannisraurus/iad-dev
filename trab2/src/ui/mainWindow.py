@@ -751,7 +751,7 @@ class mainWindow(QWidget):
             self.waitingForText = True
             self.inputtedText = ""
         
-    def beginStopTracking(self):
+    def beginStopTracking1(self):
         if self.tracking:
             self.logText("* Ending Tracking Threads.\n")
             self.tracker.stopTracking = True
@@ -761,16 +761,39 @@ class mainWindow(QWidget):
             return
             
         self.tracking = True
-        self.logText("> Please input object name\n")
+        self.logText("> Please input object query system, SIMBAD, Horizons or N2YO\n")
         self.waitingForText = True
-        self.receiverForText = self.beginTrackingThreads
+        self.receiverForText = self.beginStopTracking2
 
-    def beginTrackingThreads(self):
-        objName = self.inputtedText
-        
+    def beginStopTracking2(self):
+        self.queryDatabase = self.inputtedText
+        if self.queryDatabase not in ["SIMBAD", "Horizons", "N2YO"]:
+            self.logText("Input not recognised, please try again\n")
+            self.logText("> Please input object query system, SIMBAD, Horizons or N2YO\n")
+            self.waitingForText = True
+            self.receiverForText = self.beginStopTracking2
+
+        self.waitingForText = True
+        self.receiverForText = self.beginStopTracking3
+
+    def beginStopTracking3(self):
+        queryId = self.inputtedText
+        if self.queryDatabase == "SIMBAD":
+            trackObj = self.tracker.aloc.querySimbad(queryId)
+        elif self.queryDatabase == "Horizons":
+            trackObj = self.tracker.aloc.queryHorizons(queryId)
+        else:
+            trackObj = self.tracker.aloc.queryN2YO(queryId)
+
+        if not trackObj:
+            self.logText("Object not found, please try again\n")
+            self.logText("> Please input object query system, SIMBAD, Horizons or N2YO\n")
+            self.waitingForText = True
+            self.receiverForText = self.beginStopTracking2
+
         # start thread for motor tracking
         self.logText("* Starting Motor Tracking Thread.\n")
-        self.threadMotor = CommandThread(self.tracker.trackingRoutine,[objName])
+        self.threadMotor = CommandThread(self.tracker.trackingRoutine,[trackObj])
         self.threadMotor.send_data.connect(self.updateAltAzLabel)
         self.threadMotor.start()
 
