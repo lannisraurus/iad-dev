@@ -63,6 +63,12 @@ class RTLSDRInterface:
 
         return freq_bins, psd
 
+    def save_samples(fileName):
+        numbers = [1, 2, 3.5, 4.75, 100]
+
+        with open(fileName, "w") as f:
+            f.write(",".join(str(n) for n in numbers))
+
     def close(self):
         self.sdr.close()
         return "RTL-SDR device closed."

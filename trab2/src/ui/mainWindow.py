@@ -697,7 +697,7 @@ class mainWindow(QWidget):
                 return
             for obj in responses:
                 print(obj,astro.querySimbad(obj),astro.queryHorizons(obj))
-                if (not astro.querySimbad(obj)) and (not astro.queryHorizons(obj)):
+                if (astro.querySimbad(obj) is None) and (astro.queryHorizons(obj) is None):
                     self.logText(f"{obj} not recognised / ambiguous, please type either exit or valid identifier, preferrably one of the recommended. Note: for planets and satellites, use the ID.\n")
                     self.waitingForText = True
                     return
@@ -787,7 +787,7 @@ class mainWindow(QWidget):
         else:
             trackObj = self.tracker.aloc.queryN2YO(queryId)
 
-        if not trackObj:
+        if trackObj is None:
             self.logText("Object not found, please try again\n")
             self.logText("> Please input object query system, SIMBAD, Horizons or N2YO\n")
             self.waitingForText = True
