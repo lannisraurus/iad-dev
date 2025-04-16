@@ -158,7 +158,7 @@ class StepperController():
         else:
             azIncrement = -1
         
-        if not self.checkIfWithinLimits(azIncrement, 0):
+        if not self.checkIfWithinLimits(azIncrement, 0) and self.angleLock:
             return
 
         self.stepAz((self.stepsInSequence-self.az)%self.stepsInSequence)
@@ -179,7 +179,7 @@ class StepperController():
         else:
             altIncrement = -1
         
-        if not self.checkIfWithinLimits(0, altIncrement):
+        if not self.checkIfWithinLimits(0, altIncrement) and self.angleLock:
             return
 
         self.stepAlt((self.stepsInSequence-self.alt)%self.stepsInSequence)
