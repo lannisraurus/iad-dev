@@ -651,9 +651,9 @@ class mainWindow(QWidget):
                 objsCopy["DEC"][i] = azAlt[1]
             objsCopy.rename_column("RA","Az")
             objsCopy.rename_column("DEC","Alt")
-            objsCopy["Az"].format = ".3f"
-            objsCopy["Alt"].format = ".3f"
-            objsCopy["V"].format = ".3f"
+            objsCopy["Az"].format = "8.3f"
+            objsCopy["Alt"].format = "8.3f"
+            objsCopy["V"].format = "8.3f"
 
             self.logText("Please select ")
             self.logText("one " if self.alignmentDropdown.currentIndex() == 0 else "at least three (separated by commas) ")
