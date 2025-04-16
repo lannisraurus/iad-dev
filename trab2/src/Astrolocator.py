@@ -42,6 +42,9 @@ class Astrolocator():
         if result is None or len(result) == 0 or "ra" not in result.colnames or "dec" not in result.colnames:
             return None
         return result
+
+    def queryHorizons(self,identifier):
+        print("FALTA PLZ HELP")
     
     # Returns an astropy table of brigthest objects in the sky
     def queryBrightObjects(self, magnitude_threshold=0):
@@ -87,7 +90,6 @@ class Astrolocator():
                 else:
                     bright_objects_in_sky.add_row(obj)
             
-        print(bright_objects_in_sky)
         return bright_objects_in_sky
 
     

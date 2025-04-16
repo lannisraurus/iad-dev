@@ -637,19 +637,29 @@ class mainWindow(QWidget):
         elif response == "ok":
             self.setTracker()
             astro=self.tracker.aloc
-            mag = 0 # MUDAR POR ALGO Q O USER POSSA ESCOLHER
+            mag = 0
             objs = astro.queryBrightObjects(mag)
             while len(objs) < 10 :
                 mag += 0.5
                 objs = astro.queryBrightObjects(mag)
 
-            #PODEMOS PENSAR EM METER MELHOR FORMATADO, MAS HONESTAMENTE ESTA INFORMAÇÃO É BOA
+            objsCopy = objs[:10].copy()
+            for i,row in enumerate(objsCopy):
+                azAlt = astro.getAzAlt(row,astro.getTime())
+                objsCopy["RA"][i] = azAlt[0]
+                objsCopy["DEC"][i] = azAlt[1]
+            objsCopy.rename_column("RA","Az")
+            objsCopy.rename_column("DEC","Alt")
+            objsCopy["Az"].format = ".3f"
+            objsCopy["Alt"].format = ".3f"
+            objsCopy["V"].format = ".3f"
 
             self.logText("Please select ")
             self.logText("one " if self.alignmentDropdown.currentIndex() == 0 else "at least three (separated by commas) ")
             self.logText("of the provided objects for alignment, or provide the name of your preferred object(s). " + \
                         "Type exit to cancel alignment.\n" +\
-                        "Below are the recommended objects:\n" + str(objs[:10]) + "\n")
+                        "Below are the recommended objects:\n\n" + str(objsCopy) + "\n\n")
+
             self.receiverForText = self.alignmentRoutine3
             self.waitingForText = True
         else:
@@ -671,7 +681,6 @@ class mainWindow(QWidget):
             #SÍTIO PARA FAZER O MOVIMENTO PRÉVIO PARA AJUDAR
 
             responses = response.split(",")
-            print(responses)
             if len(responses) != 1 and self.alignmentDropdown.currentIndex() == 0:
                 self.logText("Please provide only one object for alignment, or type exit to cancel.\n")
                 self.waitingForText = True
@@ -681,7 +690,7 @@ class mainWindow(QWidget):
                 self.waitingForText = True
                 return
             for obj in responses:
-                if not astro.querySimbad(obj):
+                if ("*" in obj and not astro.querySimbad(obj)) and astro.queryHorizons(obj):
                     self.logText(f"{obj} not recognised, please type either exit or valid identifier, preferrably one of the recommended.\n")
                     self.waitingForText = True
                     return
@@ -704,12 +713,15 @@ class mainWindow(QWidget):
             self.inputtedText = ""
             astro = self.tracker.aloc
             name = self.alignList[-self.itemsInAlign]
-            self.tracker.addAlignmentPoint( astro.getAzAlt( astro.querySimbad(name),astro.getTime() ) , name)
+            if astro.querySimbad(name):
+                self.tracker.addAlignmentPoint( astro.getAzAlt( astro.querySimbad(name),astro.getTime() ) , name)
+            else:
+                self.tracker.addAlignmentPoint( astro.getAzAlt( astro.queryHorizons(name),astro.getTime() ) , name)
             self.logText(f"Success in using {name} to align.")
 
             if self.itemsInAlign == 1:
                 if self.alignmentDropdown.currentIndex() == 0:
-                    self.tracker.nearestOnePointAlign() # FALTA AQUI METER TALVEZ OS PARAMS DO MOTOR, PERGUNTAR
+                    self.tracker.onePointAlign()
                 else:
                     self.tracker.pointAlignment(len(self.alignList))
                 self.alignList = []

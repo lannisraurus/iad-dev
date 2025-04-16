@@ -39,8 +39,8 @@ class Tracker():
         info = (self.lat, self.lon, self.alt, currTime, name)
         self.alignmentPoints.append((realPos, motorPos,info))
 
-    def nearestOnePointAlign(self, motorAz=0, motorAlt=0):
-        dist = -1 
+    def onePointAlign(self):
+        """dist = -1 
         nearestObject = None
         for aligner in self.alignmentPoints:
             currDist = (aligner[1][0]-motorAz)*(aligner[1][0]-motorAz) + (aligner[1][1]-motorAlt)*(aligner[1][1]-motorAlt)
@@ -48,8 +48,12 @@ class Tracker():
                 dist = currDist
                 nearestObject = aligner
         if nearestObject:
-            self.currAlignmentType = "NearestOnePoint"
-            self.currAlignment = (aligner[1][0]-aligner[0][0], aligner[1][1]-aligner[0][1])
+            
+            SE ESTIVER TD BEM TIRAR COMENTÁRIO
+            """
+        self.currAlignmentType = "NearestOnePoint"
+        aligner = self.alignmentPoints[0]
+        self.currAlignment = (aligner[1][0]-aligner[0][0], aligner[1][1]-aligner[0][1])
         
     def realToMotor(self, realPos):
         if self.currAlignmentType == "None":
