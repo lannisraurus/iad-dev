@@ -625,7 +625,7 @@ class mainWindow(QWidget):
 
         self.logText("-----------------\n\nStarting alignment routine...\n" + \
                     "Please confirm your current coordinates are the ones in the location window (bottom right corner button). " + \
-                    "When finished, please type ok, or type exit to cancel alignment\n")
+                    "When finished, please type yes for a 10 element list of objects, no to just proceed, or type exit to cancel alignment\n")
         self.waitingForText = True
         self.receiverForText = self.alignmentRoutine2
 
@@ -634,7 +634,11 @@ class mainWindow(QWidget):
         if response == "exit":
             self.logText("Cancelling alignment...\n")
             self.receiverForText = None
-        elif response == "ok":
+        elif response == "no":
+            self.receiverForText = self.alignmentRoutine3
+            self.waitingForText = True
+            self.logText("Write object name(s)...\n")
+        elif response == "yes":
             self.setTracker()
             astro=self.tracker.aloc
             mag = 0
