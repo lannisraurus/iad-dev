@@ -116,7 +116,7 @@ class mainWindow(QWidget):
         self.settingsLabel.setFixedWidth(200)
         self.alignmentDelayValueLabel = QLabel('hi!')
         self.updateDelayValue()
-        self.alignmentDelayValueLabel.setFixedWidth(90)
+        self.alignmentDelayValueLabel.setFixedWidth(120)
         self.alignmentAngles = QLabel('(az=ERR , alt=ERR )')
         self.trackDevicesLabel = QLabel('Acquisition Device:')
 
