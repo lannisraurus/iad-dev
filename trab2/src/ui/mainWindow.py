@@ -773,6 +773,7 @@ class mainWindow(QWidget):
             self.waitingForText = True
             self.receiverForText = self.beginStopTracking2
 
+        self.logText("> Please input object id\n")
         self.waitingForText = True
         self.receiverForText = self.beginStopTracking3
 
