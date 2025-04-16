@@ -776,7 +776,7 @@ class mainWindow(QWidget):
 
         # start thread for aquisition
         if self.trackDeviceDropdown.currentIndex() == 0:     
-            self.logText("* WORK IN PROGRESS.\n")
+            self.logText("* Telescope WORK IN PROGRESS.\n")
         elif self.trackDeviceDropdown.currentIndex() == 1:  
             self.grapher.show()   
             self.logText("* Starting Antenna Thread.\n")

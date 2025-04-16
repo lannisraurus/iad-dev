@@ -90,10 +90,15 @@ class Tracker():
         objId = params[0]
         self.interruptTracking = False
         trackObj = self.aloc.querySimbad(objId)
-        if trackObj == None:
+        if not trackObj:
+            print("not in SIMBAD")
             trackObj = self.aloc.queryHorizons(objId)
-            if trackObj == None:
+            if not trackObj:
+                print("not in Horizons")
                 trackObj = self.aloc.queryN2YO(objId)
+                if not trackObj:
+                    print("not found")
+                    return
         while self.interruptTracking == False:
             currTime = self.aloc.getTime()
             realPos = self.aloc.getAzAlt(trackObj, currTime)
