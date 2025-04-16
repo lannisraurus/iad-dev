@@ -9,24 +9,6 @@ import pyqtgraph.exporters
 ##################### Graph Window Class
 class SDRWindow(QMainWindow):
     # Constructor
-    def __init__(self):
-        super().__init__() 
-         # Set title
-        self.setWindowTitle('Graph')
-
-        # Set Size
-        self.setGeometry(500, 500, 720, 420)
-
-        # pyqt stuff
-        self.graphPlot = pyqtgraph.PlotWidget()
-        self.setCentralWidget(self.graphPlot)
-        self.graphPlot.setBackground("w")
-        self.xs = []
-        self.ys = []
-        self.graphPlot.setTitle("Title")
-        self.graphPlot.setLabel("left", "Y")
-        self.graphPlot.setLabel("bottom", "X")
-        self.line = self.graphPlot.plot(self.xs, self.ys)
     def __init__(self, sdr):
         super().__init__()
 

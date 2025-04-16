@@ -41,11 +41,28 @@ class Astrolocator():
         result = self.simbadData.query_object(identifier)
         if result is None or len(result) == 0 or "ra" not in result.colnames or "dec" not in result.colnames:
             return None
+        result.rename_column("ra", "RA")
+        result.rename_column("dec", "DEC")
+        result.rename_column("main_id", "Name")
+        result["V"].unit = u.mag 
+        result["Name"] = result["Name"].astype(str)
+        result = result[["Name", "RA", "DEC", "V"]]
+
         return result
 
     def queryHorizons(self,identifier):
-        print("FALTA PLZ HELP")
-    
+        location = {"lon": self.observer.lon.value,
+            "lat": self.observer.lat.value,
+            "elevation": self.observer.height.value,
+            "body": "399"}
+        result = Horizons(id=identifier, location=location).ephemerides()
+        result.rename_column("targetname", "Name")
+        result["Name"].unit = None
+        result["Name"] = result["Name"].astype(str)
+        result = result[["Name", "RA", "DEC", "V"]]
+        return result
+
+            
     # Returns an astropy table of brigthest objects in the sky
     def queryBrightObjects(self, magnitude_threshold=0):
         # ADQL query string with magnitude threshold
