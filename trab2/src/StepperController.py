@@ -94,20 +94,20 @@ class StepperController():
         self.angleLock = boolean
     
     def limitAngles(self, minAz, maxAz, minAlt, maxAlt):
-        self.minAz = minAz
-        self.maxAz = maxAz
-        self.minAlt = minAlt
-        self.maxAlt = maxAlt
+        self.minAz = self.degToSteps(minAz)
+        self.maxAz = self.degToSteps(maxAz)
+        self.minAlt = self.degToSteps(minAlt)
+        self.maxAlt = self.degToSteps(maxAlt)
     
     def checkIfWithinLimits(self, azIncrement, altIncrement):
         result = True
-        if self.az+azIncrement > self.degToSteps(self.maxAz):
+        if self.az+azIncrement > self.maxAz:
             result = False
-        if self.az+azIncrement < self.degToSteps(self.minAz):
+        if self.az+azIncrement < self.minAz:
             result = False
-        if self.alt+altIncrement > self.degToSteps(self.maxAlt):
+        if self.alt+altIncrement > self.maxAlt:
             result = False
-        if self.alt+altIncrement < self.degToSteps(self.minAlt):
+        if self.alt+altIncrement < self.minAlt:
             result = False
         return result
 
@@ -163,15 +163,6 @@ class StepperController():
 
         self.stepAz((self.stepsInSequence-self.az)%self.stepsInSequence)
         self.az += azIncrement
-        
-        """
-        if not reverse:
-            self.stepAz((self.stepsInSequence-self.az)%self.stepsInSequence)
-            self.az += 1
-        else:
-            self.stepAz((self.stepsInSequence-self.az)%self.stepsInSequence)
-            self.az -= 1
-        """
             
         time.sleep(delay)
         
@@ -193,15 +184,10 @@ class StepperController():
 
         self.stepAlt((self.stepsInSequence-self.alt)%self.stepsInSequence)
         self.az += altIncrement
-
-        """if reverse:
-            self.stepAlt((self.stepsInSequence-self.alt)%self.stepsInSequence)
-            self.alt -= 1
-        else:
-            self.stepAlt((self.stepsInSequence-self.alt)%self.stepsInSequence)
-            self.alt += 1"""
         
         time.sleep(delay)
+
+    ########################################################## REVIEW ALL THIS CODE TO BE CONCORDANT WITH THE PREV!!!
 
     ########################################################## Moving Operations - Specific Angle
 
