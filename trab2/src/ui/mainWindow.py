@@ -696,7 +696,7 @@ class mainWindow(QWidget):
                 self.waitingForText = True
                 return
             for obj in responses:
-                
+
                 #print(obj,astro.querySimbad(obj),astro.queryHorizons(obj))
                 #print(obj,astro.querySimbad(obj) is None,astro.queryHorizons(obj) is None)
                 if (astro.querySimbad(obj) is None) and (astro.queryHorizons(obj) is None):
@@ -743,7 +743,7 @@ class mainWindow(QWidget):
                 self.updateAltAzLabel()
                 return
             
-            self.logText(f"Using {self.alignList(-self.itemsInAlign+1)} to align, please point to it and type ok when finished, or type exit to cancel.\n")
+            self.logText(f"Using {self.alignList[-self.itemsInAlign+1]} to align, please point to it and type ok when finished, or type exit to cancel.\n")
             self.itemsInAlign -= 1
             self.receiverForText = self.alignmentRoutine4
             self.waitingForText = True
