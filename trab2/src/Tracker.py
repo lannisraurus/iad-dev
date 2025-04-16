@@ -102,5 +102,3 @@ class Tracker():
             realPos = self.aloc.getAzAlt(trackObj, currTime)
             self.motors.moveTo(self.realToMotor(realPos))
             signalPoint.emit(self.motors.getCoords())
-            if startCount > 1:
-                startCount = startCount - 1
