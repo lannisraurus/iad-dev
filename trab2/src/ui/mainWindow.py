@@ -74,7 +74,7 @@ class mainWindow(QWidget):
         self.trackBeginButton = QPushButton('Begin Tracking')
         self.trackBeginButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.trackBeginButton.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_FileDialogContentsView))
-        self.trackBeginButton.clicked.connect(self.beginStopTracking)
+        self.trackBeginButton.clicked.connect(self.beginStopTracking1)
 
         self.settingsSteppersButton = QPushButton('Steppers')
         self.settingsSteppersButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
