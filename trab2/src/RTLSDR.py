@@ -11,10 +11,8 @@ from rtlsdr import RtlSdr
 
 # Class
 class RTLSDRInterface:
-
     # Constructor
     def __init__(self, sample_rate=3.2e6, center_freq=1.7e9, gain='auto'):
-
         # Initialize the RTL-SDR device
         self.sdr = RtlSdr()
         
@@ -63,17 +61,6 @@ class RTLSDRInterface:
         # Shift the frequencies by the central frequency
         freq_bins += self.central_freq
 
-        return freq_bins, psd
-
-    def calculate_plot_psd(self, graphWindow=None, num_samples=4*1024, nfft=None, window='hamming'):
-        # Capture the samples from RTL-SDR
-        samples = self.capture_samples(num_samples)
-        
-        # Calculate the PSD
-        freq_bins, psd = self.calculate_psd(samples, nfft=nfft, window=window)
-
-        # Plot the PSD
-        graphWindow.plot_graph(freq_bins, 10 * np.log10(psd), pen='g')  # Convert PSD to dB for visualization
         return freq_bins, psd
 
     def close(self):
