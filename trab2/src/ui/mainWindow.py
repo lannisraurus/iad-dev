@@ -35,7 +35,7 @@ class mainWindow(QWidget):
         super().__init__(*args, **kwargs)   # Initialize parent class
 
         # UI - General
-        self.setFixedSize(1280,660)
+        self.setFixedSize(1280,680)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowTitle('Astrolocator')
         self.setWindowIcon(QIcon('assets/logo.png'))
@@ -147,6 +147,13 @@ class mainWindow(QWidget):
         # UI - Spacers
         self.spacer1 = QSpacerItem(40, 20, QSizePolicy.Minimum,QSizePolicy.Expanding)
 
+        # UI - Angle lock
+        #self.fixedAnglesLabel = QLabel('Lock Rotation:')
+        self.fixedAnglesButton = QPushButton('Limit Stepper Angles')
+        self.fixedAnglesButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.fixedAnglesButton.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxCritical))
+        self.fixedAnglesButton.clicked.connect(self.angleLock1)
+
         # Create a layouts
         self.mainLayout = QVBoxLayout()
         self.mainLayout.setAlignment(Qt.AlignTop)
@@ -176,6 +183,7 @@ class mainWindow(QWidget):
         self.alignmentLayoutR4 = QHBoxLayout()
         self.alignmentLayoutR5 = QHBoxLayout()
         self.alignmentLayoutR6 = QHBoxLayout()
+        #self.alignmentLayoutR7 = QHBoxLayout()
         
         self.mainLayout.addLayout(self.topLayout)
         self.mainLayout.addLayout(self.midLayout)
@@ -220,6 +228,9 @@ class mainWindow(QWidget):
         self.alignmentLayoutR5.addWidget(self.alignmentDelayValueLabel)
         self.alignmentLayoutRL.addLayout(self.alignmentLayoutR6)
         self.alignmentLayoutR6.addWidget(self.alignmentBeginButton)
+        #self.alignmentLayoutRL.addLayout(self.alignmentLayoutR7)
+        #self.alignmentLayoutR6.addWidget(self.fixedAnglesLabel)
+        self.alignmentLayoutR6.addWidget(self.fixedAnglesButton)
         self.alignmentLayoutR6.addWidget(self.alignmentAngles)
 
         self.alignmentLayoutR1.addWidget(self.alignmentUp, alignment= Qt.AlignTop)
@@ -304,9 +315,15 @@ class mainWindow(QWidget):
         self.inputtedText = ""          # text user inputted
         self.receiverForText = None     # function which runs
 
-        #Alignment
+        # Alignment
         self.alignList = []
         self.itemsInAlign = 0
+
+        # Angle Locking
+        self.minAz = 0
+        self.maxAz = 0
+        self.minAlt = 0
+        self.maxAlt = 0
 
         # Tracking
         self.tracking = False
@@ -513,12 +530,84 @@ class mainWindow(QWidget):
 
 
 
+    ######################### ANGLE LOCKING METHODS
+    def angleLock1(self):
+        self.logText('>>> Beginning Angle Locking Routine...\n')
+        self.logText('> Please position your device in its MINIMUM AZIMUTHAL angle. Type ok when finished or exit to cancel the procedure, pressing enter to confirm. To simply remove the limitations, type remove and press enter.\n')
+        self.waitingForText = True
+        self.receiverForText = self.angleLock2
 
+    def angleLock2(self):
+        response = self.inputtedText
+        if response == 'ok':
+            # Save MIN AZ
+            self.minAz = self.stepperController.getCoords()[0]
+            # Msg
+            self.logText('> Confirmed. Now position your device in its MAXIMUM AZIMUTHAL ANGLE. Proceed as before.\n')
+            self.waitingForText = True
+            self.receiverForText = self.angleLock3
+        elif response == 'exit':
+            self.logText('> Exiting angle locking routine...\n\n')
+        elif response == 'remove':
+            # Disable angle locking in StepperController
+            self.stepperController.setAngleLock(False)
+            # Msg
+            self.logText('> Removing previous limitations and exiting angle locking routine...\n\n')
+        else:
+            self.logText('> Invalid input. either type ok or exit.\n')
+            self.waitingForText = True
+            self.receiverForText = self.angleLock2
 
+    def angleLock3(self):
+        response = self.inputtedText
+        if response == 'ok':
+            # Save MAX AZ
+            self.maxAz = self.stepperController.getCoords()[0]
+            # Msg
+            self.logText('> Confirmed. Now position your device in its MINIMUM POLAR ANGLE. Proceed as before.\n')
+            self.waitingForText = True
+            self.receiverForText = self.angleLock4
+        elif response == 'exit':
+            self.logText('> Exiting angle locking routine...\n\n')
+        else:
+            self.logText('> Invalid input. either type ok or exit.\n')
+            self.waitingForText = True
+            self.receiverForText = self.angleLock3
 
+    def angleLock4(self):
+        response = self.inputtedText
+        if response == 'ok':
+            # Save MIN ALT
+            self.minAlt = self.stepperController.getCoords()[1]
+            # Msg
+            self.logText('> Confirmed. Now position your device in its MAXIMUM POLAR ANGLE. Proceed as before.\n')
+            self.waitingForText = True
+            self.receiverForText = self.angleLock5
+        elif response == 'exit':
+            self.logText('> Exiting angle locking routine...\n\n')
+        else:
+            self.logText('> Invalid input. either type ok or exit.\n')
+            self.waitingForText = True
+            self.receiverForText = self.angleLock4
 
-
-
+    def angleLock5(self):
+        response = self.inputtedText
+        if response == 'ok':
+            # Save MAX ALT
+            self.maxAlt = self.stepperController.getCoords()[1]
+            # Msg
+            self.logText('> Confirmed. Saving all changes onto StepperController object...\n')
+            # Apply changes on stepper controller
+            self.stepperController.setAngleLock(True)
+            self.stepperController.limitAngles(self.minAz, self.maxAz, self.minAlt, self.maxAlt)
+            # Msg
+            self.logText('> Finished Angle Locking Routine!\n\n')
+        elif response == 'exit':
+            self.logText('> Exiting angle locking routine...\n\n')
+        else:
+            self.logText('> Invalid input. either type ok or exit.\n')
+            self.waitingForText = True
+            self.receiverForText = self.angleLock5
 
     ######################### ALIGNMENT AND TRACKING METHODS
 

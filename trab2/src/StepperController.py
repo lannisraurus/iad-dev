@@ -22,6 +22,11 @@ class StepperController():
         
         # Default
         self.working = False
+        self.angleLock = False
+        self.minAz = 0
+        self.minAlt = 0
+        self.maxAz = 0
+        self.maxAlt = 0
 
         # Log
         mainWindow.logText('> Configuring StepperController Object...\n')
@@ -83,6 +88,29 @@ class StepperController():
         # Set current step count
         self.centerCoords(az,alt)
 
+    ########################################################## Angle Locking
+
+    def setAngleLock(self, boolean):
+        self.angleLock = boolean
+    
+    def limitAngles(self, minAz, maxAz, minAlt, maxAlt):
+        self.minAz = minAz
+        self.maxAz = maxAz
+        self.minAlt = minAlt
+        self.maxAlt = maxAlt
+    
+    def checkIfWithinLimits(self, azIncrement, altIncrement):
+        result = True
+        if self.az+azIncrement > self.degToSteps(self.maxAz):
+            result = False
+        if self.az+azIncrement < self.degToSteps(self.minAz):
+            result = False
+        if self.alt+altIncrement > self.degToSteps(self.maxAlt):
+            result = False
+        if self.alt+altIncrement < self.degToSteps(self.minAlt):
+            result = False
+        return result
+
     ########################################################## Conversions
 
     # Convert degrees to stepper steps
@@ -126,11 +154,25 @@ class StepperController():
             return
         
         if not reverse:
+            azIncrement = 1
+        else:
+            azIncrement = -1
+        
+        if not self.checkIfWithinLimits(azIncrement, 0):
+            return
+
+        self.stepAz((self.stepsInSequence-self.az)%self.stepsInSequence)
+        self.az += azIncrement
+        
+        """
+        if not reverse:
             self.stepAz((self.stepsInSequence-self.az)%self.stepsInSequence)
             self.az += 1
         else:
             self.stepAz((self.stepsInSequence-self.az)%self.stepsInSequence)
             self.az -= 1
+        """
+            
         time.sleep(delay)
         
 
@@ -140,13 +182,25 @@ class StepperController():
         if not self.working:
             time.sleep(delay)
             return
+
+        if not reverse:
+            altIncrement = 1
+        else:
+            altIncrement = -1
         
-        if reverse:
+        if not self.checkIfWithinLimits(0, altIncrement):
+            return
+
+        self.stepAlt((self.stepsInSequence-self.alt)%self.stepsInSequence)
+        self.az += altIncrement
+
+        """if reverse:
             self.stepAlt((self.stepsInSequence-self.alt)%self.stepsInSequence)
             self.alt -= 1
         else:
             self.stepAlt((self.stepsInSequence-self.alt)%self.stepsInSequence)
-            self.alt += 1
+            self.alt += 1"""
+        
         time.sleep(delay)
 
     ########################################################## Moving Operations - Specific Angle
