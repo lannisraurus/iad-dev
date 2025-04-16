@@ -733,7 +733,10 @@ class mainWindow(QWidget):
                 self.tracker.addAlignmentPoint( astro.getAzAlt( query,astro.getTime() ) , name)
             elif queryPlanets:
                 self.tracker.addAlignmentPoint( astro.getAzAlt( queryPlanets,astro.getTime() ) , name)
-            self.logText(f"Success in using {name} to align.")
+            else: 
+                self.logText(f"Failed, try again\n")
+                self.receiverForText = self.alignmentRoutine4
+                self.waitingForText = True
 
             if self.itemsInAlign == 1:
                 if self.alignmentDropdown.currentIndex() == 0:
