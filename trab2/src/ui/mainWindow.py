@@ -727,10 +727,12 @@ class mainWindow(QWidget):
             astro = self.tracker.aloc
             name = self.alignList[-self.itemsInAlign]
             query = astro.querySimbad(name)
+            queryPlanets = astro.queryHorizons(name)
+            print(query, queryPlanets)
             if query:
                 self.tracker.addAlignmentPoint( astro.getAzAlt( query,astro.getTime() ) , name)
-            else:
-                self.tracker.addAlignmentPoint( astro.getAzAlt( astro.queryHorizons(name),astro.getTime() ) , name)
+            elif queryPlanets:
+                self.tracker.addAlignmentPoint( astro.getAzAlt( queryPlanets,astro.getTime() ) , name)
             self.logText(f"Success in using {name} to align.")
 
             if self.itemsInAlign == 1:
