@@ -8,14 +8,17 @@ of objects, in order to point at them in the sky.
 
 """
 ### Imports
-import astropy.table
+
 from astroquery.simbad import Simbad
 from astroquery.jplhorizons import Horizons
+from astroquery.imcce import Miriade
+
 import astropy
 from astropy import coordinates as coord
 from astropy import units as u
 from astropy.coordinates import EarthLocation, AltAz
 from astropy.time import Time
+import astropy.table
 
 ### Class
 class Astrolocator():
@@ -65,7 +68,10 @@ class Astrolocator():
         result["Name"] = result["Name"].astype(str)
         result = result[["Name", "RA", "DEC", "V"]]
         return result
-
+    
+    def queryMiriade(self, identifier):
+        result = Miriade.get_ephemerides(identifier, epoch=self.getTime().iso)
+        print(result)
             
     # Returns an astropy table of brigthest objects in the sky
     def queryBrightObjects(self, magnitude_threshold=0):
