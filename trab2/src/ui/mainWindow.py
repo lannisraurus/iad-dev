@@ -645,21 +645,22 @@ class mainWindow(QWidget):
 
             objsCopy = objs[:10].copy()
             for i,row in enumerate(objsCopy):
-                print(row)
                 azAlt = astro.getAzAlt(row,astro.getTime())
                 objsCopy["RA"][i] = azAlt[0]
                 objsCopy["DEC"][i] = azAlt[1]
             objsCopy.rename_column("RA","Az")
             objsCopy.rename_column("DEC","Alt")
-            objsCopy["Az"].format = ".3f"
-            objsCopy["Alt"].format = ".3f"
-            objsCopy["V"].format = ".3f"
+            objsCopy["Az"].format = "8.3f"
+            objsCopy["Alt"].format = "8.3f"
+            objsCopy["V"].format = "8.3f"
+            objsCopyLines = objsCopy.pformat(max_lines=-1, max_width=-1)
+            objsCopyStr = '\n'.join(objsCopyLines)
 
             self.logText("Please select ")
             self.logText("one " if self.alignmentDropdown.currentIndex() == 0 else "at least three (separated by commas) ")
             self.logText("of the provided objects for alignment, or provide the name of your preferred object(s). " + \
                         "Type exit to cancel alignment.\n" +\
-                        "Below are the recommended objects:\n\n" + str(objsCopy) + "\n\n")
+                        "Below are the recommended objects:\n\n" + objsCopyStr + "\n\n")
 
             self.receiverForText = self.alignmentRoutine3
             self.waitingForText = True
