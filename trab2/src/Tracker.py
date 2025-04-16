@@ -100,5 +100,6 @@ class Tracker():
                 trackObj = self.aloc.queryN2YO(objId)
             currTime = self.aloc.getTime()
             realPos = self.aloc.getAzAlt(trackObj, currTime)
-            self.motors.moveTo(self.realToMotor(realPos))
+            self.motors.moveToAz(self.realToMotor(realPos)[0])
+            self.motors.moveToAlt(self.realToMotor(realPos)[1])
             signalPoint.emit(self.motors.getCoords())
