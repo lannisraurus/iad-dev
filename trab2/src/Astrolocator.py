@@ -96,8 +96,8 @@ class Astrolocator():
     # Get 2tuple (azimuth, altitude) angles 
     def getAzAlt(self, object, time):
         # Extract Right Ascension (RA) and Declination (Dec)
-        ra = object["RA"][0]
-        dec = object["DEC"][0]
+        ra = object["ra"][0]
+        dec = object["dec"][0]
         # SkyCoord object
         objectCoords = coord.SkyCoord(ra, dec, unit="deg", frame="icrs")
         # Convert to AltAz frame of self.observer

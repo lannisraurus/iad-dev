@@ -645,6 +645,7 @@ class mainWindow(QWidget):
 
             objsCopy = objs[:10].copy()
             for i,row in enumerate(objsCopy):
+                print(row)
                 azAlt = astro.getAzAlt(row,astro.getTime())
                 objsCopy["RA"][i] = azAlt[0]
                 objsCopy["DEC"][i] = azAlt[1]
