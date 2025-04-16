@@ -726,8 +726,9 @@ class mainWindow(QWidget):
             self.inputtedText = ""
             astro = self.tracker.aloc
             name = self.alignList[-self.itemsInAlign]
-            if astro.querySimbad(name):
-                self.tracker.addAlignmentPoint( astro.getAzAlt( astro.querySimbad(name),astro.getTime() ) , name)
+            query = astro.querySimbad(name)
+            if query:
+                self.tracker.addAlignmentPoint( astro.getAzAlt( query,astro.getTime() ) , name)
             else:
                 self.tracker.addAlignmentPoint( astro.getAzAlt( astro.queryHorizons(name),astro.getTime() ) , name)
             self.logText(f"Success in using {name} to align.")
