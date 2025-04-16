@@ -728,14 +728,14 @@ class mainWindow(QWidget):
             name = self.alignList[-self.itemsInAlign]
             query = astro.querySimbad(name)
             queryPlanets = astro.queryHorizons(name)
-            print(query, queryPlanets)
+            print(name, query, queryPlanets)
             if query:
                 self.tracker.addAlignmentPoint( astro.getAzAlt( query,astro.getTime() ) , name)
             elif queryPlanets:
                 self.tracker.addAlignmentPoint( astro.getAzAlt( queryPlanets,astro.getTime() ) , name)
             else: 
                 self.logText(f"Failed, try again\n")
-                self.receiverForText = self.alignmentRoutine4
+                self.receiverForText = self.alignmentRoutine3
                 self.waitingForText = True
 
             if self.itemsInAlign == 1:
