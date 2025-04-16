@@ -11,7 +11,8 @@ of objects, in order to point at them in the sky.
 
 from astroquery.simbad import Simbad
 from astroquery.jplhorizons import Horizons
-from astroquery.imcce import Miriade
+
+import requests
 
 import astropy
 from astropy import coordinates as coord
@@ -69,9 +70,46 @@ class Astrolocator():
         result = result[["Name", "RA", "DEC", "V"]]
         return result
     
-    def queryMiriade(self, identifier):
-        result = Miriade.get_ephemerides(identifier, epoch=self.getTime().iso)
-        print(result)
+    def queryN2YO(self, identifier):
+        # Your N2YO API key
+        api_key = 'L9NPLA-JM7B6C-DG46RL-5GE8'  # Replace with your actual API key
+
+        # The NORAD satellite ID
+        sat_id = identifier  
+
+        # Observer's latitide in decimal degrees
+        lat = str(self.observer.lat.value)
+
+        # Observer's longitude in decimal degrees
+        lon = str(self.observer.lon.value)
+
+        # Observer's altitude above sea level in meters
+        alt = str(self.observer.height.value)
+
+        # Number of satellite positions to return 
+        #(each position for each further second with limit 300 seconds)
+        count = '1' # return positions for current time only
+
+        # Make the API request
+        response = requests.get(url = ("https://api.n2yo.com/rest/v1/satellite/positions/" + sat_id+ '/' + lat + '/' + lon + '/' + alt + '/' + count + '/' + "&apiKey=" + api_key))
+
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            data = response.json()
+            
+            # Print the response data (satellite position and other details)
+            print(data)
+            print(data['positions'][0]['azimuth'], data['positions'][0]['elevation'])
+            obj = dict()
+            obj["Name"] = [data['info']['satname']]
+            obj["RA"] = [data['positions'][0]['ra']]
+            obj["DEC"] = [data['positions'][0]['dec']]
+            result = astropy.table.Table(obj)
+            print(result)
+            return result
+        else:
+            print(f'Error: {response.status_code}')
+            return None
             
     # Returns an astropy table of brigthest objects in the sky
     def queryBrightObjects(self, magnitude_threshold=0):

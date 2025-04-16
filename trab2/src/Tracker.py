@@ -87,11 +87,13 @@ class Tracker():
         self.currAlignment = (astroalign.estimate_transform('affine', src, sky), astroalign.estimate_transform('affine', sky, src))
 
     def trackingRoutine(self, params ,signalPoint):
-        objName = params[0]
+        objId = params[0]
         self.interruptTracking = False
-        trackObj = self.aloc.querySimbad(objName)
+        trackObj = self.aloc.querySimbad(objId)
         if trackObj == None:
-            trackObj = self.aloc.queryHorizons(objName)
+            trackObj = self.aloc.queryHorizons(objId)
+            if trackObj == None:
+                trackObj = self.aloc.queryN2YO(objId)
         while self.interruptTracking == False:
             currTime = self.aloc.getTime()
             realPos = self.aloc.getAzAlt(trackObj, currTime)

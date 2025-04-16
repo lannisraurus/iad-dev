@@ -776,11 +776,7 @@ class mainWindow(QWidget):
 
         # start thread for aquisition
         if self.trackDeviceDropdown.currentIndex() == 0:     
-            self.logText("* Starting Telecope Thread.\n")
-            # get params from config screen
-            params = [0,0,0,0]
-            self.threadTelescope = CommandThread(self.tracker.telecopeRoutine, params)
-            self.threadTelescope.start()
+            self.logText("* WORK IN PROGRESS.\n")
         elif self.trackDeviceDropdown.currentIndex() == 1:  
             self.grapher.show()   
             self.logText("* Starting Antenna Thread.\n")
