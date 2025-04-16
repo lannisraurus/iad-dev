@@ -183,7 +183,7 @@ class StepperController():
             return
 
         self.stepAlt((self.stepsInSequence-self.alt)%self.stepsInSequence)
-        self.az += altIncrement
+        self.alt += altIncrement
         
         time.sleep(delay)
 
