@@ -654,12 +654,14 @@ class mainWindow(QWidget):
             objsCopy["Az"].format = "8.3f"
             objsCopy["Alt"].format = "8.3f"
             objsCopy["V"].format = "8.3f"
+            objsCopyLines = objsCopy.pformat(max_lines=-1, max_width=-1)
+            objsCopyStr = '\n'.join(objsCopyLines)
 
             self.logText("Please select ")
             self.logText("one " if self.alignmentDropdown.currentIndex() == 0 else "at least three (separated by commas) ")
             self.logText("of the provided objects for alignment, or provide the name of your preferred object(s). " + \
                         "Type exit to cancel alignment.\n" +\
-                        "Below are the recommended objects:\n\n" + str(objsCopy) + "\n\n")
+                        "Below are the recommended objects:\n\n" + objsCopyStr + "\n\n")
 
             self.receiverForText = self.alignmentRoutine3
             self.waitingForText = True
