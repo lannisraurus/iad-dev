@@ -89,8 +89,11 @@ class Tracker():
     def trackingRoutine(self, params ,signalPoint):
         trackObj = params[0]
         self.interruptTracking = False
+        startCount = 100
         while self.interruptTracking == False:
             currTime = self.aloc.getTime()
             realPos = self.aloc.getAzAlt(trackObj, currTime)
-            self.motors.moveTo(self.realToMotor(realPos))
-            signalPoint.emit(realPos)
+            self.motors.moveTo(self.motors.getCoords() + (self.realToMotor(realPos)-self.motors.getCoords())/startCount)
+            signalPoint.emit(self.motors.getCoords())
+            if startCount > 1:
+                startCount = startCount - 1
