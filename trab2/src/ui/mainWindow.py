@@ -697,6 +697,7 @@ class mainWindow(QWidget):
                 return
             for obj in responses:
                 print(obj,astro.querySimbad(obj),astro.queryHorizons(obj))
+                print(obj,astro.querySimbad(obj) is None,astro.queryHorizons(obj) is None)
                 if (astro.querySimbad(obj) is None) and (astro.queryHorizons(obj) is None):
                     self.logText(f"{obj} not recognised / ambiguous, please type either exit or valid identifier, preferrably one of the recommended. Note: for planets and satellites, use the ID.\n")
                     self.waitingForText = True
