@@ -56,10 +56,10 @@ class Astrolocator():
             "elevation": self.observer.height.value,
             "body": "399"}
         result = Horizons(id=identifier, location=location)
-        print(type(result.elements()))
-        if result is None or len(result.elements()) == 0 or len(result.elements())>1 or "RA" not in result.colnames or "DEC" not in result.colnames:
+        try:
+            result = result.ephemerides()
+        except:
             return None
-        result = result.ephemerides()
         result.rename_column("targetname", "Name")
         result["Name"].unit = None
         result["Name"] = result["Name"].astype(str)
