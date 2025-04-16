@@ -779,6 +779,7 @@ class mainWindow(QWidget):
 
     def beginStopTracking3(self):
         queryId = self.inputtedText
+        trackObj = None
         if self.queryDatabase == "SIMBAD":
             trackObj = self.tracker.aloc.querySimbad(queryId)
         elif self.queryDatabase == "Horizons":
@@ -794,7 +795,7 @@ class mainWindow(QWidget):
 
         # start thread for motor tracking
         self.logText("* Starting Motor Tracking Thread.\n")
-        self.threadMotor = CommandThread(self.tracker.trackingRoutine,[trackObj])
+        self.threadMotor = CommandThread(self.tracker.trackingRoutine,[self.queryDatabase,queryId])
         self.threadMotor.send_data.connect(self.updateAltAzLabel)
         self.threadMotor.start()
 
