@@ -96,7 +96,7 @@ class cameraWindow(QWidget):
     ############################################### Camera
 
     def camera_on(self):
-        self.camera.openPreview()
+        self.camera.startPreview()
     
     def camera_off(self):
         self.camera.close()
