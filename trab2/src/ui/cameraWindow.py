@@ -7,9 +7,10 @@ This file contains the camera image.
 """
 
 ##################### Imports
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSpinBox, QPushButton,
-                             QVBoxLayout, QWidget)
+from PyQt5.QtCore import *      # Basic Qt functionalities.
+from PyQt5.QtWidgets import *   # GUI windows
+from PyQt5.QtCore import *      # Qt threads, ...
+from PyQt5.QtGui import *       # GUI Elements
 import time
 
 try:
