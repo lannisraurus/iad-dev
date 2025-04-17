@@ -98,8 +98,8 @@ class mainWindow(QWidget):
         self.cameraButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.cameraButton.clicked.connect(self.cameraStart)
 
-        self.antennaButton = QPushButton('Antenna')
-        self.antennaButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        #self.antennaButton = QPushButton('Antenna')
+        #self.antennaButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
         # UI Elements - Sliders
         self.alignmentDelaySlider = QSlider(Qt.Horizontal, self)
@@ -150,8 +150,8 @@ class mainWindow(QWidget):
         #self.trackDeviceDropdown.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.steppersDropdown = QComboBox()
         self.steppersDropdown.addItems(['RB-Moto2 (Joy-IT)'])
-        self.cameraDropdown = QComboBox() # read devices in rpi
-        self.antennaDropdown = QComboBox() # read devices in rpi
+        #self.cameraDropdown = QComboBox() # read devices in rpi
+        #self.antennaDropdown = QComboBox() # read devices in rpi
 
         # UI - Spacers
         self.spacer1 = QSpacerItem(40, 20, QSizePolicy.Minimum,QSizePolicy.Expanding)
@@ -260,7 +260,7 @@ class mainWindow(QWidget):
         self.trackLayoutR.addWidget(self.trackDevicesLabel)
         #self.trackLayoutR.addWidget(self.trackDeviceDropdown)
         self.trackLayoutR.addWidget(self.cameraButton)
-        self.trackLayoutR.addWidget(self.antennaButton)
+        #self.trackLayoutR.addWidget(self.antennaButton)
         
         self.trackLayout.setAlignment(Qt.AlignTop)
         self.trackLayoutR.setAlignment(Qt.AlignTop)

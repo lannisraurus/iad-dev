@@ -23,7 +23,7 @@ class cameraWindow(QWidget):
     def __init__(self):
         # Intializing general stuff
         super().__init__()
-        self.setFixedSize(1080,1200)
+        #self.setFixedSize(1080,1200)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowTitle('Astrolocator - Camera')
 
