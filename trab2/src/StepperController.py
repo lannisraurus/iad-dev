@@ -194,8 +194,19 @@ class StepperController():
     # Azimuthal full rotation
     def moveToAz(self, azDeg, delay=0.001):
         if not self.working:
+            time.sleep(delay)
             return
+        
         az=self.degToSteps(azDeg)
+        while az>self.maxAz:
+            az = az-self.stepsToDeg(360)
+        while az<self.minAz:
+            az = az+self.stepsToDeg(360)
+        if az>self.maxAz:
+            #cant recenter within limits
+            time.sleep(delay)
+            return
+        
         for i in range(self.az,az, 1 if self.az < az else -1):
             self.stepAz((self.stepsInSequence-i)%self.stepsInSequence)
             time.sleep(delay)
@@ -204,43 +215,23 @@ class StepperController():
     # Altitude full rotation
     def moveToAlt(self, altDeg, delay=0.001):
         if not self.working:
+            time.sleep(delay)
             return
+        
         alt=self.degToSteps(altDeg)
+        while alt>self.maxAlt:
+            alt = alt-self.stepsToDeg(360)
+        while alt<self.minAlt:
+            alt = alt+self.stepsToDeg(360)
+        if alt>self.maxAlt:
+            #cant recenter within limits
+            time.sleep(delay)
+            return
+        
         for i in range(self.alt,alt, 1 if self.alt < alt else -1):
             self.stepAlt(i%self.stepsInSequence)
             time.sleep(delay)   
         self.alt=alt  
-
-    # Altitude+Azimuth full rotation
-    def moveTo(self, coordDeg, delay=0.001):
-        if not self.working:
-            return
-        az = self.degToSteps(coordDeg[0])
-        alt = self.degToSteps(coordDeg[1])
-
-        azStepCount = 0
-        altStepCount = 0
-
-        while azStepCount < self.az or altStepCount < self.alt:
-
-            if azStepCount < abs(self.az - az):
-                azStep = (self.stepsInSequence-azStepCount)%self.stepsInSequence
-                if self.az >= az:
-                    azStep = azStepCount%self.stepsInSequence
-                self.stepAz(azStep)
-            
-            if altStepCount < abs(self.alt- alt):
-                altStep = altStepCount%self.stepsInSequence
-                if self.alt >= alt:
-                    altStep = (self.stepsInSequence-altStepCount)%self.stepsInSequence
-                self.stepAlt(altStep)
-            
-            azStepCount += 1
-            altStepCount += 1
-            time.sleep(delay)
-        
-        self.az = az
-        self.alt = alt
 
     ########################################################## Setters
 

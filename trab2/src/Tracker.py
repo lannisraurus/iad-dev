@@ -108,3 +108,4 @@ class Tracker():
             self.motors.moveToAz(self.realToMotor(realPos)[0])
             self.motors.moveToAlt(self.realToMotor(realPos)[1])
             signalPoint.emit(self.motors.getCoords())
+            time.sleep(5)
