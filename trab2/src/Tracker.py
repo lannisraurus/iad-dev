@@ -75,14 +75,13 @@ class Tracker():
             motorPos = np.array(motorPos)
             return astroalign.matrix_transform(motorPos, self.currAlignment[0].params)
 
-    def pointAlignment(self, npoint):
+    def pointAlignment(self):
         src = []
         sky = []
-        i = 0
-        for i in npoint-1:
+        for i in range(len(self.alignmentPoints)-1):
+            print(i)
             src.append(self.alignmentPoints[i][1])
             sky.append(self.alignmentPoints[i][0])
-            i = i+1
         src = np.array(src)
         sky = np.array(sky)
         self.currAlignmentType = "NPoint"

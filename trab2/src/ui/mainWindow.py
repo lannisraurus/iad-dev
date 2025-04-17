@@ -750,7 +750,7 @@ class mainWindow(QWidget):
                 if self.alignmentDropdown.currentIndex() == 0:
                     self.tracker.onePointAlign()
                 else:
-                    self.tracker.pointAlignment(len(self.alignList))
+                    self.tracker.pointAlignment()
                 self.alignList = []
                 self.logText("> Alignment complete. \n" + "-----------------\n\n")
                 self.receiverForText = None
@@ -769,7 +769,7 @@ class mainWindow(QWidget):
         
     def beginStopTracking1(self):
         if self.tracking:
-            self.logText("* Ending Tracking Threads.\n")
+            self.logText("> Ending Tracking Threads...\n")
             self.tracker.stopTracking = True
 
             self.tracking = False
