@@ -74,6 +74,7 @@ class RPiCamera2:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"{timestamp}_{filename}"
         self.camera.capture_file(filename)
+        self.camera.configure(self.preview_config)
         print(f"Image saved as {filename}.")
     
     # Capture Video - start and end
