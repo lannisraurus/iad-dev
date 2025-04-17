@@ -849,7 +849,9 @@ class mainWindow(QWidget):
     def cameraStart(self):
         if not self.camera:
             self.camera = RPiCamera2()
+            self.camera.openPreview()
             self.logText(">>> Starting Camera Thread.\n\n")
         else:
             self.logText(">>> Terminating Camera Thread.\n\n")
+            self.camera.close()
             self.camera = None
