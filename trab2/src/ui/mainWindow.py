@@ -23,6 +23,7 @@ from src.ui.othersConfigWindow import othersConfigWindow    # Configuration wind
 from src.ui.locationConfigWindow import locationConfigWindow    # Configuration window for location
 from src.ui.graphWindow import graphWindow                  # For data visualization
 from src.utils.commandThread import CommandThread           # For multithreading routines
+from src.Camera import RPiCamera2
 
 ##################### Main Programme Class
 class mainWindow(QWidget):
@@ -94,6 +95,7 @@ class mainWindow(QWidget):
 
         self.cameraButton = QPushButton('Camera')
         self.cameraButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.cameraButton.clicked.connect(self.cameraStart)
 
         self.antennaButton = QPushButton('Antenna')
         self.antennaButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
@@ -343,6 +345,9 @@ class mainWindow(QWidget):
 
         # Angle labels
         self.updateAltAzLabel(self.stepperController.getCoords())
+
+        # Camera
+        self.camera = None
         
 
 
@@ -842,7 +847,9 @@ class mainWindow(QWidget):
 
     ######################### ALIGNMENT AND TRACKING METHODS
     def cameraStart(self):
-        if self.camera:
-            print('meow')
+        if not self.camera:
+            self.camera = True
+            print('meow1')
         else:
-            print('meow')
+            print('meow2')
+            self.camera = None
