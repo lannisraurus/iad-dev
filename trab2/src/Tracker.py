@@ -33,6 +33,7 @@ class Tracker():
 
         self.interruptTracking = False
 
+    #Alignment Point - coordinates of the motor and the correspondent coordinates 
     def addAlignmentPoint(self, realPos, name=""):
         currTime = self.aloc.getTime()
         motorPos = self.motors.getCoords()
@@ -42,17 +43,6 @@ class Tracker():
         self.alignmentPoints.append(alignmentPoint)
 
     def onePointAlign(self):
-        """dist = -1 
-        nearestObject = None
-        for aligner in self.alignmentPoints:
-            currDist = (aligner[1][0]-motorAz)*(aligner[1][0]-motorAz) + (aligner[1][1]-motorAlt)*(aligner[1][1]-motorAlt)
-            if dist < currDist:
-                dist = currDist
-                nearestObject = aligner
-        if nearestObject:
-            
-            SE ESTIVER TD BEM TIRAR COMENTÁRIO
-            """
         self.currAlignmentType = "OnePoint"
         aligner = self.alignmentPoints[0]
         self.currAlignment = (aligner[1][0]-aligner[0][0], aligner[1][1]-aligner[0][1])

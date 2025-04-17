@@ -198,17 +198,14 @@ class StepperController():
             return
         
         az=self.degToSteps(azDeg)
-        while az>self.maxAz:
-            az = az-self.stepsToDeg(360)
-        while az<self.minAz:
-            az = az+self.stepsToDeg(360)
-        if az>self.maxAz:
-            #cant recenter within limits
+        if az or az<self.minAz and self.angleLock:
             time.sleep(delay)
             return
         
-        for i in range(self.az,az, 1 if self.az < az else -1):
-            self.stepAz((self.stepsInSequence-i)%self.stepsInSequence)
+        direction = 1 if self.az < az else -1
+        for i in range(self.az,az, direction):
+            if not (self.az + direction > self.maxAz or self.az + direction < self.minAz) or not self.angleLock:
+                self.stepAz((self.stepsInSequence-i)%self.stepsInSequence)
             time.sleep(delay)
         self.az=az
     
@@ -219,19 +216,16 @@ class StepperController():
             return
         
         alt=self.degToSteps(altDeg)
-        while alt>self.maxAlt:
-            alt = alt-self.stepsToDeg(360)
-        while alt<self.minAlt:
-            alt = alt+self.stepsToDeg(360)
-        if alt>self.maxAlt:
-            #cant recenter within limits
+        if alt or alt<self.minalt and self.angleLock:
             time.sleep(delay)
             return
         
-        for i in range(self.alt,alt, 1 if self.alt < alt else -1):
-            self.stepAlt(i%self.stepsInSequence)
-            time.sleep(delay)   
-        self.alt=alt  
+        direction = 1 if self.alt < alt else -1
+        for i in range(self.alt,alt, direction):
+            if not (self.alt + direction > self.maxalt or self.alt + direction < self.minalt) or not self.angleLock:
+                self.stepalt((self.stepsInSequence-i)%self.stepsInSequence)
+            time.sleep(delay)
+        self.alt=alt
 
     ########################################################## Setters
 
