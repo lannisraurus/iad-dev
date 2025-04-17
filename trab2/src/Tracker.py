@@ -74,8 +74,8 @@ class Tracker():
         if self.currAlignmentType == "NPoint":
             motorPosNum = np.array(motorPos)
             result = astroalign.matrix_transform(motorPosNum, self.currAlignment[0].params)
-            print(result)
-            return result
+            print(type(result))
+            return list(result)
 
     def pointAlignment(self):
         src = []
