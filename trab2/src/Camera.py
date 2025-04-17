@@ -52,7 +52,7 @@ class RPiCamera2:
         self.camera.set_controls({"AeEnable": autobalance, "AwbEnable": autobalance, "FrameRate": framerate,'ExposureTime': exposureTime, 'AnalogueGain': analogueGain})
         # Wait for those settings to take effect
         time.sleep(1)
-        return self.camera.capture_metadata()
+        print( self.camera.capture_metadata())
 
     # Preview Window
     def openPreview(self):
@@ -69,11 +69,15 @@ class RPiCamera2:
 
     # Capture Image
     def capture_image(self, filename="image.jpg", timestamp=True):
+        print("configuring")
         self.camera.configure(self.capture_config)
+        print("timestamp")
         if timestamp:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"{timestamp}_{filename}"
+        print("capturing")
         self.camera.capture_file(filename)
+        print("configuring to preview")
         self.camera.configure(self.preview_config)
         print(f"Image saved as {filename}.")
     

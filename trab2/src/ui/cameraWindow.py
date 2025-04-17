@@ -23,7 +23,7 @@ class cameraWindow(QWidget):
     def __init__(self):
         # Intializing general stuff
         super().__init__()
-        self.setFixedSize(1024,768)
+        self.setFixedSize(1080,1200)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowTitle('Astrolocator - Camera')
 
@@ -49,12 +49,13 @@ class cameraWindow(QWidget):
 
         # CAMERA IMAGE!
         self.camera = RPiCamera2()
+        self.mainLayout.addWidget(self.closeButton, alignment=Qt.AlignTop | Qt.AlignRight)
         try:
             self.qpicamera2 = QGlPicamera2(self.camera.camera)
             self.mainLayout.addWidget(self.qpicamera2)
         except:
             print('WARNING: Camera window won\'t have anything.')
-        self.mainLayout.addWidget(self.closeButton, alignment=Qt.AlignTop | Qt.AlignRight)
+        
 
         # Exposure
         self.mainLayout.addLayout(self.exposureLayout)
@@ -103,4 +104,5 @@ class cameraWindow(QWidget):
     def exposurePhoto(self):
         expTime = self.exposureSlider.value()
         self.camera.changeSettings(exposureTime=expTime)
+        print("changed settings")
         self.camera.capture_image()
