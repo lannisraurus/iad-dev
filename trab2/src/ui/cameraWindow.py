@@ -10,7 +10,7 @@ from PyQt5.QtCore import *      # Basic Qt functionalities.
 from PyQt5.QtWidgets import *   # GUI windows
 from PyQt5.QtCore import *      # Qt threads, ...
 from PyQt5.QtGui import *       # GUI Elements
-from Camera import RPiCamera2
+from src.Camera import RPiCamera2
 try:
     from picamera2.previews.qt import QGlPicamera2
 except:
