@@ -848,8 +848,8 @@ class mainWindow(QWidget):
     ######################### ALIGNMENT AND TRACKING METHODS
     def cameraStart(self):
         if not self.camera:
-            self.camera = True
-            print('meow1')
+            self.camera = RPiCamera2()
+            self.logText(">>> Starting Camera Thread.\n\n")
         else:
-            print('meow2')
+            self.logText(">>> Terminating Camera Thread.\n\n")
             self.camera = None
