@@ -52,6 +52,7 @@ class cameraWindow(QWidget):
         self.mainLayout.addWidget(self.closeButton, alignment=Qt.AlignTop | Qt.AlignRight)
         try:
             self.qpicamera2 = QGlPicamera2(self.camera.camera)
+            self.qpicamera2.done_signal.connect(self.exposurePhotoDone)
             self.mainLayout.addWidget(self.qpicamera2)
         except:
             print('WARNING: Camera window won\'t have anything.')
@@ -102,8 +103,13 @@ class cameraWindow(QWidget):
         self.camera.close()
     
     def exposurePhoto(self):
+        self.exposureButton.setEnabled(False)
         expTime = self.exposureSlider.value()
-        print("changing settings")
-        self.camera.changeSettings(exposureTime=expTime)
-        print("changed settings")
-        self.camera.capture_image()
+        #print("changing settings")
+        #self.camera.changeSettings(exposureTime=expTime)
+        #print("changed settings")
+        self.camera.capture_image("elp.jpg", False)
+
+    def exposurePhotoDone(self,job):
+        self.camera.wait(job)
+        self.exposureButton.setEnabled(True)
