@@ -103,6 +103,7 @@ class cameraWindow(QWidget):
     
     def exposurePhoto(self):
         expTime = self.exposureSlider.value()
+        print("changing settings")
         self.camera.changeSettings(exposureTime=expTime)
         print("changed settings")
         self.camera.capture_image()

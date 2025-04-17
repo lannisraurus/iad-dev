@@ -48,12 +48,10 @@ class RPiCamera2:
         #return f"Camera initialized with resolution {resolution}, framerate {framerate} fps and auto balance = {autoBalance}."
     
     # Exposure time in microsecs
-    def changeSettings(self, autobalance=False, exposureTime=int(1000000/30), analogueGain=1.0):
-        self.camera.stop()
-        self.camera.set_controls({"AeEnable": autobalance, "AwbEnable": autobalance, 'ExposureTime': exposureTime, 'AnalogueGain': analogueGain})
-        # Wait for those settings to take effect
-        time.sleep(1)
-        self.camera.start()
+    def changeSettings(self, exposureTime=int(1000000/30), analogueGain=1.0):
+        #self.camera.stop()
+        self.camera.set_controls({'ExposureTime': exposureTime, 'AnalogueGain': analogueGain})
+        #self.camera.start()
         print( self.camera.capture_metadata())
 
     # Preview Window
