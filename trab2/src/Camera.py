@@ -72,15 +72,12 @@ class RPiCamera2:
     # Capture Image
     def capture_image(self, filename="image.jpg", timestamp=True):
         print("configuring")
-        self.camera.stop()
-        self.camera.configure(self.capture_config)
-        self.camera.start()
         print("timestamp")
         if timestamp:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"{timestamp}_{filename}"
         print("capturing")
-        self.camera.capture_file(filename)
+        self.camera.switch_mode_and_capture_file(filename)
         print("configuring to preview")
         self.camera.stop()
         self.camera.configure(self.preview_config)
