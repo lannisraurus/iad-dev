@@ -5,16 +5,71 @@ IST, 2025 - IAD
 This file contains the camera image.
 
 """
+
 ##################### Imports
 from PyQt5.QtCore import *      # Basic Qt functionalities.
 from PyQt5.QtWidgets import *   # GUI windows
 from PyQt5.QtCore import *      # Qt threads, ...
 from PyQt5.QtGui import *       # GUI Elements
-from src.Camera import RPiCamera2
 try:
+    from picamera2 import Picamera2
     from picamera2.previews.qt import QGlPicamera2
 except:
     print('ERROR: Could not import QGlPicamera2 in cameraWindow!')
+
+
+##################### Camera Window Class
+class cameraWindow(QWidget):
+
+    ############################################### Constructor
+    def __init__(self):
+        # Intializing general stuff
+        super().__init__()
+        self.cam = Picamera2()
+        self.cam.post_callback = self.post_callback
+        self.cam.configure(self.cam.create_preview_configuration(main={"size": (1024, 768)}))
+
+        self.qpicamera2 = QGlPicamera2(self.cam, width=1024, height=768)
+        self.captureButton = QPushButton("Exposure capture")
+        self.metadataLabel = QLabel()
+        self.qpicamera2.done_signal.connect(self.capture_done)
+        self.captureButton.clicked.connect(self.do_capture)
+        self.metadataLabel.setFixedWidth(400)
+        self.metadataLabel.setAlignment(QtCore.Qt.AlignTop)
+
+        layout_h = QHBoxLayout()
+        layout_v = QVBoxLayout()
+        layout_v.addWidget(self.metadataLabel)
+        layout_v.addWidget(self.captureButton)
+        layout_h.addWidget(self.qpicamera2, 80)
+        layout_h.addLayout(layout_v, 20)
+        self.setWindowTitle("Qt Picamera2 App")
+        self.resize(1200, 600)
+        self.setLayout(layout_h)
+
+        self.cam.start()
+
+    def post_callback(self, request):
+        self.metadataLabel.setText(''.join(f"{k}: {v}\n" for k, v in request.get_metadata().items()))
+
+
+
+    def do_capture(self):
+        self.captureButton.setEnabled(False)
+        cfg = self.cam.create_still_configuration()
+        self.cam.switch_mode_and_capture_file(cfg, "test.jpg", signal_function=self.qpicamera2.signal_done)
+
+
+    def capture_done(self,job):
+        self.cam.wait(job)
+        self.captureButton.setEnabled(True)
+
+
+
+
+
+
+
 
 ##################### Commands Window Class
 class cameraWindow(QWidget):

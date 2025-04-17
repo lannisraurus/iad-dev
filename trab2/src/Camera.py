@@ -77,7 +77,7 @@ class RPiCamera2:
             filename = f"{timestamp}_{filename}"
 
         print("capturing")
-        self.camera.switch_mode_and_capture_file(self.capture_config, filename)
+        self.camera.switch_mode_and_capture_file(self.capture_config, filename, signal_function=qpicamera2.signal_done)
 
         print(f"Image saved as {filename}.")
     
