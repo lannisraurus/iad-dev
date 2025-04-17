@@ -349,7 +349,6 @@ class mainWindow(QWidget):
 
         # Camera
         self.cameraWindow = cameraWindow()
-        self.cameraWindow.camera_on()
 
 
 
