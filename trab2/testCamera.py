@@ -3,4 +3,4 @@ import time
 
 cam = RPiCamera2()
 cam.openPreview()
-time.sleep(10)
+time.sleep(100)
