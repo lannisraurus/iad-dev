@@ -94,11 +94,8 @@ class cameraWindow(QWidget):
         print("changed")
         self.cam.start()
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = "img.jpg"
 
-        self.cam.capture_file(f"{timestamp}_{filename}", signal_function=self.qpicamera2.signal_done)
-        time.sleep(expTime/1e6+0.5)
-        self.cam.set_controls({"AeEnable": True})
+        self.cam.capture_file(f"{timestamp}img.jpg", signal_function=self.qpicamera2.signal_done)
 
 
 
