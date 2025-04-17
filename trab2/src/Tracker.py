@@ -3,7 +3,8 @@ Grupo I, IAD, 2025
 João Camacho, Duarte Tavares, Margarida Saraiva, Jorge Costa
 
 This file contains a class to coordinate StepperController and
-Astrolocator.
+Astrolocator; the class also does the correspondence between to coordinate
+systems: the coordinates of the motor and the coordinates of the sky.
 
 """
 ### Imports
@@ -33,20 +34,33 @@ class Tracker():
 
         self.interruptTracking = False
 
-    #Alignment Point - coordinates of the motor and the correspondent coordinates 
+    #Alignment Point - coordinates of the motor and the correspondent coordinates in the sky
     def addAlignmentPoint(self, realPos, name=""):
         currTime = self.aloc.getTime()
         motorPos = self.motors.getCoords()
         info = (self.lat, self.lon, self.alt, currTime, name)
         alignmentPoint = (realPos, motorPos,info)
-        #print(alignmentPoint)
         self.alignmentPoints.append(alignmentPoint)
 
+    #Alignment for 1 Point Alignmet
     def onePointAlign(self):
         self.currAlignmentType = "OnePoint"
         aligner = self.alignmentPoints[0]
         self.currAlignment = (aligner[1][0]-aligner[0][0], aligner[1][1]-aligner[0][1])
         
+     #Alignment for N point alignment
+    def pointAlignment(self):
+        src = []
+        sky = []
+        for i in range(len(self.alignmentPoints)):
+            src.append(self.alignmentPoints[i][1])
+            sky.append(self.alignmentPoints[i][0])
+        src = np.array(src)
+        sky = np.array(sky)
+        self.currAlignmentType = "NPoint"
+        self.currAlignment = (astroalign.estimate_transform('affine', src, sky), astroalign.estimate_transform('affine', sky, src))
+    
+    #Change coordinates to preferred system
     def realToMotor(self, realPos):
         if self.currAlignmentType == "None":
             return realPos 
@@ -70,17 +84,7 @@ class Tracker():
             print(result,type(result))
             return result[0]
 
-    def pointAlignment(self):
-        src = []
-        sky = []
-        for i in range(len(self.alignmentPoints)):
-            src.append(self.alignmentPoints[i][1])
-            sky.append(self.alignmentPoints[i][0])
-        src = np.array(src)
-        sky = np.array(sky)
-        self.currAlignmentType = "NPoint"
-        self.currAlignment = (astroalign.estimate_transform('affine', src, sky), astroalign.estimate_transform('affine', sky, src))
-
+    #Tracking Routine
     def trackingRoutine(self, params ,signalPoint):
         objDatabase = params[0]
         objId = params[1]
