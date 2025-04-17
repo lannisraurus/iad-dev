@@ -27,15 +27,42 @@ class cameraWindow(QWidget):
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowTitle('Astrolocator - Camera')
 
+        # Close Button
+        self.closeButton = QPushButton("X")
+        self.closeButton.setFixedSize(30, 20)
+        self.closeButton.setStyleSheet(
+            "font-weight: bold; border: none;"
+        )
+        self.closeButton.clicked.connect(self.close)
+
+        # Exposure Shot
+        self.exposureButton = QPushButton("Take Exposure Shot")
+        self.exposureLabel = QLabel("Exposure time (microseconds):")
+        self.exposureSlider = QSpinBox()
+        self.exposureSlider.setMaximum(11760000)
+        self.exposureSlider.setMinimum(1)
+
         # Layouts
         self.mainLayout = QVBoxLayout()
         self.setLayout(self.mainLayout)
+        self.exposureLayout = QHBoxLayout()      
 
         # CAMERA IMAGE!
         self.camera = RPiCamera2()
-        self.qpicamera2 = QGlPicamera2(self.camera.camera)
+        try:
+            self.qpicamera2 = QGlPicamera2(self.camera.camera)
+            self.mainLayout.addWidget(self.qpicamera2)
+        except:
+            print('WARNING: Camera window won\'t have anything.')
+        self.mainLayout.addWidget(self.closeButton, alignment=Qt.AlignTop | Qt.AlignRight)
 
-        self.mainLayout.addWidget(self.qpicamera2)
+        # Exposure
+        self.mainLayout.addLayout(self.exposureLayout)
+        self.exposureLayout.addWidget(self.exposureButton)
+        self.exposureLayout.addWidget(self.exposureLabel)
+        self.exposureLayout.addWidget(self.exposureSlider)
+
+        self.exposureButton.clicked.connect(self.exposurePhoto)
 
 
 
@@ -72,3 +99,8 @@ class cameraWindow(QWidget):
     
     def camera_off(self):
         self.camera.close()
+    
+    def exposurePhoto(self):
+        expTime = self.exposureSlider.value()
+        self.camera.changeSettings(exposureTime=expTime)
+        self.camera.capture_image()

@@ -25,24 +25,25 @@ class RPiCamera2:
         
         try:
             self.camera = Picamera2()
+            self.preview_config = self.camera.create_preview_configuration(
+                main={"size": resolution})
+            self.capture_config = self.camera.create_still_configuration(
+                main={"size": resolution})
+            self.video_config = self.camera.create_video_configuration(
+                main={"size": resolution})
+
+            if autoBalance:
+                self.camera.set_controls({"AeEnable": True, "AwbEnable": True, "FrameRate": framerate})
+            else:
+                # Give time for Aec and Awb to settle, before disabling them
+                time.sleep(1)
+                self.camera.set_controls({"AeEnable": False, "AwbEnable": False, "FrameRate": framerate})
+                # And wait for those settings to take effect
+                time.sleep(1)
         except:
             self.camera = None
 
-        self.preview_config = self.camera.create_preview_configuration(
-            main={"size": resolution})
-        self.capture_config = self.camera.create_still_configuration(
-            main={"size": resolution})
-        self.video_config = self.camera.create_video_configuration(
-            main={"size": resolution})
-
-        if autoBalance:
-            self.camera.set_controls({"AeEnable": True, "AwbEnable": True, "FrameRate": framerate})
-        else:
-            # Give time for Aec and Awb to settle, before disabling them
-            time.sleep(1)
-            self.camera.set_controls({"AeEnable": False, "AwbEnable": False, "FrameRate": framerate})
-            # And wait for those settings to take effect
-            time.sleep(1)
+        
 
         #return f"Camera initialized with resolution {resolution}, framerate {framerate} fps and auto balance = {autoBalance}."
     
@@ -55,6 +56,8 @@ class RPiCamera2:
 
     # Preview Window
     def openPreview(self):
+        if self.camera is None:
+            return
         self.preview = True
         try:
             self.camera.configure(self.preview_config)
@@ -65,7 +68,7 @@ class RPiCamera2:
             return f"Error starting preview: {e}"
 
     # Capture Image
-    def capture_image(self, filename="image.jpg", timestamp=False):
+    def capture_image(self, filename="image.jpg", timestamp=True):
         self.camera.configure(self.capture_config)
         if timestamp:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -94,6 +97,8 @@ class RPiCamera2:
 
     # Close preview
     def close(self):
+        if self.camera is None:
+            return
         self.preview = False
         self.camera.close()
         return "Camera resources released."
