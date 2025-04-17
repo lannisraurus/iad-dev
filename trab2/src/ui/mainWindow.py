@@ -623,22 +623,25 @@ class mainWindow(QWidget):
 
     def alignmentRoutine1(self):
 
-        self.logText("-----------------\n\nStarting alignment routine...\n" + \
-                    "Please confirm your current coordinates are the ones in the location window (bottom right corner button). " + \
-                    "When finished, please type yes for a 10 element list of objects, no to just proceed, or type exit to cancel alignment\n")
+        self.logText("-----------------\n>>> Starting alignment routine...\n" + \
+                    "> Please confirm your current coordinates are the ones in the location window (bottom right corner button).\n" + \
+                    "> When finished, please type yes for a 10 element list of objects, no to just proceed, or type exit to cancel alignment\n" + \
+                    "> Note: If you choose to generate a list, be weary that it will take a while...\n")
         self.waitingForText = True
         self.receiverForText = self.alignmentRoutine2
 
     def alignmentRoutine2(self):
         response = self.inputtedText
         if response == "exit":
-            self.logText("Cancelling alignment...\n")
+            self.logText("> Cancelling alignment...\n")
             self.receiverForText = None
         elif response == "no":
+            self.setTracker()
             self.receiverForText = self.alignmentRoutine3
             self.waitingForText = True
-            self.logText("Write object name(s)...\n")
+            self.logText("> Write object name(s) from SIMBAD (stars) or Horizons (planets) databases...\n")
         elif response == "yes":
+
             self.setTracker()
             astro=self.tracker.aloc
             mag = 0
@@ -657,19 +660,20 @@ class mainWindow(QWidget):
             objsCopy["Az"].format = "8.3f"
             objsCopy["Alt"].format = "8.3f"
             objsCopy["V"].format = "8.3f"
-            objsCopyLines = objsCopy.pformat(max_lines=-1, max_width=-1)
-            objsCopyStr = '\n'.join(objsCopyLines)
+            #objsCopyLines = objsCopy.pformat(max_lines=-1, max_width=-1)
+            #objsCopyStr = '\n'.join(objsCopyLines)
 
-            self.logText("Please select ")
-            self.logText("one " if self.alignmentDropdown.currentIndex() == 0 else "at least three (separated by commas) ")
-            self.logText("of the provided objects for alignment, or provide the name of your preferred object(s). " + \
-                        "Type exit to cancel alignment.\n" +\
-                        "Below are the recommended objects:\n\n" + objsCopyStr + "\n\n")
+            self.logText("> Please select ")
+            self.logText("one " if self.alignmentDropdown.currentIndex() == 0 else "at least three (separated by commas (,) ) ")
+            self.logText("of the provided objects for alignment, or provide the name of your preferred object(s) from SIMBAD (stars) or Horizons (planets) databases.\n" + \
+                        "> Type exit to cancel alignment.\n" +\
+                        "> Note: Use numeric IDs for Horizons objects.\n" +\
+                        "> Below are the recommended objects:\n\n" + str(objsCopy) + "\n\n")
 
             self.receiverForText = self.alignmentRoutine3
             self.waitingForText = True
         else:
-            self.logText("Input not recognised, please type either ok or exit.\n")
+            self.logText("> Input not recognised, please type either ok or exit.\n")
             self.waitingForText = True
 
         self.inputtedText = ""
@@ -678,29 +682,33 @@ class mainWindow(QWidget):
     def alignmentRoutine3(self):
         response = self.inputtedText
         if response == "exit":
-            self.logText("Cancelling alignment...\n")
+            self.logText("> Cancelling alignment...\n")
             self.inputtedText = ""
             self.receiverForText = None
         else:
             astro = self.tracker.aloc
                 
-            #SÍTIO PARA FAZER O MOVIMENTO PRÉVIO PARA AJUDAR
+            #SÍTIO PARA FAZER O MOVIMENTO PRÉVIO PARA AJUDAR (deprecated feature due to lack of time)
 
             responses = response.split(",")
+            # Alignment 1 point
             if len(responses) != 1 and self.alignmentDropdown.currentIndex() == 0:
-                self.logText("Please provide only one object for alignment, or type exit to cancel.\n")
+                self.logText("> ERROR: Please provide only one object for alignment, or type exit to cancel.\n")
                 self.waitingForText = True
                 return
+            # Alignment 3 point
             if len(responses) < 3 and self.alignmentDropdown.currentIndex() == 1:
-                self.logText("Please provide at least three objects for alignment, or type exit to cancel.\n")
+                self.logText("> ERROR: Please provide at least three objects for alignment, or type exit to cancel.\n")
                 self.waitingForText = True
                 return
             for obj in responses:
-
-                #print(obj,astro.querySimbad(obj),astro.queryHorizons(obj))
-                #print(obj,astro.querySimbad(obj) is None,astro.queryHorizons(obj) is None)
-                if (astro.querySimbad(obj) is None) and (astro.queryHorizons(obj) is None):
-                    self.logText(f"{obj} not recognised / ambiguous, please type either exit or valid identifier, preferrably one of the recommended. Note: for planets and satellites, use the ID.\n")
+                simbadQuery = astro.querySimbad(obj)
+                horizonsQuery = astro.queryHorizons(obj)
+                print(obj,'\n',simbadQuery,'\n',horizonsQuery) # DEBUGGING
+                print(simbadQuery is None)
+                # No results found
+                if (simbadQuery is None) and (horizonsQuery is None):
+                    self.logText(f"> ERROR: {obj} not recognised / ambiguous, please type either exit or valid identifier, preferrably one of the recommended. Note: for planets and satellites, use the ID.\n")
                     self.waitingForText = True
                     return
                 #if len(astro.queryHorizons(obj)) > 1 or len(astro.querySimbad(obj)) > 1:
@@ -708,8 +716,8 @@ class mainWindow(QWidget):
                 #    self.waitingForText = True
                 #    return
             self.alignList = responses
-            self.logText(f"Starting alignment with {response}...\n" if self.alignmentDropdown.currentIndex() == 1 else "")
-            self.logText(f"Using {responses[0]} to align, please point to it and type ok when finished, or type exit to cancel.\n")
+            self.logText(f"> Starting alignment with {response}...\n" if self.alignmentDropdown.currentIndex() == 1 else "")
+            self.logText(f"> Using {responses[0]} to align, please point to it and type ok when finished, or type exit to cancel.\n")
             self.inputtedText = ""
             self.itemsInAlign = len(responses)
             self.receiverForText = self.alignmentRoutine4
@@ -719,22 +727,22 @@ class mainWindow(QWidget):
     def alignmentRoutine4(self):
         response = self.inputtedText
         if response == "exit":
-            self.logText("Cancelling alignment...\n")
+            self.logText("> Cancelling alignment...\n")
             self.inputtedText = ""
             self.receiverForText = None
         elif response == "ok":
             self.inputtedText = ""
             astro = self.tracker.aloc
             name = self.alignList[-self.itemsInAlign]
-            query = astro.querySimbad(name)
+            queryStars = astro.querySimbad(name)
             queryPlanets = astro.queryHorizons(name)
-            print(name, query, queryPlanets)
-            if query:
-                self.tracker.addAlignmentPoint( astro.getAzAlt( query,astro.getTime() ) , name)
+            print(name, queryStars, queryPlanets)
+            if queryStars:
+                self.tracker.addAlignmentPoint( astro.getAzAlt( queryStars,astro.getTime() ) , name)
             elif queryPlanets:
                 self.tracker.addAlignmentPoint( astro.getAzAlt( queryPlanets,astro.getTime() ) , name)
             else: 
-                self.logText(f"Failed, try again\n")
+                self.logText(f"> Failed, try again\n")
                 self.receiverForText = self.alignmentRoutine3
                 self.waitingForText = True
 
@@ -744,18 +752,18 @@ class mainWindow(QWidget):
                 else:
                     self.tracker.pointAlignment(len(self.alignList))
                 self.alignList = []
-                self.logText("Alignment complete. \n" + "-----------------\n\n")
+                self.logText("> Alignment complete. \n" + "-----------------\n\n")
                 self.receiverForText = None
                 self.updateAltAzLabel()
                 return
             
-            self.logText(f"Using {self.alignList[-self.itemsInAlign+1]} to align, please point to it and type ok when finished, or type exit to cancel.\n")
+            self.logText(f"> Using {self.alignList[-self.itemsInAlign+1]} to align, please point to it and type ok when finished, or type exit to cancel.\n")
             self.itemsInAlign -= 1
             self.receiverForText = self.alignmentRoutine4
             self.waitingForText = True
         
         else:
-            self.logText("Input not recognised, please type either ok or exit.\n")
+            self.logText("> Input not recognised, please type either ok or exit.\n")
             self.waitingForText = True
             self.inputtedText = ""
         

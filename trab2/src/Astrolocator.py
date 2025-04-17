@@ -28,8 +28,8 @@ class Astrolocator():
     def __init__(self, lat=90, lon=0, alt=0):
         # Using SIMBAD database
         Simbad.TIMEOUT = 500
-        self.simbadData = Simbad()
-        self.simbadData.add_votable_fields("allfluxes")
+        #self.simbadData = Simbad()
+        #self.simbadData.add_votable_fields("flux(V)")
         self.observer = EarthLocation.from_geodetic(lat=lat, lon=lon, height=alt)
 
     # Updates observers position on Earth
@@ -42,7 +42,9 @@ class Astrolocator():
 
     # Returns an astropy table of the given object. If fails returns None
     def querySimbad(self, identifier):
-        result = self.simbadData.query_object(identifier)
+        simbadData = Simbad()
+        simbadData.add_votable_fields("flux(V)")
+        result = simbadData.query_object(identifier)
         if result is None or len(result) == 0 or "ra" not in result.colnames or "dec" not in result.colnames:
             return None
         result.rename_column("ra", "RA")
@@ -113,11 +115,13 @@ class Astrolocator():
             
     # Returns an astropy table of brigthest objects in the sky
     def queryBrightObjects(self, magnitude_threshold=0):
+        simbadData = Simbad()
+        simbadData.add_votable_fields("flux(V)")
         # ADQL query string with magnitude threshold
         brigthCriteria = f"V < {magnitude_threshold}"
 
         # Query the GC catalog for the brightest stars
-        bright_stars = self.simbadData.query_catalog("GC", criteria=brigthCriteria)
+        bright_stars = simbadData.query_catalog("GC", criteria=brigthCriteria)
         # Clean up table
         bright_stars.rename_column("ra", "RA")
         bright_stars.rename_column("dec", "DEC")

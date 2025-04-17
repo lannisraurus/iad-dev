@@ -37,7 +37,9 @@ class Tracker():
         currTime = self.aloc.getTime()
         motorPos = self.motors.getCoords()
         info = (self.lat, self.lon, self.alt, currTime, name)
-        self.alignmentPoints.append((realPos, motorPos,info))
+        alignmentPoint = (realPos, motorPos,info)
+        print(alignmentPoint)
+        self.alignmentPoints.append(alignmentPoint)
 
     def onePointAlign(self):
         """dist = -1 
