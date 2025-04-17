@@ -2,7 +2,8 @@
 Duarte Tavares, João Camacho, Jorge Costa, Margarida Saraiva
 IST, 2025 - IAD
 
-This file contains a settings window for other periferals.
+This file contains a settings window for other periferals 
+(namely, the laser).
 
 """
 ##################### Imports
@@ -115,7 +116,7 @@ class othersConfigWindow(QWidget):
         # Draw the border around the window (excluding the title bar area)
         painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
 
-    ################################################# Settings
+    ################################################# Settings (saved in file "other_settings.txt")
 
     def loadSettings(self):
         pins = []
@@ -172,6 +173,7 @@ class othersConfigWindow(QWidget):
             case 1:
                 self.laserDescription.setText('Laser 5mW - Ponto vermelho: In the pin configuration, simply write a sequence of the connected pin to GPIO')
 
+    ################################################# Turn on/off the laser 
     def laserToggle(self):
         try:
             self.laserPin.toggle()

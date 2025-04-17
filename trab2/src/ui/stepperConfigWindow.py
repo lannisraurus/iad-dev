@@ -94,11 +94,6 @@ class stepperConfigWindow(QWidget):
         # Dragging window
         self.dragging = False
 
-
-
-
-
-
     ############################### Events
 
     def mousePressEvent(self, event):
@@ -124,11 +119,7 @@ class stepperConfigWindow(QWidget):
         # Draw the border around the window (excluding the title bar area)
         painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
 
-
-
-
-
-    ############################### Settings
+    ############################### Settings (saved in file "stepper_settings.txt")
 
     def changeStepperType(self):
         match self.stepperTypeDropdown.currentIndex():
@@ -158,8 +149,6 @@ class stepperConfigWindow(QWidget):
         
         if file:
             file.close()
-        
-        #self.mainWindow.logText('\n')
 
     def saveSettings(self):
         try:

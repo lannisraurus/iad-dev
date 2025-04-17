@@ -3,6 +3,7 @@ Duarte Tavares, João Camacho, Jorge Costa, Margarida Saraiva
 IST, 2025 - IAD
 
 This file contains the graphWindow class, which plots data.
+(This feature is not being currently used.)
 
 """
 ##################### Imports
@@ -56,4 +57,3 @@ class graphWindow(QMainWindow):
         self.xs = []
         self.ys = []
         self.line.setData(self.xs, self.ys)
-

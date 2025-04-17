@@ -42,17 +42,11 @@ class RPiCamera2:
                 time.sleep(1)
         except:
             self.camera = None
-
-        
-
-        #return f"Camera initialized with resolution {resolution}, framerate {framerate} fps and auto balance = {autoBalance}."
     
     # Exposure time in microsecs
     def changeSettings(self, exposureTime=int(1000000/30), analogueGain=1.0):
         self.camera.stop()
         self.camera.controls.ExposureTime = exposureTime
-        #self.camera.stop()
-        #self.camera.set_controls({'ExposureTime': exposureTime, 'AnalogueGain': analogueGain})
         print("updated setting")
         self.camera.start()
 
@@ -63,7 +57,6 @@ class RPiCamera2:
         self.preview = True
         try:
             self.camera.configure(self.preview_config)
-            #self.camera.start_preview(Preview.QTGL)
             self.camera.start()
             return "Preview started."
         except Exception as e:

@@ -82,10 +82,6 @@ class mainWindow(QWidget):
         self.settingsSteppersButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.settingsSteppersButton.clicked.connect(self.stepperConfigWindowShow)
         
-        #self.settingsDeviceButton = QPushButton('Acquisition Device')
-        #self.settingsDeviceButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        #self.settingsDeviceButton.clicked.connect(self.deviceConfigWindowShow)
-        
         self.settingsOthersButton = QPushButton('Other Periferals')
         self.settingsOthersButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.settingsOthersButton.clicked.connect(self.othersConfigWindowShow)
@@ -97,9 +93,6 @@ class mainWindow(QWidget):
         self.cameraButton = QPushButton('Camera')
         self.cameraButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.cameraButton.clicked.connect(self.cameraStart)
-
-        #self.antennaButton = QPushButton('Antenna')
-        #self.antennaButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
         # UI Elements - Sliders
         self.alignmentDelaySlider = QSlider(Qt.Horizontal, self)
@@ -145,19 +138,13 @@ class mainWindow(QWidget):
         self.alignmentDropdown = QComboBox()
         self.alignmentDropdown.addItems(['1 Point','N Point'])
         self.alignmentDropdown.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        #self.trackDeviceDropdown = QComboBox()
-        #self.trackDeviceDropdown.addItems(['Telescope','Satellite Antena'])
-        #self.trackDeviceDropdown.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.steppersDropdown = QComboBox()
         self.steppersDropdown.addItems(['RB-Moto2 (Joy-IT)'])
-        #self.cameraDropdown = QComboBox() # read devices in rpi
-        #self.antennaDropdown = QComboBox() # read devices in rpi
 
         # UI - Spacers
         self.spacer1 = QSpacerItem(40, 20, QSizePolicy.Minimum,QSizePolicy.Expanding)
 
         # UI - Angle lock
-        #self.fixedAnglesLabel = QLabel('Lock Rotation:')
         self.fixedAnglesButton = QPushButton('Limit Stepper Angles')
         self.fixedAnglesButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.fixedAnglesButton.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxCritical))
@@ -187,12 +174,10 @@ class mainWindow(QWidget):
         self.alignmentLayoutR1 = QHBoxLayout()
         self.alignmentLayoutR2 = QHBoxLayout()
         self.alignmentLayoutR3 = QHBoxLayout()
-        #self.alignmentLayoutR2.setSpacing(32)
 
         self.alignmentLayoutR4 = QHBoxLayout()
         self.alignmentLayoutR5 = QHBoxLayout()
         self.alignmentLayoutR6 = QHBoxLayout()
-        #self.alignmentLayoutR7 = QHBoxLayout()
         
         self.mainLayout.addLayout(self.topLayout)
         self.mainLayout.addLayout(self.midLayout)
@@ -237,8 +222,6 @@ class mainWindow(QWidget):
         self.alignmentLayoutR5.addWidget(self.alignmentDelayValueLabel)
         self.alignmentLayoutRL.addLayout(self.alignmentLayoutR6)
         self.alignmentLayoutR6.addWidget(self.alignmentBeginButton)
-        #self.alignmentLayoutRL.addLayout(self.alignmentLayoutR7)
-        #self.alignmentLayoutR6.addWidget(self.fixedAnglesLabel)
         self.alignmentLayoutR6.addWidget(self.fixedAnglesButton)
         self.alignmentLayoutR6.addWidget(self.alignmentAngles)
 
@@ -258,9 +241,7 @@ class mainWindow(QWidget):
         
         self.trackLayoutR.addWidget(self.trackBeginButton)
         self.trackLayoutR.addWidget(self.trackDevicesLabel)
-        #self.trackLayoutR.addWidget(self.trackDeviceDropdown)
         self.trackLayoutR.addWidget(self.cameraButton)
-        #self.trackLayoutR.addWidget(self.antennaButton)
         
         self.trackLayout.setAlignment(Qt.AlignTop)
         self.trackLayoutR.setAlignment(Qt.AlignTop)
@@ -269,7 +250,6 @@ class mainWindow(QWidget):
         self.settingsLayout.addLayout(self.settingsLayoutR)
 
         self.settingsLayoutR.addWidget(self.settingsSteppersButton)
-        #self.settingsLayoutR.addWidget(self.settingsDeviceButton)
         self.settingsLayoutR.addWidget(self.settingsOthersButton)
         self.settingsLayoutR.addWidget(self.settingsLocationButton)
 
@@ -322,9 +302,9 @@ class mainWindow(QWidget):
         self.stepperRightThreadRunning = False
         
         # User Input vars
-        self.waitingForText = False     # detect if programme is asking for information
-        self.inputtedText = ""          # text user inputted
-        self.receiverForText = None     # function which runs
+        self.waitingForText = False     # Detect if programme is asking for information
+        self.inputtedText = ""          # Text user inputted
+        self.receiverForText = None     # Function which runs
 
         # Alignment
         self.alignList = []
@@ -339,7 +319,6 @@ class mainWindow(QWidget):
         # Tracking
         self.tracking = False
         self.tracker = Tracker(self.stepperController)
-        # self.requestPosition()  # ADDED CONFIGURATION WINDOW FOR THIS!
 
         # Graphing Window
         self.grapher = graphWindow()
@@ -349,11 +328,6 @@ class mainWindow(QWidget):
 
         # Camera
         self.cameraWindow = cameraWindow()
-
-
-
-
-
 
     ############# Events
     
@@ -399,23 +373,12 @@ class mainWindow(QWidget):
         painter.setBrush(Qt.transparent)
         painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
 
-
-
-
-
-
-
-
     ############ Configuration Button Methods
 
     def stepperConfigWindowShow(self):
         self.stepperConfigWindow.show()
         self.stepperConfigWindow.activateWindow()
     
-    #def deviceConfigWindowShow(self):
-    #    self.deviceConfigWindow.show()
-    #    self.deviceConfigWindow.activateWindow()
-
     def othersConfigWindowShow(self):
         self.othersConfigWindow.show()
         self.othersConfigWindow.activateWindow()
@@ -423,11 +386,6 @@ class mainWindow(QWidget):
     def locationConfigWindowShow(self):
         self.locationConfigWindow.show()
         self.locationConfigWindow.activateWindow()
-
-
-
-
-
 
     ############ General Utility
 
@@ -457,12 +415,6 @@ class mainWindow(QWidget):
         if not (type(sent_data[0]) == str and type(sent_data[1]) == str):
             angles = self.tracker.motorToReal(sent_data)
             self.alignmentAngles.setText(f"(az= {angles[0]:.3f}, alt= {angles[1]:.3f})")
-
-
-
-
-
-
 
     ######################### MANUAL STEPPER CONTROL
 
@@ -518,9 +470,7 @@ class mainWindow(QWidget):
             self.stepperRightThreadObj.wait()
             self.stepperRightThreadObj = None
 
-
-
-
+    #Threads for stepper control
     def stepperUpThread(self, params, send_data):
         while self.stepperUpThreadRunning:
             self.stepperController.moveAlt(False, float(self.alignmentDelaySlider.value() / 1000.) )
@@ -540,9 +490,6 @@ class mainWindow(QWidget):
         while self.stepperRightThreadRunning:
             self.stepperController.moveAz(False, float(self.alignmentDelaySlider.value() / 1000.) )
             send_data.emit(self.stepperController.getCoords())
-
-
-
 
     ######################### ANGLE LOCKING METHODS
     def angleLock1(self):
@@ -625,11 +572,6 @@ class mainWindow(QWidget):
 
     ######################### ALIGNMENT AND TRACKING METHODS
 
-    #def requestPosition(self):
-    #    self.logText("> Please insert your current coordinates in the following format (enter to ignore): latitude longitude altitude  \n")
-    #    self.waitingForText = True
-    #    self.receiverForText = self.setTracker
-
     def setTracker(self):
         coords = self.locationConfigWindow.getSettings()
         self.tracker = Tracker(self.stepperController, coords[0], coords[1], coords[2])
@@ -674,8 +616,6 @@ class mainWindow(QWidget):
             objsCopy["Az"].format = "8.3f"
             objsCopy["Alt"].format = "8.3f"
             objsCopy["V"].format = "8.3f"
-            #objsCopyLines = objsCopy.pformat(max_lines=-1, max_width=-1)
-            #objsCopyStr = '\n'.join(objsCopyLines)
 
             self.logText("> Please select ")
             self.logText("one " if self.alignmentDropdown.currentIndex() == 0 else "at least three (separated by commas (,) ) ")
@@ -692,7 +632,6 @@ class mainWindow(QWidget):
 
         self.inputtedText = ""
 
-
     def alignmentRoutine3(self):
         response = self.inputtedText
         if response == "exit":
@@ -701,9 +640,6 @@ class mainWindow(QWidget):
             self.receiverForText = None
         else:
             astro = self.tracker.aloc
-                
-            #SÍTIO PARA FAZER O MOVIMENTO PRÉVIO PARA AJUDAR (deprecated feature due to lack of time)
-
             responses = response.split(",")
             # Alignment 1 point
             if len(responses) != 1 and self.alignmentDropdown.currentIndex() == 0:
@@ -718,17 +654,11 @@ class mainWindow(QWidget):
             for obj in responses:
                 simbadQuery = astro.querySimbad(obj)
                 horizonsQuery = astro.queryHorizons(obj)
-                #print(obj,'\n',simbadQuery,'\n',horizonsQuery) # DEBUGGING
-                #print(simbadQuery is None)
                 # No results found
                 if (simbadQuery is None) and (horizonsQuery is None):
                     self.logText(f"> ERROR: {obj} not recognised / ambiguous, please type either exit or valid identifier, preferrably one of the recommended. Note: for planets and satellites, use the ID.\n")
                     self.waitingForText = True
                     return
-                #if len(astro.queryHorizons(obj)) > 1 or len(astro.querySimbad(obj)) > 1:
-                #    self.logText(f"{obj} provided various possible objects. Please be more specific (use only ID for planet).\n")
-                #    self.waitingForText = True
-                #    return
             self.alignList = responses
             self.logText(f"> Starting alignment with {response}...\n" if self.alignmentDropdown.currentIndex() == 1 else "")
             self.logText(f"> Using {responses[0]} to align, please point to it and type ok when finished, or type exit to cancel.\n")
@@ -736,7 +666,6 @@ class mainWindow(QWidget):
             self.itemsInAlign = len(responses)
             self.receiverForText = self.alignmentRoutine4
             self.waitingForText = True
-
 
     def alignmentRoutine4(self):
         response = self.inputtedText
@@ -750,7 +679,6 @@ class mainWindow(QWidget):
             name = self.alignList[-self.itemsInAlign]
             queryStars = astro.querySimbad(name)
             queryPlanets = astro.queryHorizons(name)
-            #print(name, queryStars, queryPlanets)
             if queryStars:
                 self.tracker.addAlignmentPoint( astro.getAzAlt( queryStars,astro.getTime() ) , name)
             elif queryPlanets:
@@ -830,21 +758,6 @@ class mainWindow(QWidget):
         self.threadMotor = CommandThread(self.tracker.trackingRoutine,[self.queryDatabase,queryId])
         self.threadMotor.send_data.connect(self.updateAltAzLabel)
         self.threadMotor.start()
-
-        # start thread for aquisition
-        #if self.trackDeviceDropdown.currentIndex() == 0:     
-        #    self.logText("* Telescope WORK IN PROGRESS.\n")
-        #elif self.trackDeviceDropdown.currentIndex() == 1:  
-        #    self.grapher.show()   
-        #    self.logText("* Starting Antenna Thread.\n")
-        #    # get params from config screen
-        #    params = [self.grapher,0,0,0]
-        #    self.threadAntenna = CommandThread(self.tracker.antennaRoutine, params)
-        #    self.threadAntenna.start()
-
-
-
-
 
     ######################### ALIGNMENT AND TRACKING METHODS
     def cameraStart(self):

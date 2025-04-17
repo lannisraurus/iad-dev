@@ -2,7 +2,8 @@
 Duarte Tavares, João Camacho, Jorge Costa, Margarida Saraiva
 IST, 2025 - IAD
 
-This file contains a settings window. TEMPLATE.
+This file contains a settings window. 
+(TEMPLATE: not used in actual code.)
 
 """
 ##################### Imports
@@ -36,8 +37,6 @@ class deviceConfigWindow(QWidget):
         self.mainLayout.addWidget(self.closeButton)
         self.mainLayout.addWidget(self.closeButton, alignment=Qt.AlignTop | Qt.AlignRight)
 
-
-
     ############################################### Events
 
     def mousePressEvent(self, event):
@@ -62,7 +61,3 @@ class deviceConfigWindow(QWidget):
         
         # Draw the border around the window (excluding the title bar area)
         painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
-
-
-
-    ############################################### Settings

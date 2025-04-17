@@ -29,8 +29,6 @@ class Astrolocator():
     def __init__(self, lat=90, lon=0, alt=0):
         # Using SIMBAD database
         Simbad.TIMEOUT = 500
-        #self.simbadData = Simbad()
-        #self.simbadData.add_votable_fields("flux(V)")
         self.observer = EarthLocation.from_geodetic(lat=lat, lon=lon, height=alt)
 
     # Updates observers position on Earth
@@ -79,7 +77,7 @@ class Astrolocator():
         if not api_key:
             raise ValueError("Missing N2YO API key in environment variable N2YO_API_KEY")
         
-        # export N2YO_API_KEY="L9NPLA-JM7B6C-DG46RL-5GE8"
+        # Export N2YO_API_KEY="L9NPLA-JM7B6C-DG46RL-5GE8"
 
         # The NORAD satellite ID
         sat_id = identifier  
@@ -94,8 +92,8 @@ class Astrolocator():
         alt = str(self.observer.height.value)
 
         # Number of satellite positions to return 
-        #(each position for each further second with limit 300 seconds)
-        count = '1' # return positions for current time only
+        #(Each position for each further second with limit 300 seconds)
+        count = '1' # Return positions for current time only
 
         # Make the API request
         response = requests.get(url = ("https://api.n2yo.com/rest/v1/satellite/positions/" + sat_id+ '/' + lat + '/' + lon + '/' + alt + '/' + count + '/' + "&apiKey=" + api_key))
@@ -165,7 +163,6 @@ class Astrolocator():
                     bright_objects_in_sky.add_row(obj)
             
         return bright_objects_in_sky
-
     
     # Get 2tuple (azimuth, altitude) angles 
     def getAzAlt(self, object, time):
@@ -179,4 +176,3 @@ class Astrolocator():
         altazCoords = objectCoords.transform_to(altazFrame)
         # Result
         return (float(altazCoords.az.value), float(altazCoords.alt.value))
-

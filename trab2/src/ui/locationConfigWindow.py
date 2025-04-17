@@ -88,11 +88,6 @@ class locationConfigWindow(QWidget):
         # Dragging window
         self.dragging = False
 
-
-
-
-
-
     ############################### Events
 
     def mousePressEvent(self, event):
@@ -118,11 +113,7 @@ class locationConfigWindow(QWidget):
         # Draw the border around the window (excluding the title bar area)
         painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
 
-
-
-
-
-    ############################### Settings
+    ############################### Settings (saved in file "location_settings.txt")
 
     def loadSettings(self):
         try:
