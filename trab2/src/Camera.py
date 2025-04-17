@@ -49,14 +49,16 @@ class RPiCamera2:
     
     # Exposure time in microsecs
     def changeSettings(self, exposureTime=int(1000000/30), analogueGain=1.0):
+        self.camera.stop()
         import pprint
         pprint(self.camera.sensor_modes)
         self.camera.controls.ExposureTime = exposureTime
         #self.camera.stop()
         #self.camera.set_controls({'ExposureTime': exposureTime, 'AnalogueGain': analogueGain})
-        #self.camera.start()
+        
         print( self.camera.capture_metadata())
-
+        self.camera.start()
+        
     # Preview Window
     def openPreview(self):
         if self.camera is None:
