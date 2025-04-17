@@ -89,6 +89,7 @@ class StepperController():
         self.centerCoords(az,alt)
 
     def __del__(self):
+        print("a")
         if hasattr(self, 'coil_A_1_pin'): self.coil_A_1_pin.close()
         if hasattr(self, 'coil_A_2_pin'): self.coil_A_2_pin.close()
         if hasattr(self, 'coil_B_1_pin'): self.coil_B_1_pin.close()

@@ -408,7 +408,7 @@ class mainWindow(QWidget):
     
     # Load Stepper Settings onto StepperController object
     def updateStepperController(self):
-        self.stepperController.__del__()
+        #self.stepperController.__del__()
         self.stepperController = StepperController(self.stepperConfigWindow.getSettings(), self)
     
     # Update Az and Alt labels
