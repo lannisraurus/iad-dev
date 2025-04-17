@@ -88,6 +88,16 @@ class StepperController():
         # Set current step count
         self.centerCoords(az,alt)
 
+    def __del__(self):
+        if hasattr(self, 'coil_A_1_pin'): self.coil_A_1_pin.close()
+        if hasattr(self, 'coil_A_2_pin'): self.coil_A_2_pin.close()
+        if hasattr(self, 'coil_B_1_pin'): self.coil_B_1_pin.close()
+        if hasattr(self, 'coil_B_2_pin'): self.coil_B_2_pin.close()
+        if hasattr(self, 'coil2_A_1_pin'): self.coil2_A_1_pin.close()
+        if hasattr(self, 'coil2_A_2_pin'): self.coil2_A_2_pin.close()
+        if hasattr(self, 'coil2_B_1_pin'): self.coil2_B_1_pin.close()
+        if hasattr(self, 'coil2_B_2_pin'): self.coil2_B_2_pin.close()
+
     ########################################################## Angle Locking
 
     def setAngleLock(self, boolean):
