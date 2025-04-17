@@ -51,7 +51,7 @@ class cameraWindow(QWidget):
         
         self.metadataLabel = QLabel()
         self.metadataLabel.setFixedWidth(400)
-        self.metadataLabel.setAlignment(QtCore.Qt.AlignTop)
+        self.metadataLabel.setAlignment(Qt.AlignTop)
 
         self.exposureLabel = QLabel("Exposure time (microseconds):")
         self.exposureSlider = QSpinBox()
