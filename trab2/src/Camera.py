@@ -54,7 +54,6 @@ class RPiCamera2:
         #self.camera.stop()
         #self.camera.set_controls({'ExposureTime': exposureTime, 'AnalogueGain': analogueGain})
         print("updated setting")
-        print( self.camera.capture_metadata())
         self.camera.start()
 
     # Preview Window
