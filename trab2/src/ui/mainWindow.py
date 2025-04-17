@@ -754,7 +754,7 @@ class mainWindow(QWidget):
                 self.alignList = []
                 self.logText("> Alignment complete. \n" + "-----------------\n\n")
                 self.receiverForText = None
-                self.updateAltAzLabel()
+                self.updateAltAzLabel(self.stepperController.getCoords())
                 return
             
             self.logText(f"> Using {self.alignList[-self.itemsInAlign+1]} to align, please point to it and type ok when finished, or type exit to cancel.\n")
