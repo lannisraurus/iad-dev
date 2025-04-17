@@ -204,7 +204,7 @@ class StepperController():
         
         direction = 1 if self.az < az else -1
         for i in range(self.az,az, direction):
-            if not (self.az + direction > self.maxAz or self.az + direction < self.minAz) or not self.angleLock:
+            if (not (self.az + direction > self.maxAz or self.az + direction < self.minAz)) or (not self.angleLock):
                 self.stepAz((self.stepsInSequence-i)%self.stepsInSequence)
             time.sleep(delay)
         self.az=az
@@ -222,7 +222,7 @@ class StepperController():
         
         direction = 1 if self.alt < alt else -1
         for i in range(self.alt,alt, direction):
-            if not (self.alt + direction > self.maxalt or self.alt + direction < self.minalt) or not self.angleLock:
+            if (not (self.alt + direction > self.maxalt or self.alt + direction < self.minalt)) or (not self.angleLock):
                 self.stepalt((self.stepsInSequence-i)%self.stepsInSequence)
             time.sleep(delay)
         self.alt=alt
