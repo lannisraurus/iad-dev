@@ -57,7 +57,7 @@ class RPiCamera2:
         self.camera.start()
 
     # Preview Window
-    def openPreview(self):
+    def startPreview(self):
         if self.camera is None:
             return
         self.preview = True
@@ -72,7 +72,9 @@ class RPiCamera2:
     # Capture Image
     def capture_image(self, filename="image.jpg", timestamp=True):
         print("configuring")
+        self.camera.stop()
         self.camera.configure(self.capture_config)
+        self.camera.start()
         print("timestamp")
         if timestamp:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -80,7 +82,9 @@ class RPiCamera2:
         print("capturing")
         self.camera.capture_file(filename)
         print("configuring to preview")
+        self.camera.stop()
         self.camera.configure(self.preview_config)
+        self.camera.start()
         print(f"Image saved as {filename}.")
     
     # Capture Video - start and end
