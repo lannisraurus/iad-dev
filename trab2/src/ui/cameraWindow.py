@@ -59,13 +59,15 @@ class cameraWindow(QWidget):
         self.exposureSlider.setMinimum(1)
 
         layout_v = QVBoxLayout()
+        layout_h = QHBoxLayout()
         #layout_v.addWidget(self.metadataLabel)
         layout_v.addWidget(self.closeButton, alignment=Qt.AlignTop | Qt.AlignRight)
 
         layout_v.addWidget(self.qpicamera2, 80)
-        layout_v.addWidget(self.captureButton)
-        layout_v.addWidget(self.exposureLabel)
-        layout_v.addWidget(self.exposureSlider)
+        layout_h.addWidget(self.captureButton)
+        layout_h.addWidget(self.exposureLabel)
+        layout_h.addWidget(self.exposureSlider)
+        layout_v.addLayout(layout_h)
         
         #layout_h.addLayout(layout_v, 20)
         #self.setWindowTitle('Astrolocator - Camera')
