@@ -43,7 +43,7 @@ class cameraWindow(QWidget):
         layout_v.addWidget(self.captureButton)
         layout_h.addWidget(self.qpicamera2, 80)
         layout_h.addLayout(layout_v, 20)
-        self.setWindowTitle("Qt Picamera2 App")
+        self.setWindowTitle('Astrolocator - Camera')
         self.resize(1200, 600)
         self.setLayout(layout_h)
 
@@ -70,7 +70,7 @@ class cameraWindow(QWidget):
 
 
 
-
+"""
 ##################### Commands Window Class
 class cameraWindow(QWidget):
 
@@ -167,4 +167,4 @@ class cameraWindow(QWidget):
 
     def exposurePhotoDone(self,job):
         self.camera.wait(job)
-        self.exposureButton.setEnabled(True)
+        self.exposureButton.setEnabled(True)"""
