@@ -73,7 +73,8 @@ class StepperController():
                     self.coil2_A_2_pin = OutputDevice(int(pins[5])) # orange
                     self.coil2_B_1_pin = OutputDevice(int(pins[6])) # blue
                     self.coil2_B_2_pin = OutputDevice(int(pins[7])) # yellow
-                except:
+                except Exception as e:
+                    print("An error occurred:", e)
                     self.working = False
                     mainWindow.logText('> ERROR! Could not set output pins! Either the pins are not ints, or your device cannot access the GPIO pins!\n')
             else:
@@ -90,14 +91,14 @@ class StepperController():
 
     def __del__(self):
         print("a")
-        if hasattr(self, 'coil_A_1_pin'): self.coil_A_1_pin.close()
-        if hasattr(self, 'coil_A_2_pin'): self.coil_A_2_pin.close()
-        if hasattr(self, 'coil_B_1_pin'): self.coil_B_1_pin.close()
-        if hasattr(self, 'coil_B_2_pin'): self.coil_B_2_pin.close()
-        if hasattr(self, 'coil2_A_1_pin'): self.coil2_A_1_pin.close()
-        if hasattr(self, 'coil2_A_2_pin'): self.coil2_A_2_pin.close()
-        if hasattr(self, 'coil2_B_1_pin'): self.coil2_B_1_pin.close()
-        if hasattr(self, 'coil2_B_2_pin'): self.coil2_B_2_pin.close()
+        if hasattr(self, 'coil_A_1_pin'): self.coil_A_1_pin = None
+        if hasattr(self, 'coil_A_2_pin'): self.coil_A_2_pin = None
+        if hasattr(self, 'coil_B_1_pin'): self.coil_B_1_pin = None
+        if hasattr(self, 'coil_B_2_pin'): self.coil_B_2_pin = None
+        if hasattr(self, 'coil2_A_1_pin'): self.coil2_A_1_pin = None
+        if hasattr(self, 'coil2_A_2_pin'): self.coil2_A_2_pin = None
+        if hasattr(self, 'coil2_B_1_pin'): self.coil2_B_1_pin = None
+        if hasattr(self, 'coil2_B_2_pin'): self.coil2_B_2_pin = None
 
     ########################################################## Angle Locking
 
