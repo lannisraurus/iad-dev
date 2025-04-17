@@ -78,8 +78,7 @@ class Tracker():
     def pointAlignment(self):
         src = []
         sky = []
-        for i in range(len(self.alignmentPoints)-1):
-            print(i)
+        for i in range(len(self.alignmentPoints)):
             src.append(self.alignmentPoints[i][1])
             sky.append(self.alignmentPoints[i][0])
         src = np.array(src)
