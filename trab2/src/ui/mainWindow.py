@@ -92,6 +92,12 @@ class mainWindow(QWidget):
         self.settingsLocationButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.settingsLocationButton.clicked.connect(self.locationConfigWindowShow)
 
+        self.cameraButton = QPushButton('Camera')
+        self.cameraButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+
+        self.antennaButton = QPushButton('Antenna')
+        self.antennaButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+
         # UI Elements - Sliders
         self.alignmentDelaySlider = QSlider(Qt.Horizontal, self)
         self.alignmentDelaySlider.setMaximum(100)
@@ -118,7 +124,7 @@ class mainWindow(QWidget):
         self.updateDelayValue()
         self.alignmentDelayValueLabel.setFixedWidth(120)
         self.alignmentAngles = QLabel('(az=ERR , alt=ERR )')
-        self.trackDevicesLabel = QLabel('Acquisition Device:')
+        self.trackDevicesLabel = QLabel('Acquisition Devices:')
 
         # UI Elements - Line Edits
         self.commandOutputLine = QTextEdit()
@@ -136,9 +142,9 @@ class mainWindow(QWidget):
         self.alignmentDropdown = QComboBox()
         self.alignmentDropdown.addItems(['1 Point','N Point'])
         self.alignmentDropdown.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        self.trackDeviceDropdown = QComboBox()
-        self.trackDeviceDropdown.addItems(['Telescope','Satellite Antena'])
-        self.trackDeviceDropdown.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        #self.trackDeviceDropdown = QComboBox()
+        #self.trackDeviceDropdown.addItems(['Telescope','Satellite Antena'])
+        #self.trackDeviceDropdown.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.steppersDropdown = QComboBox()
         self.steppersDropdown.addItems(['RB-Moto2 (Joy-IT)'])
         self.cameraDropdown = QComboBox() # read devices in rpi
@@ -249,7 +255,9 @@ class mainWindow(QWidget):
         
         self.trackLayoutR.addWidget(self.trackBeginButton)
         self.trackLayoutR.addWidget(self.trackDevicesLabel)
-        self.trackLayoutR.addWidget(self.trackDeviceDropdown)
+        #self.trackLayoutR.addWidget(self.trackDeviceDropdown)
+        self.trackLayoutR.addWidget(self.cameraButton)
+        self.trackLayoutR.addWidget(self.antennaButton)
         
         self.trackLayout.setAlignment(Qt.AlignTop)
         self.trackLayoutR.setAlignment(Qt.AlignTop)
@@ -777,25 +785,27 @@ class mainWindow(QWidget):
             return
             
         self.tracking = True
-        self.logText("> Please input object query system, SIMBAD, Horizons or N2YO\n")
+        self.logText("> Please input object query system: SIMBAD, Horizons or N2YO\n")
         self.waitingForText = True
         self.receiverForText = self.beginStopTracking2
 
     def beginStopTracking2(self):
         self.queryDatabase = self.inputtedText
         if self.queryDatabase not in ["SIMBAD", "Horizons", "N2YO"]:
-            self.logText("Input not recognised, please try again\n")
-            self.logText("> Please input object query system, SIMBAD, Horizons or N2YO\n")
+            self.logText("> ERROR: Input not recognised, please try again\n")
+            self.logText("> Please input object query system: SIMBAD, Horizons or N2YO\n")
             self.waitingForText = True
             self.receiverForText = self.beginStopTracking2
 
-        self.logText("> Please input object id\n")
+        self.logText("> Please input object id in the database\n")
         self.waitingForText = True
         self.receiverForText = self.beginStopTracking3
 
     def beginStopTracking3(self):
+        
         queryId = self.inputtedText
         trackObj = None
+
         if self.queryDatabase == "SIMBAD":
             trackObj = self.tracker.aloc.querySimbad(queryId)
         elif self.queryDatabase == "Horizons":
@@ -804,24 +814,35 @@ class mainWindow(QWidget):
             trackObj = self.tracker.aloc.queryN2YO(queryId)
 
         if trackObj is None:
-            self.logText("Object not found, please try again\n")
-            self.logText("> Please input object query system, SIMBAD, Horizons or N2YO\n")
+            self.logText("> ERROR: Object not found! Please try again.\n")
+            self.logText("> Please input object query system: SIMBAD, Horizons or N2YO\n")
             self.waitingForText = True
             self.receiverForText = self.beginStopTracking2
 
         # start thread for motor tracking
-        self.logText("* Starting Motor Tracking Thread.\n")
+        self.logText(">>> Starting Motor Tracking Thread.\n")
         self.threadMotor = CommandThread(self.tracker.trackingRoutine,[self.queryDatabase,queryId])
         self.threadMotor.send_data.connect(self.updateAltAzLabel)
         self.threadMotor.start()
 
         # start thread for aquisition
-        if self.trackDeviceDropdown.currentIndex() == 0:     
-            self.logText("* Telescope WORK IN PROGRESS.\n")
-        elif self.trackDeviceDropdown.currentIndex() == 1:  
-            self.grapher.show()   
-            self.logText("* Starting Antenna Thread.\n")
-            # get params from config screen
-            params = [self.grapher,0,0,0]
-            self.threadAntenna = CommandThread(self.tracker.antennaRoutine, params)
-            self.threadAntenna.start()
+        #if self.trackDeviceDropdown.currentIndex() == 0:     
+        #    self.logText("* Telescope WORK IN PROGRESS.\n")
+        #elif self.trackDeviceDropdown.currentIndex() == 1:  
+        #    self.grapher.show()   
+        #    self.logText("* Starting Antenna Thread.\n")
+        #    # get params from config screen
+        #    params = [self.grapher,0,0,0]
+        #    self.threadAntenna = CommandThread(self.tracker.antennaRoutine, params)
+        #    self.threadAntenna.start()
+
+
+
+
+
+    ######################### ALIGNMENT AND TRACKING METHODS
+    def cameraStart(self):
+        if self.camera:
+            print('meow')
+        else:
+            print('meow')
