@@ -267,6 +267,7 @@ class mainWindow(QWidget):
         # Load Stepper Configuration
         self.stepperConfigWindow = stepperConfigWindow(self)
         self.stepperController = None
+        self.tracker = None
         self.updateStepperController()  # Creates stepperController from settings window.
 
         # Device Configuration
@@ -408,9 +409,13 @@ class mainWindow(QWidget):
     
     # Load Stepper Settings onto StepperController object
     def updateStepperController(self):
-        self.tracker.motors = None
+        exist = False
+        if not self.tracker is None:
+            exist = True
+            self.tracker.motors = None
         self.stepperController = StepperController(self.stepperConfigWindow.getSettings(), self)
-        self.tracker.motors = self.stepperController
+        if exist:
+            self.tracker.motors = self.stepperController
 
     # Update Az and Alt labels
     def updateAltAzLabel(self, sent_data):
