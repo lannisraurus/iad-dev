@@ -155,7 +155,7 @@ class othersConfigWindow(QWidget):
             self.mainWindow.logText('> Successfully saved other settings.\n')
             try:
                 pins = self.laserPinsConfig.text().strip().split(' ')
-                self.laserPin3 = OutputDevice(int(pins[0]))
+                self.laserPin = OutputDevice(int(pins[0]))
                 self.mainWindow.logText('> Successfully applied other settings.\n\n')
             except:
                 self.mainWindow.logText('> ERROR: Could not apply other settings!\n\n')
