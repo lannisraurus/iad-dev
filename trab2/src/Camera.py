@@ -42,7 +42,7 @@ class RPiCamera2:
             # And wait for those settings to take effect
             time.sleep(1)
 
-        return f"Camera initialized with resolution {resolution}, framerate {framerate} fps and auto balance = {autoBalance}."
+        #return f"Camera initialized with resolution {resolution}, framerate {framerate} fps and auto balance = {autoBalance}."
     
     # Exposure time in microsecs
     def changeSettings(self, framerate=30, autobalance=False, exposureTime=int(1000000/30), analogueGain=1.0):
@@ -56,6 +56,7 @@ class RPiCamera2:
         try:
             self.camera.configure(self.preview_config)
             self.camera.start_preview(Preview.QTGL)
+            self.camera.start()
             return "Preview started."
         except Exception as e:
             return f"Error starting preview: {e}"

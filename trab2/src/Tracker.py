@@ -64,7 +64,9 @@ class Tracker():
             return (realPos[0] + self.currAlignment[0], realPos[1] + self.currAlignment[1])
         if self.currAlignmentType == "NPoint":
             realPos = np.array(realPos)
-            return astroalign.matrix_transform(realPos, self.currAlignment[1].params)
+            result =  astroalign.matrix_transform(realPos, self.currAlignment[1].params)
+            result = result.tolist()
+            return result[0]
     
     def motorToReal(self, motorPos):
         if self.currAlignmentType == "None":
@@ -74,8 +76,9 @@ class Tracker():
         if self.currAlignmentType == "NPoint":
             motorPosNum = np.array(motorPos)
             result = astroalign.matrix_transform(motorPosNum, self.currAlignment[0].params)
-            print(type(result))
-            return list(result)
+            result = result.tolist()
+            print(result,type(result))
+            return result[0]
 
     def pointAlignment(self):
         src = []
