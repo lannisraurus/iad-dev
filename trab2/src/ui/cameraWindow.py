@@ -65,8 +65,8 @@ class cameraWindow(QWidget):
     def do_capture(self):
         self.captureButton.setEnabled(False)
         cfg = self.cam.create_still_configuration()
-        print(self.exposureTimeSlider.value())
-        self.cam.controls.ExposureTime = self.exposureTimeSlider.value()
+        print(self.exposureSlider.value())
+        self.cam.controls.ExposureTime = self.exposureSlider.value()
         print("changed")
         self.cam.switch_mode_and_capture_file(cfg, "test.jpg", signal_function=self.qpicamera2.signal_done)
 
