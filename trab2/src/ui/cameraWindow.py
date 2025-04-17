@@ -7,10 +7,10 @@ This file contains the camera image.
 """
 
 ##################### Imports
-from PyQt5.QtCore import *      # Basic Qt functionalities.
-from PyQt5.QtWidgets import *   # GUI windows
-from PyQt5.QtCore import *      # Qt threads, ...
-from PyQt5.QtGui import *       # GUI Elements
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton,
+                             QVBoxLayout, QWidget)
+
 try:
     from picamera2 import Picamera2
     from picamera2.previews.qt import QGlPicamera2
