@@ -71,14 +71,14 @@ class RPiCamera2:
 
     # Capture Image
     def capture_image(self, filename="image.jpg", timestamp=True):
-    
         print("timestamp")
         if timestamp:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"{timestamp}_{filename}"
+
         print("capturing")
         self.camera.switch_mode_and_capture_file(self.capture_config, filename)
-        
+
         print(f"Image saved as {filename}.")
     
     # Capture Video - start and end
