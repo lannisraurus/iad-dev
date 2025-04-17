@@ -95,6 +95,5 @@ class RPiCamera2:
     # Close preview
     def close(self):
         self.preview = False
-        self.camera.stop_preview()
         self.camera.close()
         return "Camera resources released."
