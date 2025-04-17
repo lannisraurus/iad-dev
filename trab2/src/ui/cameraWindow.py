@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import *   # GUI windows
 from PyQt5.QtCore import *      # Qt threads, ...
 from PyQt5.QtGui import *       # GUI Elements
 import time
+from datetime import datetime
 
 try:
     from picamera2 import Picamera2
@@ -76,6 +77,7 @@ class cameraWindow(QWidget):
 
         self.cam.start()
 
+        
     def post_callback(self, request):
         self.metadataLabel.setText(''.join(f"{k}: {v}\n" for k, v in request.get_metadata().items()))
 
@@ -91,8 +93,10 @@ class cameraWindow(QWidget):
         time.sleep(1)
         print("changed")
         self.cam.start()
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = "img.jpg"
 
-        self.cam.capture_file("test.jpg", signal_function=self.qpicamera2.signal_done)
+        self.cam.capture_file(f"{timestamp}_{filename}", signal_function=self.qpicamera2.signal_done)
         time.sleep(expTime/1e6+0.5)
         self.cam.set_controls({"AeEnable": True})
 
