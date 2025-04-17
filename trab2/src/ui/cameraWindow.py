@@ -68,14 +68,14 @@ class cameraWindow(QWidget):
         cfg = self.cam.create_still_configuration()
         self.cam.stop()
         self.cam.configure(cfg)
-        print(self.exposureSlider.value())
-        self.cam.set_controls({"ExposureTime": self.exposureSlider.value(), "AeEnable": False})
+        expTime = self.exposureSlider.value()
+        self.cam.set_controls({"ExposureTime": expTime, "AeEnable": False})
         time.sleep(1)
         print("changed")
         self.cam.start()
 
         self.cam.capture_file("test.jpg", signal_function=self.qpicamera2.signal_done)
-        
+        time.sleep(expTime/1e6+0.5)
         self.cam.set_controls({"AeEnable": True})
 
 
