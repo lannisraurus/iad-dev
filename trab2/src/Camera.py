@@ -20,6 +20,8 @@ class RPiCamera2:
 
     # Constructor
     def __init__(self, resolution=(1024, 768), framerate=30, autoBalance=False):
+
+        self.preview = False
         
         try:
             self.camera = Picamera2()
@@ -53,9 +55,10 @@ class RPiCamera2:
 
     # Preview Window
     def openPreview(self):
+        self.preview = True
         try:
             self.camera.configure(self.preview_config)
-            self.camera.start_preview(Preview.QTGL)
+            #self.camera.start_preview(Preview.QTGL)
             self.camera.start()
             return "Preview started."
         except Exception as e:
@@ -91,6 +94,7 @@ class RPiCamera2:
 
     # Close preview
     def close(self):
+        self.preview = False
         self.camera.stop_preview()
         self.camera.close()
         return "Camera resources released."

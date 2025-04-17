@@ -24,6 +24,7 @@ from src.ui.locationConfigWindow import locationConfigWindow    # Configuration 
 from src.ui.graphWindow import graphWindow                  # For data visualization
 from src.utils.commandThread import CommandThread           # For multithreading routines
 from src.Camera import RPiCamera2
+from src.ui.cameraWindow import cameraWindow
 
 ##################### Main Programme Class
 class mainWindow(QWidget):
@@ -347,7 +348,7 @@ class mainWindow(QWidget):
         self.updateAltAzLabel(self.stepperController.getCoords())
 
         # Camera
-        self.camera = None
+        self.cameraWindow = cameraWindow()
         
 
 
@@ -847,11 +848,12 @@ class mainWindow(QWidget):
 
     ######################### ALIGNMENT AND TRACKING METHODS
     def cameraStart(self):
-        if not self.camera:
-            self.camera = RPiCamera2()
-            self.camera.openPreview()
+        if not self.cameraWindow.isVisbile():
+            self.cameraWindow.camera_on()
+            self.cameraWindow.show()
+            self.cameraWindow.activateWindow()
             self.logText(">>> Starting Camera Thread.\n\n")
         else:
             self.logText(">>> Terminating Camera Thread.\n\n")
-            self.camera.close()
-            self.camera = None
+            self.cameraWindow.camera_off()
+            self.cameraWindow.close()

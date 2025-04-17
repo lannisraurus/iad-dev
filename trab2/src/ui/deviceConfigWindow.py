@@ -2,7 +2,7 @@
 Duarte Tavares, João Camacho, Jorge Costa, Margarida Saraiva
 IST, 2025 - IAD
 
-This file contains a settings window for steppers.
+This file contains a settings window. TEMPLATE.
 
 """
 ##################### Imports
