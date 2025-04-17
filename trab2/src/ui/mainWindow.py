@@ -349,7 +349,7 @@ class mainWindow(QWidget):
 
         # Camera
         self.cameraWindow = cameraWindow()
-        
+        self.cameraWindow.camera_on()
 
 
 
@@ -367,6 +367,8 @@ class mainWindow(QWidget):
         self.deviceConfigWindow.close()
         self.othersConfigWindow.close()
         self.locationConfigWindow.close()
+        self.cameraWindow.close()
+        self.cameraWindow.camera_off()
         # Close running Threads
         self.stepperUpRelease()
         self.stepperDownRelease()
@@ -849,11 +851,8 @@ class mainWindow(QWidget):
     ######################### ALIGNMENT AND TRACKING METHODS
     def cameraStart(self):
         if not self.cameraWindow.isVisible():
-            self.cameraWindow.camera_on()
             self.cameraWindow.show()
             self.cameraWindow.activateWindow()
-            self.logText(">>> Starting Camera Thread.\n\n")
         else:
-            self.logText(">>> Terminating Camera Thread.\n\n")
-            self.cameraWindow.camera_off()
+            #self.cameraWindow.camera_off()
             self.cameraWindow.close()
