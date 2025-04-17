@@ -408,9 +408,10 @@ class mainWindow(QWidget):
     
     # Load Stepper Settings onto StepperController object
     def updateStepperController(self):
-        del self.stepperController
+        self.tracker.motors = None
         self.stepperController = StepperController(self.stepperConfigWindow.getSettings(), self)
-    
+        self.tracker.motors = self.stepperController
+
     # Update Az and Alt labels
     def updateAltAzLabel(self, sent_data):
         if not (type(sent_data[0]) == str and type(sent_data[1]) == str):
