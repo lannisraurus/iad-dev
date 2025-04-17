@@ -214,7 +214,7 @@ class StepperController():
         alt=self.degToSteps(altDeg)
         direction = (1 if self.alt < alt else -1)
         for i in range(self.alt,alt, direction):
-            if (not (self.alt + direction > self.maxAlt or self.alt + direction < self.minAalt)) or (not self.angleLock):
+            if (not (self.alt + direction > self.maxAlt or self.alt + direction < self.minAlt)) or (not self.angleLock):
                 self.stepAlt((self.stepsInSequence-i)%self.stepsInSequence)
             time.sleep(delay)
         self.alt=alt
