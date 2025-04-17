@@ -367,7 +367,6 @@ class mainWindow(QWidget):
         self.othersConfigWindow.close()
         self.locationConfigWindow.close()
         self.cameraWindow.close()
-        self.cameraWindow.camera_off()
         # Close running Threads
         self.stepperUpRelease()
         self.stepperDownRelease()
