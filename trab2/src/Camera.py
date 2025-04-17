@@ -77,7 +77,7 @@ class RPiCamera2:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"{timestamp}_{filename}"
         print("capturing")
-        self.camera.switch_mode_and_capture_file(filename)
+        self.camera.switch_mode_and_capture_file(self.capture_config, filename)
         print("configuring to preview")
         self.camera.stop()
         self.camera.configure(self.preview_config)
