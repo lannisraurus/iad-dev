@@ -413,6 +413,7 @@ class mainWindow(QWidget):
         if not self.tracker is None:
             exist = True
             self.tracker.motors = None
+        self.stepperController = None
         self.stepperController = StepperController(self.stepperConfigWindow.getSettings(), self)
         if exist:
             self.tracker.motors = self.stepperController
