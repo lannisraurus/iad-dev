@@ -202,7 +202,7 @@ class StepperController():
             time.sleep(delay)
             return
         
-        direction = 1 if self.az < az else -1
+        direction = (1 if self.az < az else -1)
         for i in range(self.az,az, direction):
             if (not (self.az + direction > self.maxAz or self.az + direction < self.minAz)) or (not self.angleLock):
                 self.stepAz((self.stepsInSequence-i)%self.stepsInSequence)
@@ -216,14 +216,14 @@ class StepperController():
             return
         
         alt=self.degToSteps(altDeg)
-        if alt or alt<self.minalt and self.angleLock:
+        if alt or alt<self.minAlt and self.angleLock:
             time.sleep(delay)
             return
         
-        direction = 1 if self.alt < alt else -1
+        direction = (1 if self.alt < alt else -1)
         for i in range(self.alt,alt, direction):
-            if (not (self.alt + direction > self.maxalt or self.alt + direction < self.minalt)) or (not self.angleLock):
-                self.stepalt((self.stepsInSequence-i)%self.stepsInSequence)
+            if (not (self.alt + direction > self.maxAlt or self.alt + direction < self.minAalt)) or (not self.angleLock):
+                self.stepAlt((self.stepsInSequence-i)%self.stepsInSequence)
             time.sleep(delay)
         self.alt=alt
 
