@@ -8,7 +8,7 @@ This file contains the camera image.
 
 ##################### Imports
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton,
+from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSpinBox, QPushButton,
                              QVBoxLayout, QWidget)
 
 try:
@@ -23,24 +23,32 @@ class cameraWindow(QWidget):
 
     ############################################### Constructor
     def __init__(self):
-        # Intializing general stuff
         super().__init__()
         self.cam = Picamera2()
         self.cam.post_callback = self.post_callback
         self.cam.configure(self.cam.create_preview_configuration(main={"size": (1024, 768)}))
 
         self.qpicamera2 = QGlPicamera2(self.cam, width=1024, height=768)
-        self.captureButton = QPushButton("Exposure capture")
-        self.metadataLabel = QLabel()
         self.qpicamera2.done_signal.connect(self.capture_done)
+
+        self.captureButton = QPushButton("Exposure capture")
         self.captureButton.clicked.connect(self.do_capture)
+        
+        self.metadataLabel = QLabel()
         self.metadataLabel.setFixedWidth(400)
         self.metadataLabel.setAlignment(QtCore.Qt.AlignTop)
 
+        self.exposureLabel = QLabel("Exposure time (microseconds):")
+        self.exposureSlider = QSpinBox()
+        self.exposureSlider.setMaximum(11760000)
+        self.exposureSlider.setMinimum(1)
+        
         layout_h = QHBoxLayout()
         layout_v = QVBoxLayout()
         layout_v.addWidget(self.metadataLabel)
         layout_v.addWidget(self.captureButton)
+        layout_v.addWidget(self.exposureLabel)
+        layout_v.addWidget(self.exposureSlider)
         layout_h.addWidget(self.qpicamera2, 80)
         layout_h.addLayout(layout_v, 20)
         self.setWindowTitle('Astrolocator - Camera')
@@ -57,6 +65,7 @@ class cameraWindow(QWidget):
     def do_capture(self):
         self.captureButton.setEnabled(False)
         cfg = self.cam.create_still_configuration()
+        self.cam.controls.ExposureTime = self.exposureTimeSlider.value()
         self.cam.switch_mode_and_capture_file(cfg, "test.jpg", signal_function=self.qpicamera2.signal_done)
 
 
