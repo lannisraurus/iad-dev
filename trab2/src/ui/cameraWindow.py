@@ -10,6 +10,7 @@ This file contains the camera image.
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSpinBox, QPushButton,
                              QVBoxLayout, QWidget)
+import time
 
 try:
     from picamera2 import Picamera2
@@ -65,16 +66,25 @@ class cameraWindow(QWidget):
     def do_capture(self):
         self.captureButton.setEnabled(False)
         cfg = self.cam.create_still_configuration()
+        self.cam.stop()
+        self.cam.configure(cfg)
         print(self.exposureSlider.value())
         self.cam.set_controls({"ExposureTime": self.exposureSlider.value(), "AeEnable": False})
+        time.sleep(1)
         print("changed")
-        self.cam.switch_mode_and_capture_file(cfg, "test.jpg", signal_function=self.qpicamera2.signal_done)
+        self.cam.start()
+
+        self.cam.capture_file("test.jpg", signal_function=self.qpicamera2.signal_done)
+        
         self.cam.set_controls({"AeEnable": True})
 
 
 
     def capture_done(self,job):
         self.cam.wait(job)
+        self.cam.stop()
+        self.cam.configure(self.cam.create_preview_configuration(main={"size": (1024, 768)}))
+        self.cam.start()
         self.captureButton.setEnabled(True)
 
 
