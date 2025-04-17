@@ -13,6 +13,7 @@ from astroquery.simbad import Simbad
 from astroquery.jplhorizons import Horizons
 
 import requests
+import os
 
 import astropy
 from astropy import coordinates as coord
@@ -74,7 +75,11 @@ class Astrolocator():
     
     def queryN2YO(self, identifier):
         # Your N2YO API key
-        api_key = 'L9NPLA-JM7B6C-DG46RL-5GE8'  # Replace with your actual API key
+        api_key = os.getenv("N2YO_API_KEY")
+        if not api_key:
+            raise ValueError("Missing N2YO API key in environment variable N2YO_API_KEY")
+        
+        # export N2YO_API_KEY="L9NPLA-JM7B6C-DG46RL-5GE8"
 
         # The NORAD satellite ID
         sat_id = identifier  
