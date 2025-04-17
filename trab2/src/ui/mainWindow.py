@@ -848,7 +848,7 @@ class mainWindow(QWidget):
 
     ######################### ALIGNMENT AND TRACKING METHODS
     def cameraStart(self):
-        if not self.cameraWindow.isVisbile():
+        if not self.cameraWindow.isVisible():
             self.cameraWindow.camera_on()
             self.cameraWindow.show()
             self.cameraWindow.activateWindow()
