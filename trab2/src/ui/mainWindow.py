@@ -704,8 +704,8 @@ class mainWindow(QWidget):
             for obj in responses:
                 simbadQuery = astro.querySimbad(obj)
                 horizonsQuery = astro.queryHorizons(obj)
-                print(obj,'\n',simbadQuery,'\n',horizonsQuery) # DEBUGGING
-                print(simbadQuery is None)
+                #print(obj,'\n',simbadQuery,'\n',horizonsQuery) # DEBUGGING
+                #print(simbadQuery is None)
                 # No results found
                 if (simbadQuery is None) and (horizonsQuery is None):
                     self.logText(f"> ERROR: {obj} not recognised / ambiguous, please type either exit or valid identifier, preferrably one of the recommended. Note: for planets and satellites, use the ID.\n")
@@ -736,7 +736,7 @@ class mainWindow(QWidget):
             name = self.alignList[-self.itemsInAlign]
             queryStars = astro.querySimbad(name)
             queryPlanets = astro.queryHorizons(name)
-            print(name, queryStars, queryPlanets)
+            #print(name, queryStars, queryPlanets)
             if queryStars:
                 self.tracker.addAlignmentPoint( astro.getAzAlt( queryStars,astro.getTime() ) , name)
             elif queryPlanets:
