@@ -1,5 +1,5 @@
 
-# IAD - Project I (User Guide)
+# IAD - Project I - Arduino Interface
 
 **Duarte Tavares [105920], João Camacho [106224], Jorge Costa [106891], Margarida Saraiva [106994]**  
 **2025**
