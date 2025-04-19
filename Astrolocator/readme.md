@@ -26,9 +26,15 @@ Tracking is handled using two Python libraries:
 - `astroquery` [12] to retrieve planetary positions from JPL Horizons and star data from Simbad,
 - `N2YO API` [13] to get satellite positions.
 
-To align the system with the angular map of celestial object positions, the user selects an alignment option (1-point or N-points, N ≥ 3). The program requires system coordinates (latitude, longitude, altitude) and suggests the 10 brightest visible celestial bodies for alignment. Users may select another object if necessary (e.g., due to atmospheric conditions). After manual selection using movement controls, the system is aligned and ready for tracking (it's recommended to switch from the camera to the laser accessory).
+To align the system with the angular map of celestial object positions, the user selects an alignment option (1-point or N-points, N ≥ 3, the latter using astroalign for calculations). The program requires system coordinates (latitude, longitude, altitude) and suggests the 10 brightest visible celestial bodies for alignment. Users may select another object if necessary (e.g., due to atmospheric conditions). After manual selection using movement controls, the system is aligned and ready for tracking (it's recommended to switch from the camera to the laser accessory).
 
 There’s also a routine that limits the apparatus’ angles to prevent cable breakage or mechanical constraints.
+
+![Structure](figs/structure2.jpg)
+
+![Structure](figs/structure4.jpg)
+
+![Structure](figs/structure5.jpg)
 
 ---
 
@@ -41,6 +47,10 @@ The antenna is connected via an improvised coaxial cable to an RTL-SDR module [1
 For simplicity, the RTL-SDR was connected to another computer using open-source software [16], freeing up the Raspberry Pi’s resources and making analysis faster (since programming signal conversion for each satellite would be time-consuming).
 
 Files are often large (approx. 8 GB for 4 minutes), so it is more practical to perform acquisition on the same laptop that controls the Raspberry Pi remotely.
+
+![Data](figs/structure7.jpg)
+
+![Data](figs/data.jpg)
 
 ---
 
