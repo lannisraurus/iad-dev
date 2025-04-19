@@ -24,4 +24,6 @@ It consists of a GUI application for a RPi, which is used to control various per
 
 The programme provides a user log and input console, manual stepper movement controls, an alignment feature (which allows for 1 point or N>3 point alignment, providing objects from astronomy databases like Simbad and Horizons for the calibration), a stepper angle limiter (to account for any physical impediments), a tracking feature (which allows for the tracking of objects in Simbad, Horizons or N2YO - note for N2YO: must set API key environment variable to use!), a camera window (allowing for the capture of pictures with configurable exposition), and various settings windows to configure the stepper, the laser and location settings.
 
+The application is inside the 'Astrolocator' folder.
+
 ![Astrolocator](astrolocator_example.png)
