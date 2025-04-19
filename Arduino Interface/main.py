@@ -26,6 +26,10 @@ from PyQt5.QtWidgets import QApplication # Qt App
 ##################### User defined classes/functions
 from src.mainWindow import mainWindow
 
+##################### Stop __pycache__ from generating
+import sys
+sys.dont_write_bytecode = True
+
 ##################### Main Programme Function
 
 if __name__ == '__main__':
