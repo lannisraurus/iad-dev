@@ -1,3 +1,61 @@
+step 0 1
+change_port COM14
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+step 0 1
+change_port COM14
 save_graph
 discharge_curve -f
 discharge_curve -
