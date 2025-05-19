@@ -25,10 +25,14 @@ const boolean xStepperSequencesFull[xStepperPinSeqsFull][xStepperPinN] = { {1, 0
 const int yStepperPinSeqsFull = 4;
 const boolean yStepperSequencesFull[yStepperPinSeqsFull][yStepperPinN] = { {1, 0, 0, 1}, {1, 1, 0, 0},  {0, 1, 1, 0}, {0, 0, 1, 1} };
 
-
-
 int xPivot = 0;
 int yPivot = 0;
+
+// STRESS UNLOADING VAR
+long startTime = 0;
+long dt = 0;
+long countTime = 0;
+const long timeoutTime = 500;
 
 // SETUP
 void setup() {
@@ -53,16 +57,21 @@ void motorStep(int* pivot, int seqN, int pinN, const int* pins, const boolean* s
 // MAIN LOOP
 void loop() {
   
+  // Start time
+  startTime = millis();
+
 	if(Serial.available() > 0) { // Checks for new commands in serial communication
     
     // Read serial
     currCmd = Serial.readStringUntil('\n');
     currCmd.trim();
-    
+
+    // Timeoutting
+    countTime = 0;
+
 		// Run current command
 		if(currCmd == "") 
     { 
-
     // Do 1 stepper step
     } else if (currCmd.indexOf("step") == 0) {
 
@@ -72,8 +81,8 @@ void loop() {
       int space2 = args.indexOf(' ', space1 + 1);
 
       boolean motor = args.substring(0, space1).toInt();
-      boolean stepping = args.substring(space1 + 1, space2).toInt();
-      boolean direction = args.substring(space2 + 1).toInt();
+      boolean direction = args.substring(space1 + 1, space2).toInt();
+      boolean stepping = args.substring(space2 + 1).toInt();
 
       int steppedX = 0;
       int steppedY = 0;
@@ -105,7 +114,7 @@ void loop() {
 
     } else if (currCmd == "request_commands") { 
       // Print out about all external commands handled by Arduino, split by |
-      Serial.print("request_commands: Gather commands from the arduino board.");
+      Serial.print("request_commands: Gather commands from the board.");
       Serial.println("|step [motor] [direction] [regime] - [motor]: 0 for X and 1 for Y; [direction]: 0 for backward and 1 for forward; [regime] 0 for half and 1 for full stepping.");
       
 		} else {
@@ -115,5 +124,26 @@ void loop() {
 
    currCmd="";
 
-	}
+
+
+
+	} else {
+    // dt
+    dt = millis() - startTime;
+   
+    // timeoutting
+    countTime += dt;
+    if (countTime > timeoutTime){
+      countTime = 0;
+      for (int i = 0; i < xStepperPinN; i++) {
+        digitalWrite(xStepperPins[i], 0);
+      }
+      for (int i = 0; i < yStepperPinN; i++) {
+        digitalWrite(yStepperPins[i], 0);
+      }
+    }
+
+  }
+
+
 }
